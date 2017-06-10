@@ -1,13 +1,21 @@
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 import { COMMANDS, Commands } from './commands';
 import { ICommand } from './i';
+import TYPES from '../di/types';
 
 @injectable()
 export class BaseCommand<TOpts, TArgs> implements ICommand<TOpts, TArgs> {
     public tempDir: string = null;
     public type: Commands;
 
+    constructor(
+        @inject(TYPES.Process) protected process: NodeJS.Process
+    ) {}
+
     public run(opts: TOpts, args: TArgs): void {
-        throw new Error("Unimplemented in base class.");
+        if (! this.tempDir || ! this.tempDir.trim()) {
+            console.log("You have not set a template directory. Please run setdir, first.");
+            this.process.exit(1);
+        }
     }
 }

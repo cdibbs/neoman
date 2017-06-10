@@ -9,13 +9,14 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
     type: Commands = COMMANDS.NewProject;
 
     constructor(
-        @inject(TYPES.Process) private process: NodeJS.Process,
         @inject(TYPES.Path) private path: IPath
     ) {
-       super(); 
+       super(process); 
     }
 
     run(opts: INewCmdOpts, args: INewCmdArgs): void {
+        super.run(opts, args);
+
         let cwd = this.process.cwd();
         let cwdBottom = cwd.split(this.path.sep).pop();
         let optsName = opts.name.join(' ').trim();

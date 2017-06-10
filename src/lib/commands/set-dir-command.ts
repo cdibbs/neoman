@@ -13,7 +13,7 @@ export class SetDirCommand extends BaseCommand<any, any> {
         @inject(TYPES.SettingsProvider) private settings: ISettingsProvider,
         @inject(TYPES.FS) private fs: IFileSystem
     ) {
-        super();
+        super(process);
     }
 
     run(opts: any, args: any) {

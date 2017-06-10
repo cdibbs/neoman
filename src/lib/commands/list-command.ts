@@ -14,10 +14,12 @@ export class ListCommand extends BaseCommand<any, any> {
         @inject(TYPES.Path) private path: IPath,
         @inject(TYPES.Glob) private glob: IGlob
     ) {
-        super();
+        super(process);
     }
 
     run(opts: any, args: any): void {
+        super.run(opts, args);
+
         console.log("Listing templates in your template directory.");
         console.log(`Using: ${this.tempDir}\n`);
 
