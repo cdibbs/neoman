@@ -5,10 +5,10 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 import TYPES from "./types";
-import { Globber, Kernel, SettingsProvider } from "./entities";
-import { CommandFactory, SetDirCommand, NewCommand, ListCommand } from '../commands';
+import { Globber, Kernel, SettingsProvider, TemplateManager } from "./entities";
+import { CommandFactory, SetDirCommand, NewCommand, ListCommand, InfoCommand } from '../commands';
 import { ICommand, ICommandFactory } from "../commands/i";
-import { IGlobber, IKernel, IPackage, ISettingsProvider, IPath, IFileSystem, IGlob } from '../i';
+import { IGlobber, IKernel, IPackage, ISettingsProvider, IPath, IFileSystem, IGlob, IUserMessager, ITemplateManager } from '../i';
 
 let json = require("../../package.json");
 
@@ -18,11 +18,15 @@ container.bind<IKernel>(TYPES.Kernel).to(Kernel);
 container.bind<NodeJS.Process>(TYPES.Process).toDynamicValue(() => process);
 container.bind<IPackage>(TYPES.PackageJson).toConstantValue(json);
 container.bind<ISettingsProvider>(TYPES.SettingsProvider).to(SettingsProvider);
+container.bind<IUserMessager>(TYPES.UserMessager).toConstantValue(console);
+container.bind<ITemplateManager>(TYPES.TemplateManager).to(TemplateManager);
 
 container.bind<ICommand<any, any>>(TYPES.Commands).to(SetDirCommand);
 container.bind<ICommand<any, any>>(TYPES.Commands).to(NewCommand);
 container.bind<ICommand<any, any>>(TYPES.Commands).to(ListCommand);
+container.bind<ICommand<any, any>>(TYPES.Commands).to(InfoCommand);
 container.bind<ICommandFactory>(TYPES.CommandFactory).to(CommandFactory)
+
 container.bind<IPath>(TYPES.Path).toConstantValue(path);
 container.bind<IFileSystem>(TYPES.FS).toConstantValue(fs);
 container.bind<IGlob>(TYPES.Glob).toConstantValue(glob);

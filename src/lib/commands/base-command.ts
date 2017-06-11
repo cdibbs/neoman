@@ -1,6 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { COMMANDS, Commands } from './commands';
 import { ICommand } from './i';
+import { IUserMessager } from '../i';
 import TYPES from '../di/types';
 
 @injectable()
@@ -9,6 +10,7 @@ export class BaseCommand<TOpts, TArgs> implements ICommand<TOpts, TArgs> {
     public type: Commands;
 
     constructor(
+        @inject(TYPES.UserMessager) protected msg: IUserMessager,
         @inject(TYPES.Process) protected process: NodeJS.Process
     ) {}
 

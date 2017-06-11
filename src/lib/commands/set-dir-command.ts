@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { Commands, COMMANDS } from './commands';
 import { BaseCommand } from './base-command';
-import { ISettingsProvider, IFileSystem } from '../i';
+import { ISettingsProvider, IFileSystem, IUserMessager } from '../i';
 import KEYS from '../settings-keys';
 import TYPES from '../di/types';
 
@@ -10,26 +10,28 @@ export class SetDirCommand extends BaseCommand<any, any> {
     type: Commands = COMMANDS.SetDir;
 
     constructor(
+        @inject(TYPES.UserMessager) protected msg: IUserMessager,
+        @inject(TYPES.Process) protected process: NodeJS.Process,
         @inject(TYPES.SettingsProvider) private settings: ISettingsProvider,
         @inject(TYPES.FS) private fs: IFileSystem
     ) {
-        super(process);
+        super(msg, process);
     }
 
     run(opts: any, args: any) {
-        console.log(`Setting directory to ${args.directory}`);
+        this.msg.log(`Setting directory to ${args.directory}`);
 
         let stats = null;
         try {
             stats = this.fs.statSync(args.directory);
         } catch(ex) {
-            console.log(ex);
-            console.warn(`Warning: directory '${args.directory}' does not exist`);
+            this.msg.log(ex);
+            this.msg.warn(`Warning: directory '${args.directory}' does not exist`);
             return;
         }
 
         if (! stats.isDirectory()) {
-            console.warn(`Warning: Not a directory: '${args.directory}.`);
+            this.msg.warn(`Warning: Not a directory: '${args.directory}.`);
         }
         
         this.settings.set(KEYS.tempDirKey, args.directory);

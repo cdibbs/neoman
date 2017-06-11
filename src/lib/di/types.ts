@@ -8,7 +8,9 @@ let TYPES = {
     CommandFactory: Symbol("CommmandFactory"),
     Path: Symbol("Path"),
     FS: Symbol("FileSystem"),
-    Glob: Symbol("Glob")
+    Glob: Symbol("Glob"),
+    UserMessager: Symbol("UserMessager"),
+    TemplateManager: Symbol("TemplateManager")
 }
 
 export default TYPES;

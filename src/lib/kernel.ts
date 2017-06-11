@@ -2,10 +2,10 @@ import { injectable, inject } from 'inversify';
 import * as commandpost from 'commandpost';
 
 import { COMMANDS } from './commands';
-import { ICommandFactory } from './commands/i';
+import { ICommandFactory, INewCmdOpts, INewCmdArgs, IInfoCmdArgs, IInfoCmdOpts } from './commands/i';
 import TYPES from './di/types';
 import KEYS from './settings-keys';
-import { IGlobber, INewCmdOpts, INewCmdArgs, ISettingsProvider, IPackage } from './i';
+import { IGlobber, ISettingsProvider, IPackage, IUserMessager } from './i';
 
 /**
  * Contains the core code to run the application. Only DI runs before this.
@@ -16,6 +16,7 @@ export class Kernel {
 
     constructor(
         @inject(TYPES.Globber) private globber: IGlobber,
+        @inject(TYPES.UserMessager) private msg: IUserMessager,
         @inject(TYPES.Process) private process: NodeJS.Process,
         @inject(TYPES.SettingsProvider) private settings: ISettingsProvider,
         @inject(TYPES.PackageJson) private pkg: IPackage,
@@ -51,20 +52,26 @@ export class Kernel {
                 .description("Set your template source base directory. All first-level subdirectories will be scanned for templates.")
                 .action(setdirCmd.run.bind(setdirCmd));
 
+            let infoCmd = this.commandFactory.build(COMMANDS.Info, this.tempDir);
+            let info = root
+                .subCommand<IInfoCmdOpts, IInfoCmdArgs>("info <tmplId>")
+                .description("Get detailed information for a given template identifier.")
+                .action(infoCmd.run.bind(infoCmd));
+
 
             commandpost
                 .exec(root, this.process.argv)
                 .catch(err => {
                     if (err instanceof Error) {
-                        console.error(err.stack);
+                        this.msg.error(err.stack);
                     } else {
-                        console.error(err.message);
+                        this.msg.error(err.message);
                     }
                     this.process.exit(1);
                 });
         } catch (ex) {
-            console.error("There was an error.");
-            console.error(ex);
+            this.msg.error("There was an error.");
+            this.msg.error(ex);
         }
     }
 }
