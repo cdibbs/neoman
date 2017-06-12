@@ -1,6 +1,4 @@
-export type UnionKeyToValue<U extends string> = {
-  [K in U]: K
-};
+import { UnionKeyToValue } from '../union-key-to-value';
 
 export type Commands = "NewProject" | "ListTemplates" | "SetDir" | "Info";
 export const COMMANDS: UnionKeyToValue<Commands> = {

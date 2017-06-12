@@ -45,6 +45,7 @@ export class TemplateManager implements ITemplateManager {
             let fullPath = this.path.join(this.tmplDir, file);
             try {
                 let tmpl = JSON.parse(this.fs.readFileSync(fullPath, 'utf8'));
+                tmpl.__tmplPath = this.path.join(this.path.dirname(fullPath), '..');
                 emitter.emit("match", tmpl);
                 //this.msg.log(`\t${tmpl.identity} - ${tmpl.name}`);
             } catch (ex) {

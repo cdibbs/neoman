@@ -3,6 +3,8 @@ import { ITemplateConfigurations } from './i-template-configurations';
 import { ITemplateReplacements } from './i-template-replacements';
 
 export interface ITemplate {
+    __tmplPath: string;
+
     identity: string;
     
     name: string;

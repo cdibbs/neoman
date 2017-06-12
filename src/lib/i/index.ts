@@ -11,3 +11,4 @@ export * from './i-template-replacements';
 export * from './i-template-inputs';
 export * from './i-template-configurations';
 export * from './i-template-manager';
+export * from './i-template-file';

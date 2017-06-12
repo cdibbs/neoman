@@ -37,7 +37,10 @@ export class Kernel {
                 .description("Generate a project from a Neoman template.")
                 .option("-n, --name <name>", "The project name to use. Default: current directory name.")
                 .option("-d, --defaults", "No prompting. Use template defaults for options not specified on command line.")
+                .option("-p, --path <path>", "Destination path in which to create project. Defaults to current directory.")
                 .option("-f, --force", "Force things you probably shouldn't force. Don't do it, blah blah...")
+                .option("-v, --verbosity <verbosity>", "The verbosity of neoman's output. Can be normal, verbose, debug.")
+                .option("-x, --show-excluded", "Show files excluded by template configuration.")
                 .action(newCmd.run.bind(newCmd));
 
             let listCmd = this.commandFactory.build(COMMANDS.ListTemplates, this.tempDir);
