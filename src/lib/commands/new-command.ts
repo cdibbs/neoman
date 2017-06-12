@@ -32,7 +32,7 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
         let cwd = this.process.cwd(), cdname = cwd.split(this.path.sep).pop();
         let optsName = opts.name.join(' ').trim();
         let name = optsName || cdname;
-        let path = opts.path || cwd;        
+        let path = opts.path[0] || cwd;        
         this.msg.log(`Generating project ${name} from template ${args.template}...`);
         this.msg.log(`Copying into ${path}`);
         this.tmplMgr.info(args.template).then((tmpl: ITemplate) => this.runTemplate.bind(this)(tmpl, path, opts));
@@ -45,12 +45,14 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
             if (opts.verbosity[0] === VERBOSITY.debug)
                 console.log("include", tmplFile.absolutePath);
             
-            let destPath = this.path.join(path, tmplFile.relativePath);
-            this.msg.log(`Copying from ${tmplFile.absolutePath} to ${destPath}...`);
+            let destFile = this.path.join(path, tmplFile.relativePath);
+            let destPath = this.path.dirname(destFile);
+            this.msg.log(`Copying from ${tmplFile.absolutePath} to ${destFile}...`);
             let content = fse.readFileSync(tmplFile.absolutePath);
-            fse.ensureDirSync(this.path.dirname(destPath));
-            fse.writeFileSync(destPath, content);
-            //fse.copySync(tmplFile.absolutePath, path);
+            console.log(destPath);
+
+            fse.ensureDirSync(destPath);
+            fse.writeFileSync(destFile, content);
         });
 
         // directories not explicitly matched or excluded.
