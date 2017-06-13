@@ -1,7 +1,8 @@
 import { injectable, inject } from 'inversify';
 import { Commands, COMMANDS } from './commands';
 import { BaseCommand } from './base-command';
-import { IPath, IUserMessager, ITemplateManager, ITemplate } from '../i';
+import { IPath, IUserMessager, ITemplateManager } from '../i';
+import { ITemplate } from '../i/template';
 import { IInfoCmdArgs, IInfoCmdOpts } from './i';
 import TYPES from '../di/types';
 

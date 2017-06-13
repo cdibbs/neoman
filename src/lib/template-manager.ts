@@ -4,7 +4,8 @@ import { EventEmitter, TemplateSearchEmitterType } from './emitters';
 import { COMMANDS, Commands } from './commands';
 import TYPES from './di/types';
 import KEYS from './settings-keys';
-import { IFileSystem, IGlob, IPath, IUserMessager, ITemplate, ITemplateManager, ISettingsProvider } from './i';
+import { IFileSystem, IGlob, IPath, IUserMessager, ITemplateManager, ISettingsProvider } from './i';
+import { ITemplate } from './i/template';
 
 @injectable()
 export class TemplateManager implements ITemplateManager {

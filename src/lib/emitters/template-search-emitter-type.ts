@@ -1,4 +1,5 @@
-import { ITemplate } from '../i';
+import { ITemplate } from '../i/template';
+import { ITemplateFile } from '../i';
 
 export type TemplateSearchEmitterType = {
     "error": Error,

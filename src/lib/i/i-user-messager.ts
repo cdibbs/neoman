@@ -1,6 +1,6 @@
 export interface IUserMessager {
-    log(message?: string, ...args: string[]): void;
-    debug(message?: string, ...args: string[]): void;
-    warn(message?: string, ...args: string[]): void;
-    error(message?: string, ...args: string[]): void;
+    log(message?: any, ...args: any[]): void;
+    debug(message?: any, ...args: any[]): void;
+    warn(message?: any, ...args: any[]): void;
+    error(message?: any, ...args: any[]): void;
 }

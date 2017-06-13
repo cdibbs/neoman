@@ -6,8 +6,6 @@ export * from './i-path';
 export * from './i-filesystem';
 export * from './i-glob';
 export * from './i-user-messager';
-export * from './i-template';
-export * from './i-template-replacements';
 export * from './i-template-inputs';
 export * from './i-template-configurations';
 export * from './i-template-manager';

@@ -61,7 +61,6 @@ export class Kernel {
                 .description("Get detailed information for a given template identifier.")
                 .action(infoCmd.run.bind(infoCmd));
 
-
             commandpost
                 .exec(root, this.process.argv)
                 .catch(err => {

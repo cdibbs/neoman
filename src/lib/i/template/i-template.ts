@@ -1,6 +1,6 @@
-import { ITemplateInputs } from './i-template-inputs';
-import { ITemplateConfigurations } from './i-template-configurations';
-import { ITemplateReplacements } from './i-template-replacements';
+import { ITemplateInputs } from '../i-template-inputs';
+import { ITemplateConfigurations } from '../i-template-configurations';
+import { ReplacementsDefinition } from './replacements-definition';
 
 export interface ITemplate {
     __tmplPath: string;
@@ -25,7 +25,7 @@ export interface ITemplate {
 
     inputs?: ITemplateInputs;
 
-    replace?: ITemplateReplacements;
+    replace?: ReplacementsDefinition;
 
     files?: string[];
 
