@@ -10,7 +10,10 @@ let TYPES = {
     FS: Symbol("FileSystem"),
     Glob: Symbol("Glob"),
     UserMessager: Symbol("UserMessager"),
-    TemplateManager: Symbol("TemplateManager")
+    TemplateManager: Symbol("TemplateManager"),
+    TemplateRunner: Symbol("TemplateRunner"),
+    FilePatterns: Symbol("FilePatterns"),
+    TransformManager: Symbol("TransformManager")
 }
 
 export default TYPES;

@@ -26,7 +26,7 @@ export class TemplateManager implements ITemplateManager {
         let emitter = new EventEmitter<TemplateSearchEmitterType>();
         emitter.on("match", (tmpl: ITemplate) => { templates.push(tmpl); });
         let g = new this.glob.Glob("*/.template.config/template.json", { cwd: this.tmplDir });
-        g.on("match", (() => { return (file: string) => this.match.bind(this)(file, emitter); })());
+        g.on("match", (() => { return (file: string) => this.templateMatch.bind(this)(file, emitter); })());
         g.on("end", () => emitter.emit('end', templates));
         return emitter;
         //this.msg.log("Listing templates in your template directory.");
@@ -42,7 +42,7 @@ export class TemplateManager implements ITemplateManager {
         });
     }
 
-    private match(file: string, emitter: EventEmitter<TemplateSearchEmitterType>): any {
+    private templateMatch(file: string, emitter: EventEmitter<TemplateSearchEmitterType>): any {
             let fullPath = this.path.join(this.tmplDir, file);
             try {
                 let tmpl = JSON.parse(this.fs.readFileSync(fullPath, 'utf8'));

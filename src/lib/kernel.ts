@@ -29,7 +29,12 @@ export class Kernel {
         try {
             let root = commandpost
                 .create<any, any>("")
-                .version(this.pkg.version, "-v, --version");
+                .version(this.pkg.version, "-v, --version")
+                .description("Manage and run Neoman project templates.")
+                .action((opts, args) => {
+                    this.msg.log("  Manage and run Neoman project templates.\n");
+                    this.msg.log(root.helpText())
+                })
 
             let newCmd = this.commandFactory.build(COMMANDS.NewProject, this.tempDir);
             let newTemp = root
