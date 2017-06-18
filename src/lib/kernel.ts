@@ -15,7 +15,7 @@ export class Kernel {
     private tempDir: string;
 
     constructor(
-        @inject(TYPES.Globber) private globber: IGlobber,
+        //@inject(TYPES.Globber) private globber: IGlobber,
         @inject(TYPES.UserMessager) private msg: IUserMessager,
         @inject(TYPES.Process) private process: NodeJS.Process,
         @inject(TYPES.SettingsProvider) private settings: ISettingsProvider,

@@ -9,14 +9,10 @@ import * as bi from '../i';
 export class TransformManager implements i.ITransformManager{
 
     constructor(
-        @inject(TYPES.TransformManager) private filePatterns: bi.IFilePatterns
+        @inject(TYPES.FilePatterns) private filePatterns: bi.IFilePatterns
     ) {}
 
-    applyTransforms(content: string, replaceDef: ir.IReplacementDefinition): string {
-        throw new Error("Method not implemented.");
-    }
-
-        replaceAllInFile(path: string, content: string, rdef: ir.ReplacementsDefinition): string {
+    applyTransforms(path: string, content: string, rdef: ir.ReplacementsDefinition): string {
         if (rdef instanceof Array) {
             return this.replaceInFile(path, content, <ir.IReplacementDefinition[]>rdef);
         } else if (typeof rdef === "string") { // simple regexp?

@@ -18,11 +18,8 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
 
     constructor(
         @inject(TYPES.UserMessager) protected msg: IUserMessager,
-        @inject(TYPES.Glob) protected Glob: IGlob,
         @inject(TYPES.TemplateManager) protected tmplMgr: ITemplateManager,
-        @inject(TYPES.Process) protected process: NodeJS.Process,
         @inject(TYPES.Path) private path: IPath,
-        @inject(TYPES.FS) private fs: IFileSystem,
         @inject(TYPES.TemplateRunner) private trunner: ITemplateRunner
     ) {
         super(msg, process);
@@ -37,6 +34,8 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
         let path = opts.path[0] || cwd;        
         this.msg.log(`Generating project ${name} from template ${args.template}...`);
         this.msg.log(`Copying and transforming files into ${path}`);
-        this.tmplMgr.info(args.template).then((tmpl: ITemplate) => this.trunner.run.bind(this)(tmpl, path, opts.verbosity[0]));
+        this.tmplMgr.info(args.template)
+            .then(this.trunner.run.bind(this.trunner, path, opts.verbosity[0], opts.showExcluded))
+            .catch(err => console.error(err));
     }
 }

@@ -12,21 +12,16 @@ import * as it from './transformers/i';
 
 @injectable()
 export class TemplateRunner implements i.ITemplateRunner {
-    private tmplDir: string;
 
     constructor(
-        @inject(TYPES.SettingsProvider) protected settings: i.ISettingsProvider,
         @inject(TYPES.UserMessager) protected msg: i.IUserMessager,
-        @inject(TYPES.FS) private fs: i.IFileSystem,
         @inject(TYPES.Path) private path: i.IPath,
-        @inject(TYPES.Glob) private glob: i.IGlob,
         @inject(TYPES.FilePatterns) private patterns: i.IFilePatterns,
         @inject(TYPES.TransformManager) private transformManager: it.ITransformManager
     ) {
-        this.tmplDir = this.settings.get(KEYS.tempDirKey);
     }
 
-    run(tmpl: ITemplate, path: string, verbosity: Verbosity, showExcluded: boolean): void {
+    run(path: string, verbosity: Verbosity, showExcluded: boolean, tmpl: ITemplate): void {
         let results: string[] = [];
         let emitter = new EventEmitter<TemplateFilesEmitterType>();
         emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.replace, verbosity));
@@ -47,7 +42,7 @@ export class TemplateRunner implements i.ITemplateRunner {
         let destPath = this.path.dirname(destFile);
         this.msg.log(`Copying from ${tmplFile.absolutePath} to ${destFile}...`);
         let content = fse.readFileSync(tmplFile.absolutePath).toString("utf8");
-        content = this.transformManager.applyTransforms(content, replaceDef);
+        content = this.transformManager.applyTransforms(path, content, replaceDef);
         //content = this.replaceAllInFile(tmplFile.relativePath, content, replaceDef);
         fse.ensureDirSync(destPath);
         fse.writeFileSync(destFile, content);
@@ -69,32 +64,33 @@ export class TemplateRunner implements i.ITemplateRunner {
 
     getDescendents(baseDir: string, dir: string, emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>, include: string[], ignore: string[]): void {
         try {
-            fse.readdir(dir).then(files => {
-                files.map(file => {
-                    let p = this.path.join(dir, file);
-                    fse.stat(p).then((stat: fse.Stats) => {
-                        let f = <i.ITemplateFile>{
-                            absolutePath: p,
-                            relativePath: p.substr(baseDir.length + 1),
-                            size: stat.size
-                        };
-                        f.includedBy = this.patterns.match(f.relativePath, include);
-                        f.excludedBy = this.patterns.match(f.relativePath, ignore);
-                        if (stat.isDirectory()) {
-                            if (f.excludedBy.length === 0) {
-                                f.isDirectory = true;
-                                emitter.emit('tentative', f);
-                                this.getDescendents(baseDir, p, emitter, include, ignore);
-                            } else {
-                                emitter.emit('exclude', f);
+            fse.readdir(dir)
+                .then(files => {
+                    files.map(file => {
+                        let p = this.path.join(dir, file);
+                        fse.stat(p).then((stat: fse.Stats) => {
+                            let f = <i.ITemplateFile>{
+                                absolutePath: p,
+                                relativePath: p.substr(baseDir.length + 1),
+                                size: stat.size
+                            };
+                            f.includedBy = this.patterns.match(f.relativePath, include);
+                            f.excludedBy = this.patterns.match(f.relativePath, ignore);
+                            if (stat.isDirectory()) {
+                                if (f.excludedBy.length === 0) {
+                                    f.isDirectory = true;
+                                    emitter.emit('tentative', f);
+                                    this.getDescendents(baseDir, p, emitter, include, ignore);
+                                } else {
+                                    emitter.emit('exclude', f);
+                                }
+                            } else if (f.excludedBy.length === 0 && f.includedBy.length > 0) {
+                                f.isDirectory = false;
+                                emitter.emit('match', f);
                             }
-                        } else if (f.excludedBy.length === 0 && f.includedBy.length > 0) {
-                            f.isDirectory = false;
-                            emitter.emit('match', f);
-                        }
+                        }).catch(err => emitter.emit('error', err));
                     });
-                });
-            });
+            }).catch(err => emitter.emit('error', err));
         } catch (err) {
             emitter.emit('error', err);
         }

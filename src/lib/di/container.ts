@@ -19,13 +19,13 @@ let json = require("../../package.json");
 var container = new Container();
 container.bind<i.IGlobber>(TYPES.Globber).to(Globber);
 container.bind<i.IKernel>(TYPES.Kernel).to(Kernel);
+container.bind<i.ITemplateRunner>(TYPES.TemplateRunner).to(TemplateRunner);
 container.bind<NodeJS.Process>(TYPES.Process).toDynamicValue(() => process);
 container.bind<i.IPackage>(TYPES.PackageJson).toConstantValue(json);
 container.bind<i.ISettingsProvider>(TYPES.SettingsProvider).to(SettingsProvider);
-container.bind<i.IUserMessager>(TYPES.UserMessager).toConstantValue(console);
+container.bind<i.IUserMessager>(TYPES.UserMessager).toDynamicValue(() => console);
 container.bind<i.ITemplateManager>(TYPES.TemplateManager).to(TemplateManager);
 container.bind<it.ITransformManager>(TYPES.TransformManager).to(TransformManager);
-container.bind<i.ITemplateRunner>(TYPES.TemplateRunner).to(TemplateRunner)
 container.bind<i.IFilePatterns>(TYPES.FilePatterns).to(FilePatterns);
 
 container.bind<ICommand<any, any>>(TYPES.Commands).to(SetDirCommand);
