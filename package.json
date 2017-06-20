@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "repository": "https://github.com/cdibbs/neoman",
   "description": "Neoman templating engine.",
-  "main": "bin\neoman",
+  "main": "dist/index.js",
+  "bin":{
+    "neoman": "./bin/neoman"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
