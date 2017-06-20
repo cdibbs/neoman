@@ -36,11 +36,11 @@ export class TemplateRunner implements i.ITemplateRunner {
 
     matchTmplFile(path: string, replaceDef: IReplacementDefinition, verbosity: Verbosity, tmplFile: i.ITemplateFile): void {
         if (verbosity === VERBOSITY.debug)
-            this.msg.log("include", tmplFile.absolutePath);
+            this.msg.debug(`Include: ${tmplFile.absolutePath}`);
 
         let destFile = this.path.join(path, tmplFile.relativePath);
         let destPath = this.path.dirname(destFile);
-        this.msg.log(`Copying from ${tmplFile.absolutePath} to ${destFile}...`);
+        this.msg.debug(`Copying from ${tmplFile.absolutePath} to ${destFile}...`);
         let content = fse.readFileSync(tmplFile.absolutePath).toString("utf8");
         content = this.transformManager.applyTransforms(path, content, replaceDef);
         //content = this.replaceAllInFile(tmplFile.relativePath, content, replaceDef);
@@ -51,11 +51,11 @@ export class TemplateRunner implements i.ITemplateRunner {
     // directories not explicitly matched or excluded.
     tentativeMatchTmplFile(path: string, verbosity: Verbosity, tmplFile: i.ITemplateFile): void {
         if (verbosity === VERBOSITY.debug)
-            this.msg.log("tentative", tmplFile.relativePath);
+            this.msg.debug(`Tentative: ${tmplFile.relativePath}`);
     }
 
     excludeMatchTmplFile(tmplFile: i.ITemplateFile): void {
-        this.msg.log("Excluding", tmplFile);
+        this.msg.debug(`Exclude: ${tmplFile}`);
     }
 
     templateError(err: Error): void {

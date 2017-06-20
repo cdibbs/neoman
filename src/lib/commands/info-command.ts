@@ -24,15 +24,15 @@ export class InfoCommand extends BaseCommand<IInfoCmdOpts, IInfoCmdArgs> {
 
         this.tmplMgr.info(args.tmplId).then((tmpl: ITemplate) => {
             let title = `Details for template identity '${tmpl.identity}'`;
-            this.msg.log(title);
-            this.msg.log("=".repeat(title.length));
-            this.msg.log(`Name: ${tmpl.name}`);
-            this.msg.log(`Base Dir: ${tmpl.__tmplPath}`);
-            this.msg.log(`Short name: ${tmpl.shortName || "[NA]"}`);
-            this.msg.log(`Description: ${tmpl.description}`);
-            this.msg.log(`Author: ${tmpl.author}`);
-            this.msg.log(`Classifications: ${(tmpl.classifications || []).join(', ')}`);
-            this.msg.log();
+            this.msg.info(title);
+            this.msg.info("=".repeat(title.length));
+            this.msg.info(`Name: ${tmpl.name}`);
+            this.msg.info(`Base Dir: ${tmpl.__tmplPath}`);
+            this.msg.info(`Short name: ${tmpl.shortName || "[NA]"}`);
+            this.msg.info(`Description: ${tmpl.description}`);
+            this.msg.info(`Author: ${tmpl.author}`);
+            this.msg.info(`Classifications: ${(tmpl.classifications || []).join(', ')}`);
+            this.msg.info('\n');
         });
     }
 }

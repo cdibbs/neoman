@@ -19,13 +19,13 @@ export class SetDirCommand extends BaseCommand<any, any> {
     }
 
     run(opts: any, args: any) {
-        this.msg.log(`Setting directory to ${args.directory}`);
+        this.msg.info(`Setting directory to ${args.directory}`);
 
         let stats = null;
         try {
             stats = this.fs.statSync(args.directory);
         } catch(ex) {
-            this.msg.log(ex);
+            this.msg.warn(ex);
             this.msg.warn(`Warning: directory '${args.directory}' does not exist`);
             return;
         }

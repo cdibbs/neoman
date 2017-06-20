@@ -22,8 +22,8 @@ export class ListCommand extends BaseCommand<any, any> {
     run(opts: any, args: any): void {
         super.run(opts, args);
 
-        this.msg.log("Listing templates in your template directory.");
-        this.msg.log(`Using: ${this.tempDir}\n`);
+        this.msg.info("Listing templates in your template directory.");
+        this.msg.info(`Using: ${this.tempDir}\n`);
 
         let g = new this.glob.Glob("*/.template.config/template.json", { cwd: this.tempDir });
         g.on("match", this.match.bind(this));
@@ -34,7 +34,7 @@ export class ListCommand extends BaseCommand<any, any> {
             let fullPath = this.path.join(this.tempDir, file);
             try {
                 let tmpl = JSON.parse(this.fs.readFileSync(fullPath, 'utf8'));
-                this.msg.log(`\t${tmpl.identity} - ${tmpl.name}`);
+                this.msg.info(`\t${tmpl.identity} - ${tmpl.name}`);
             } catch (ex) {
                 this.msg.error(`Error reading template definition file: ${file}.`);
                 throw ex;
@@ -42,6 +42,6 @@ export class ListCommand extends BaseCommand<any, any> {
     }
 
     end(allFiles: string[]): any {
-        this.msg.log(`\n${allFiles.length} template(s) found.\n`);
+        this.msg.info(`\n${allFiles.length} template(s) found.\n`);
     }
 }
