@@ -1,3 +1,3 @@
 export interface IWithDefinition {
-    action: string
+    handler: string
 }

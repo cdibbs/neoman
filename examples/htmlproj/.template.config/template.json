@@ -1,0 +1,50 @@
+{
+    "#": [
+        "This is a demo template configuration file. It follows the style of",
+        "github.com/dotnet/templating and is inspired by the simplicity of the same. God bless",
+        "those creatures of unusual templating simplicity. :-)",
+        "P.S. Everything in a # block is ignored as a comment."
+    ],
+    "name": "HTML template project",
+    "description": "A demo template project for testing the Neoman templating engine.",
+    "author": "Chris Dibbern",
+
+    "#": "Tags for this template.",
+    "classifications": [
+        "html",
+        "templating",
+        "demo"
+    ], 
+
+    "identity": "htmlproj", "#": "A unique ID for the project template. Used when creating a project from a template.",
+    "shortName": "hp", "#": "You can create the project using this short name instead of the one above.",
+    "tags": {
+        "language": "HTML", "#": "The dominant language in this solution."
+    },
+
+    "#": "Provides a way of interacting with the user.",
+    "inputs": {
+        "title": "What will be the title of your website?"
+    },
+
+    "#": [
+        "Replacements occur in the order they are defined. They apply to all files unless constrained by a",
+        "configuration type, glob, or ."],
+    "replace": [
+        "# Strings like this are comments, in this section.",
+        { "replace": "text", "regex": true, "with": "content", "files": ["**/*.html"] },
+        { "replace": "html>body>h1:first-child", "with": "My new title", "configuration": "html", "params": { "type": "innerText" } }
+    ],
+
+    "#": "We're leaving out unnecessary sections, in this example, such as files and ignore.",
+
+    "#": "Optional section to define configurations per file type.",
+    "configurations": {
+        "#": "Configuration keys should be short but descriptive. ",
+        "html": {
+            "files": ["*.html"],
+            "parserPlugin": "xml",
+            "#": "Will try to find the plugin in ./plugins, first, then node_modules? Let's see."
+        }
+    }
+}

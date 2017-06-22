@@ -4,13 +4,35 @@ import TYPES from '../di/types';
 import * as i from './i';
 import * as ir from '../i/template';
 import * as bi from '../i';
+import { TemplateConfiguration } from './models/configuration';
 
 @injectable()
 export class TransformManager implements i.ITransformManager{
+    configs: { [key: string]: TemplateConfiguration };
 
     constructor(
-        @inject(TYPES.FilePatterns) private filePatterns: bi.IFilePatterns
-    ) {}
+        @inject(TYPES.FilePatterns) private filePatterns: bi.IFilePatterns,
+        @inject(TYPES.UserMessager) private msg: bi.IUserMessager
+    ) {
+
+    }
+
+    configure(tmpl: ir.ITemplate) {
+        this.configs = {};
+        let tconfigs: ir.IConfigurations = tmpl.configurations;
+        for (let key in tconfigs) {
+            let tconfig = tconfigs[key];
+            let config = new TemplateConfiguration();
+            config.key = key;
+            config.files = tconfig.files;
+            config.ignore = tconfig.ignore;
+            config.parserPlugin = tconfig.parserPlugin;
+            config.parserOptions = tconfig.parserOptions;
+            config.pluginInstance = require(`neoman-plugin-${config.parserPlugin}`);
+            config.pluginInstance.configure(config.parserOptions);
+            this.configs[key] = config;
+        }
+    }
 
     applyTransforms(path: string, content: string, rdef: ir.ReplacementsDefinition): string {
         if (rdef instanceof Array) {
@@ -32,6 +54,7 @@ export class TransformManager implements i.ITransformManager{
                 // Assume its a comment, for now. Later, we might look to see if its a regexp.
             } else if (typeof rdef === "object") {
                 if (this.replaceDoesApply(path, rdef.files, rdef.ignore, rdef.configuration)) {
+                    this.msg.debug(`Applying transform definition ${rdef.configuration || rdef.replace }.`, 2)
                     count ++;
                     //this.msg.debug(`Applying replace definition for ${rdef.replace}...`);
                     content = this.applyReplace(content, rdef);
@@ -47,24 +70,31 @@ export class TransformManager implements i.ITransformManager{
 
     applyReplace(content: string, rdef: ir.IReplacementDefinition):  string {
         if (rdef.regex) {
-            return content.replace(new RegExp(<string>rdef.replace), this.buildReplacer(rdef));
+            if (typeof rdef.with === "string")
+                return content.replace(new RegExp(<string>rdef.replace), this.preprocess(rdef.with));
+            else
+                return content.replace(new RegExp(<string>rdef.replace), this.buildReplacer(rdef));
         } else {
-            if (rdef.with !== "string")
+            if (typeof rdef.with !== "string")
                 return content; //throw new Error("Replace regular string with action call result not implemented, yet. Sorry.");
 
-            return content.split(<string>rdef.replace).join(rdef.with);
+            return content.split(<string>rdef.replace).join(this.preprocess(rdef.with));
         }
     }
 
     buildReplacer(rdef: ir.IReplacementDefinition): (substr: string) => string {
-        if (typeof rdef.with === "string") {
-             return (substr: string) => { console.log("1"); return <string>rdef.with };
-        } else if (typeof rdef.with === "object" && rdef.with.action) {
-            //TODO FIXME not truly implemented
-            return (substr: string) => { console.log("2"); return substr; };
+        //TODO FIXME not truly implemented
+        if (typeof rdef.with === 'object' && rdef.with.handler)
+        {
+            return (substr: string) => substr;
         }
 
         throw new Error(`Not yet implemented for 'with' is '${typeof rdef.with}'.`);
+    }
+
+    preprocess(withDef: string): string {
+        // TODO FIXME
+        return withDef;
     }
 
     replaceDoesApply(path: string, files: string[], ignore: string[], configuration: string): boolean {

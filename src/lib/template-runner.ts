@@ -24,6 +24,7 @@ export class TemplateRunner implements i.ITemplateRunner {
     run(path: string, verbosity: Verbosity, showExcluded: boolean, tmpl: ITemplate): void {
         let results: string[] = [];
         let emitter = new EventEmitter<TemplateFilesEmitterType>();
+        this.transformManager.configure(tmpl);
         emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.replace, verbosity));
         emitter.on('tentative', this.tentativeMatchTmplFile.bind(this, path, verbosity));
         emitter.on('error', this.templateError.bind(this))
@@ -40,12 +41,15 @@ export class TemplateRunner implements i.ITemplateRunner {
 
         let destFile = this.path.join(path, tmplFile.relativePath);
         let destPath = this.path.dirname(destFile);
-        this.msg.debug(`Copying from ${tmplFile.absolutePath} to ${destFile}...`);
+        this.msg.info(`Processing ${tmplFile.absolutePath}...`);
         let content = fse.readFileSync(tmplFile.absolutePath).toString("utf8");
+        this.msg.debug(`Applying transforms...`, 1);
         content = this.transformManager.applyTransforms(path, content, replaceDef);
         //content = this.replaceAllInFile(tmplFile.relativePath, content, replaceDef);
+        this.msg.debug(`Writing to destination: ${destFile}`, 1);
         fse.ensureDirSync(destPath);
         fse.writeFileSync(destFile, content);
+        this.msg.debug('Done.');
     }
 
     // directories not explicitly matched or excluded.

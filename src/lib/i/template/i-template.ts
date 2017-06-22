@@ -1,5 +1,5 @@
 import { ITemplateInputs } from '../i-template-inputs';
-import { ITemplateConfigurations } from '../i-template-configurations';
+import { IConfigurations } from './i-configurations';
 import { ReplacementsDefinition } from './replacements-definition';
 
 export interface ITemplate {
@@ -31,7 +31,7 @@ export interface ITemplate {
 
     ignore?: string[];
 
-    configurations?: ITemplateConfigurations;
+    configurations?: IConfigurations;
 
     [key: string]: any;
 }
