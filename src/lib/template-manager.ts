@@ -36,10 +36,44 @@ export class TemplateManager implements ITemplateManager {
     info(tmplId: string): Promise<ITemplate> {
         return new Promise((resolve, reject) => {
             this.list().on('end', (list: ITemplate[]) => {
-                resolve(list.find(tmpl => tmpl.identity === tmplId));
+                resolve(this.mapToViewModel(list.find(tmpl => tmpl.identity === tmplId)));
             });
             this.list().on('error', (ex: Error) => reject(ex));
         });
+    }
+
+    // For the moment, this exists only to eliminate comments from the JSON.
+    // Later, we should look into mapper frameworks. None of them look great, atm (2017-06-24).
+    private mapToViewModel(tmpl: ITemplate): ITemplate {
+        return this.stripComments(tmpl);
+    }
+
+    private stripComments(obj: any, parent?: any, curKey?: string | number): any {        
+        if (obj instanceof Array) {
+            if (!parent) {
+                throw new Error("Root-level configuration element cannot be an array.");
+            }
+
+            let stripped = [];
+            for(var i=0; i<obj.length; i++) {
+                if (typeof obj[i] !== "string" || obj[i].substr(0, 1) !== "#")
+                {
+                    stripped.push(this.stripComments(obj[i], obj, i));
+                }
+            }
+
+            return stripped;
+        } else if (typeof obj === "object") {
+            for(var key in obj) {
+                if (key === "#") {
+                    delete obj[key];
+                } else if (typeof obj[key] === "object") {
+                    obj[key] = this.stripComments(obj[key], obj, key);
+                }
+            }
+        }
+
+        return obj;
     }
 
     private templateMatch(file: string, emitter: EventEmitter<TemplateSearchEmitterType>): any {

@@ -17,13 +17,18 @@ export class TemplateRunner implements i.ITemplateRunner {
         @inject(TYPES.UserMessager) protected msg: i.IUserMessager,
         @inject(TYPES.Path) private path: i.IPath,
         @inject(TYPES.FilePatterns) private patterns: i.IFilePatterns,
-        @inject(TYPES.TransformManager) private transformManager: it.ITransformManager
+        @inject(TYPES.TransformManager) private transformManager: it.ITransformManager,
+        @inject(TYPES.TemplateValidator) private validator: i.ITemplateValidator
     ) {
     }
 
     run(path: string, verbosity: Verbosity, showExcluded: boolean, tmpl: ITemplate): void {
         let results: string[] = [];
         let emitter = new EventEmitter<TemplateFilesEmitterType>();
+        if (!this.validate(tmpl)) {
+            return;
+        }
+
         this.transformManager.configure(tmpl);
         emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.replace, verbosity));
         emitter.on('tentative', this.tentativeMatchTmplFile.bind(this, path, verbosity));
@@ -35,6 +40,20 @@ export class TemplateRunner implements i.ITemplateRunner {
         this.getDescendents.bind(this)(tmpl.__tmplPath, tmpl.__tmplPath, emitter, tmpl.files, tmpl.ignore);
     }
 
+    validate(tmpl: ITemplate): boolean {
+        let deps = this.validator.dependenciesInstalled(tmpl);
+        let missing: boolean = false;
+        for(var key in deps) {
+            let depInstalled = deps[key];
+            if (!depInstalled) {
+                this.msg.write(`Template '${tmpl.name}' requires npm package '${key}', which is not installed.`);
+                missing = true;
+            }
+        }
+
+        return !missing;
+    }
+
     matchTmplFile(path: string, replaceDef: IReplacementDefinition, verbosity: Verbosity, tmplFile: i.ITemplateFile): void {
         if (verbosity === VERBOSITY.debug)
             this.msg.debug(`Include: ${tmplFile.absolutePath}`);
@@ -44,7 +63,7 @@ export class TemplateRunner implements i.ITemplateRunner {
         this.msg.info(`Processing ${tmplFile.absolutePath}...`);
         let content = fse.readFileSync(tmplFile.absolutePath).toString("utf8");
         this.msg.debug(`Applying transforms...`, 1);
-        content = this.transformManager.applyTransforms(path, content, replaceDef);
+        content = this.transformManager.applyTransforms(tmplFile.relativePath, content, replaceDef);
         //content = this.replaceAllInFile(tmplFile.relativePath, content, replaceDef);
         this.msg.debug(`Writing to destination: ${destFile}`, 1);
         fse.ensureDirSync(destPath);
@@ -63,10 +82,10 @@ export class TemplateRunner implements i.ITemplateRunner {
     }
 
     templateError(err: Error): void {
-        this.msg.error(err);
+        this.msg.error(err.stack);
     }
 
-    getDescendents(baseDir: string, dir: string, emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>, include: string[], ignore: string[]): void {
+    getDescendents(baseDir: string, dir: string, emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>, include: string[] = [], ignore: string[] = []): void {
         try {
             fse.readdir(dir)
                 .then(files => {

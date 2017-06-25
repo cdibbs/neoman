@@ -1,4 +1,6 @@
 import { injectable, inject } from 'inversify';
+import * as _ from 'underscore';
+let requireg = require('requireg');
 
 import TYPES from '../di/types';
 import * as i from './i';
@@ -28,7 +30,9 @@ export class TransformManager implements i.ITransformManager{
             config.ignore = tconfig.ignore;
             config.parserPlugin = tconfig.parserPlugin;
             config.parserOptions = tconfig.parserOptions;
-            config.pluginInstance = require(`neoman-plugin-${config.parserPlugin}`);
+            let PluginClass = requireg(`neoman-plugin-${config.parserPlugin}`);
+            console.log(PluginClass);
+            config.pluginInstance = new PluginClass();
             config.pluginInstance.configure(config.parserOptions);
             this.configs[key] = config;
         }
@@ -39,25 +43,44 @@ export class TransformManager implements i.ITransformManager{
             return this.replaceInFile(path, content, <ir.IReplacementDefinition[]>rdef);
         } else if (typeof rdef === "string") { // simple regexp?
             return content;
-        } else if (typeof rdef === "object") { // single replacement? probably a namespace or similar.
-            return content;
+        } else if (typeof rdef === "object") { // single replacement? treat as rdef
+            return this.replaceInFile(path, content, [rdef]);
         }
 
         throw new Error(`Replace definition not understood. Type found: ${typeof rdef}.`);
+    }
+
+    private splitter: RegExp = new RegExp(/^\/(.*(?!\\))\/(.*)\/([gimuy]*)$/).compile();
+    buildSingleRegexDef(rdef: string): ir.IReplacementDefinition {
+        let components: string[] = rdef.match(this.splitter);
+        let searchComponent: string = components[1];
+        let replaceComponent: string = components[2];
+        let flagsComponent: string = components[3];
+        return <ir.IReplacementDefinition>{
+            "replace": searchComponent,
+            "with": replaceComponent,
+            "regex": true,
+            "regexFlags": flagsComponent
+        };
     }
 
     replaceInFile(path: string, content: string, rdefs: ir.IReplacementDefinition[] | string[]): string {
         let count = 0;
         for (let i=0; i<rdefs.length; i++) {
             let rdef = rdefs[i];
-            if (typeof rdef === "string") {
-                // Assume its a comment, for now. Later, we might look to see if its a regexp.
-            } else if (typeof rdef === "object") {
+            if (typeof rdef === "string" && rdef[0] !== "#") {
+                // Assume its a regex
+                rdef = this.buildSingleRegexDef(rdef);
+            }
+            
+            if (typeof rdef === "object") {
                 if (this.replaceDoesApply(path, rdef.files, rdef.ignore, rdef.configuration)) {
-                    this.msg.debug(`Applying transform definition ${rdef.configuration || rdef.replace }.`, 2)
+                    this.msg.debug(`Applying transform definition for "${rdef.replace}"${rdef.configuration ? ' (config: ' + rdef.configuration + ')' : ""}.`, 2)
                     count ++;
                     //this.msg.debug(`Applying replace definition for ${rdef.replace}...`);
-                    content = this.applyReplace(content, rdef);
+                    content = this.applyReplace(content, rdef, path);
+                } else {
+                    this.msg.debug(`Skipping transform definition for "${rdef.replace}"${rdef.configuration ? ' (config: ' + rdef.configuration + ')' : ""}.`, 2);
                 }
             } else {
                 throw new Error(`Unrecognized replacement definition ${i}, type: ${typeof rdef}.`);
@@ -68,12 +91,20 @@ export class TransformManager implements i.ITransformManager{
         return content;
     }
 
-    applyReplace(content: string, rdef: ir.IReplacementDefinition):  string {
+    applyReplace(content: string, rdef: ir.IReplacementDefinition, path: string):  string {
         if (rdef.regex) {
             if (typeof rdef.with === "string")
-                return content.replace(new RegExp(<string>rdef.replace), this.preprocess(rdef.with));
+                return content.replace(new RegExp(<string>rdef.replace, rdef.regexFlags || ""), this.preprocess(rdef.with));
             else
-                return content.replace(new RegExp(<string>rdef.replace), this.buildReplacer(rdef));
+                return content.replace(new RegExp(<string>rdef.replace, rdef.regexFlags || ""), this.buildReplacer(rdef));
+        } else if (rdef.configuration) {
+            try {
+                let config = this.configs[rdef.configuration]; // FIXME rdef.with could be handler
+                return config.pluginInstance.transform(path, content, rdef.replace, rdef.with, _.extend({}, config.parserOptions, rdef.params));
+            } catch (err) {
+                this.msg.error(`Error running plugin from "${rdef.configuration}" configuration:`, 3);
+                this.msg.error(err, 3);
+            }
         } else {
             if (typeof rdef.with !== "string")
                 return content; //throw new Error("Replace regular string with action call result not implemented, yet. Sorry.");
@@ -97,19 +128,39 @@ export class TransformManager implements i.ITransformManager{
         return withDef;
     }
 
-    replaceDoesApply(path: string, files: string[], ignore: string[], configuration: string): boolean {
+    /**
+     * Determines whether a config definition, and a set of include/ignore globs apply to a given path.
+     * Co-recursive with configDoesApply.
+     * @param path The path against which to compare globs.
+     * @param files A list of include globs. Files in this list will be included unless explicitly ignored.
+     * @param ignore A list of ignore globs. Overrides matches from the files parameter.
+     * @param configKey A configuration definition to match (itself containing include/ignore globs).
+     */
+    replaceDoesApply(path: string, files: string[], ignore: string[], configKey: string): boolean {
         if (typeof files === "undefined" && typeof ignore === "undefined")
             return true; // No explicit inclusions or exclusions. Global replace.
-
+        
+        let configMatches = configKey ? this.configDoesApply(path, configKey) : true;
         let filesMatch = (files && (files instanceof Array) && files.length) ? this.filePatterns.match(path, files) : [];
         let ignoresMatch = (ignore && (ignore instanceof Array) && ignore.length) ? this.filePatterns.match(path, ignore) : [];
-
-        // TODO FIXME configuration
-        if (configuration) return false;
+        console.log(configMatches, files, path, filesMatch, ignoresMatch);
 
         if (typeof files === "undefined" && (typeof ignore !== "undefined" && ! ignoresMatch.length))
-            return true; // Files undefined, but no ignore matches. Global replace.
+            return configMatches; // Files undefined, ignores defined, but no ignore matches. Global replace if config matches.
 
-        return (filesMatch.length && !ignoresMatch.length);
+        return (configMatches && filesMatch.length && !ignoresMatch.length);
+    }
+
+    /**
+     * Determines whether a config definition applies to a given path.
+     * Co-recursive with replaceDoesApply.
+     * @param path The path against which to check the config definition.
+     * @param configKey The key of the config containing include/ignore globs to lookup.
+     */
+    configDoesApply(path: string, configKey: string): boolean {
+        if (this.configs.hasOwnProperty(configKey)) {
+            let c = this.configs[configKey];
+            return this.replaceDoesApply(path, c.files, c.ignore, null);
+        } 
     }
 }

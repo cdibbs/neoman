@@ -10,5 +10,7 @@ export interface IReplacementDefinition extends IReplacementFilter {
 
     regex: boolean;
 
+    regexFlags: string;
+
     params: any;
 }

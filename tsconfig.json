@@ -14,10 +14,12 @@
 		"outDir": "dist",
 		"removeComments": false,
 		"typeRoots": [
-			"node_modules/@types"
+			"node_modules/@types",
+			"src/lib/types"
 		],
 		"types": [
-			"@types/node"
+			"@types/node",
+			"requireg"
 		]
 	},
 	"files": [

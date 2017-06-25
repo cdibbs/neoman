@@ -9,6 +9,7 @@ import { TransformManager } from '../transformers/transform-manager';
 import { TemplateRunner } from '../template-runner';
 import { FilePatterns } from '../file-patterns';
 import { UserMessager } from '../user-messager';
+import { TemplateValidator } from '../template-validator';
 import { Globber, Kernel, SettingsProvider, TemplateManager } from "./entities";
 import { CommandFactory, SetDirCommand, NewCommand, ListCommand, InfoCommand } from '../commands';
 import { ICommand, ICommandFactory } from "../commands/i";
@@ -27,6 +28,7 @@ container.bind<i.ISettingsProvider>(TYPES.SettingsProvider).to(SettingsProvider)
 container.bind<i.IUserMessager>(TYPES.UserMessager).to(UserMessager);
 container.bind<i.ITemplateManager>(TYPES.TemplateManager).to(TemplateManager);
 container.bind<it.ITransformManager>(TYPES.TransformManager).to(TransformManager);
+container.bind<i.ITemplateValidator>(TYPES.TemplateValidator).to(TemplateValidator);
 container.bind<i.IFilePatterns>(TYPES.FilePatterns).to(FilePatterns);
 
 container.bind<ICommand<any, any>>(TYPES.Commands).to(SetDirCommand);

@@ -86,6 +86,7 @@
             "ignore": [],
             "parserPlugin": "typescript",
             "pluginConfig": {},
+            "baseParams": { "#" : "to be extended/overridden by individual replace definitions." },
             "#": "Will try to find the plugin in ./plugins, first, then node_modules? Let's see."
         }
     }

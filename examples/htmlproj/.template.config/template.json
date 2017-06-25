@@ -33,10 +33,11 @@
     "replace": [
         "# Strings like this are comments, in this section.",
         { "replace": "text", "regex": true, "with": "content", "files": ["**/*.html"] },
-        { "replace": "html>body>h1:first-child", "with": "My new title", "configuration": "html", "params": { "type": "innerText" } }
+        { "replace": "html>body>h1:first-child", "with": "My new title", "configuration": "html", "params": { "type": "text" } }
     ],
 
     "#": "We're leaving out unnecessary sections, in this example, such as files and ignore.",
+    "files": [ "**/*.html" ],
 
     "#": "Optional section to define configurations per file type.",
     "configurations": {

@@ -13,7 +13,8 @@ let TYPES = {
     TemplateManager: Symbol("TemplateManager"),
     TemplateRunner: Symbol("TemplateRunner"),
     FilePatterns: Symbol("FilePatterns"),
-    TransformManager: Symbol("TransformManager")
+    TransformManager: Symbol("TransformManager"),
+    TemplateValidator: Symbol("TemplateValidator")
 }
 
 export default TYPES;

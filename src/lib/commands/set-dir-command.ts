@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { Commands, COMMANDS } from './commands';
 import { BaseCommand } from './base-command';
-import { ISettingsProvider, IFileSystem, IUserMessager } from '../i';
+import * as i from '../i';
 import KEYS from '../settings-keys';
 import TYPES from '../di/types';
 
@@ -10,10 +10,11 @@ export class SetDirCommand extends BaseCommand<any, any> {
     type: Commands = COMMANDS.SetDir;
 
     constructor(
-        @inject(TYPES.UserMessager) protected msg: IUserMessager,
+        @inject(TYPES.UserMessager) protected msg: i.IUserMessager,
         @inject(TYPES.Process) protected process: NodeJS.Process,
-        @inject(TYPES.SettingsProvider) private settings: ISettingsProvider,
-        @inject(TYPES.FS) private fs: IFileSystem
+        @inject(TYPES.SettingsProvider) private settings: i.ISettingsProvider,
+        @inject(TYPES.FS) private fs: i.IFileSystem,
+        @inject(TYPES.Path) private path: i.IPath
     ) {
         super(msg, process);
     }
@@ -34,6 +35,6 @@ export class SetDirCommand extends BaseCommand<any, any> {
             this.msg.warn(`Warning: Not a directory: '${args.directory}.`);
         }
         
-        this.settings.set(KEYS.tempDirKey, args.directory);
+        this.settings.set(KEYS.tempDirKey, this.path.resolve(args.directory));
     }
 }
