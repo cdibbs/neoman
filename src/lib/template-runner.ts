@@ -15,6 +15,7 @@ export class TemplateRunner implements i.ITemplateRunner {
 
     constructor(
         @inject(TYPES.UserMessager) protected msg: i.IUserMessager,
+        @inject(TYPES.FS) private fs: i.IFileSystem,
         @inject(TYPES.Path) private path: i.IPath,
         @inject(TYPES.FilePatterns) private patterns: i.IFilePatterns,
         @inject(TYPES.TransformManager) private transformManager: it.ITransformManager,
@@ -29,6 +30,11 @@ export class TemplateRunner implements i.ITemplateRunner {
             return;
         }
 
+        if (!this.destinationEmpty(path) /* && not force */) {
+            this.msg.write(`The destination directory is not empty (${path}). Aborting.`);
+            return;
+        }
+
         this.transformManager.configure(tmpl);
         emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.replace, verbosity));
         emitter.on('tentative', this.tentativeMatchTmplFile.bind(this, path, verbosity));
@@ -38,6 +44,10 @@ export class TemplateRunner implements i.ITemplateRunner {
         }
 
         this.getDescendents.bind(this)(tmpl.__tmplPath, tmpl.__tmplPath, emitter, tmpl.files, tmpl.ignore);
+    }
+
+    destinationEmpty(path: string): boolean {
+        return this.fs.readdirSync(path).length === 0;
     }
 
     validate(tmpl: ITemplate): boolean {
