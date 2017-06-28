@@ -1,8 +1,8 @@
 {
     "#": [
         "This is a demo template configuration file. It follows the style of",
-        "github.com/dotnet/templating and is inspired by the simplicity of the same. God bless",
-        "those creatures of unusual templating simplicity. :-)",
+        "github.com/dotnet/templating and is inspired by the simplicity of the same.",
+        "God bless those creatures of unusual templating simplicity. :-)",
         "P.S. Everything in a # block is ignored as a comment."
     ],
     "name": "HTML template project",

@@ -1,4 +1,4 @@
-import { ITemplateInputs } from '../i-template-inputs';
+import { IInputConfig } from './i-input-config';
 import { IConfigurations } from './i-configurations';
 import { ReplacementsDefinition } from './replacements-definition';
 
@@ -23,7 +23,7 @@ export interface ITemplate {
         [key: string]: string;
     };
 
-    inputs?: ITemplateInputs;
+    inputs?: IInputConfig;
 
     replace?: ReplacementsDefinition;
 

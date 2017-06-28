@@ -23,16 +23,21 @@
     },
 
     "#": "Provides a way of interacting with the user.",
-    "inputs": {
-        "color": "What is your favorite color?",
-        "year": "What year were you born?",
-        "wellbeing" : { "prompt": "How are you, today?", "type": "number" },
-        "whatupdoc": { "promptScript": "myquestions" }
+    "inputConfig": {
+        "userInterface": "prompt", "#": "possible values: 'browser', 'prompt', or 'custom'.",
+        "handler": "",
+        "preface": "",
+        "define": {
+            "color": "What is your favorite color?",
+            "year": "What year were you born?",
+            "wellbeing" : { "prompt": "How are you, today?", "type": "number", "validation": "^\\d+$", "default": 0 },
+            "whatupdoc": { "promptHandler": "myquestions", "params": { "be" : "nice" } }
+        }
     },
 
     "#": [
-        "Replacements occur in the order they are defined. They apply to all files unless constrained by a",
-        "configuration type, glob, or ."],
+        "Replacements occur in the order they are defined. They apply to all non-ignored files unless constrained by a",
+        "configuration type, glob, or custom handler."],
     "replace": [
         "# Strings like this are comments, in this section.",
         { "replace": "export", "regex": true, "with": "My replacement{{color}}", "files": ["**/*.js"] },

@@ -18,6 +18,7 @@ export class TemplateRunner implements i.ITemplateRunner {
         @inject(TYPES.FS) private fs: i.IFileSystem,
         @inject(TYPES.Path) private path: i.IPath,
         @inject(TYPES.FilePatterns) private patterns: i.IFilePatterns,
+        @inject(TYPES.InputManager) private inputManager: i.IInputManager,
         @inject(TYPES.TransformManager) private transformManager: it.ITransformManager,
         @inject(TYPES.TemplateValidator) private validator: i.ITemplateValidator
     ) {
@@ -35,15 +36,16 @@ export class TemplateRunner implements i.ITemplateRunner {
             return;
         }
 
+        let inputs = this.inputManager.ask(tmpl.inputs);
         this.transformManager.configure(tmpl);
-        emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.replace, verbosity));
+        emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.replace, inputs, verbosity));
         emitter.on('tentative', this.tentativeMatchTmplFile.bind(this, path, verbosity));
         emitter.on('error', this.templateError.bind(this))
         if (verbosity === VERBOSITY.debug || showExcluded) {
             emitter.on('exclude', this.tentativeMatchTmplFile.bind(this));
         }
 
-        this.getDescendents.bind(this)(tmpl.__tmplPath, tmpl.__tmplPath, emitter, tmpl.files, tmpl.ignore);
+        this.getDescendents(tmpl.__tmplPath, tmpl.__tmplPath, emitter, tmpl.files, tmpl.ignore);
     }
 
     destinationEmpty(path: string): boolean {
@@ -64,7 +66,7 @@ export class TemplateRunner implements i.ITemplateRunner {
         return !missing;
     }
 
-    matchTmplFile(path: string, replaceDef: IReplacementDefinition, verbosity: Verbosity, tmplFile: i.ITemplateFile): void {
+    matchTmplFile(path: string, replaceDef: IReplacementDefinition, inputs: any, verbosity: Verbosity, tmplFile: i.ITemplateFile): void {
         if (verbosity === VERBOSITY.debug)
             this.msg.debug(`Include: ${tmplFile.absolutePath}`);
 
