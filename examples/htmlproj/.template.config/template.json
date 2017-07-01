@@ -35,8 +35,8 @@
         "configuration type, glob, or ."],
     "replace": [
         "# Strings like this are comments, in this section.",
-        { "replace": "text", "regex": true, "with": "content: {{title}}", "files": ["**/*.html"] },
-        { "replace": "html>body>h1:first-child", "with": "My new subtitle: {{subtitle}}", "configuration": "html", "params": { "type": "text" } }
+        { "replace": "text", "with": "content: {{subtitle}}", "files": ["**/*.html"] },
+        { "replace": "html>body>h1:first-child", "with": "My new title: {{title}}", "configuration": "html", "params": { "type": "text" } }
     ],
 
     "#": "We're leaving out unnecessary sections, in this example, such as files and ignore.",

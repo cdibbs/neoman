@@ -52,12 +52,12 @@
 
         "/\/\//myreplacement/g", "# Do we support regex strings? Undecided.",
         { "replace": "what", "with": { "handler": "myaction" } },
-        { "replace": "what", "regex": true, "with": { "handler": "myaction" } },
+        { "replace": "what", "with": { "handler": "myaction" } },
 
         "# Perform filetype-specific replacements with a plugin configured for that filetype.",
         { "replace": "mynamespace", "with": "yournamespace", "configuration": "typescript" },
-        { "replace": "(\\w+)namespace", "with": "something else", "regex": true, "configuration": "typescript", "params": { "type": "namespace" } },
-        { "replace": "(\\w+)varname", "with": "othervarname", "regex": true, "configuration": "typescript", "params": { "type": "variable" } },
+        { "replace": "(\\w+)namespace", "with": "something else", "configuration": "typescript", "params": { "type": "namespace", "regex": true } },
+        { "replace": "(\\w+)varname", "with": "othervarname", "configuration": "typescript", "params": { "type": "variable", "regex": true } },
 
         { "replace": "html>body>h1:first-child", "with": { "handler" : "myhandler" }, "configuration": "html" },
         { "replace": "html>body>h1:first-child", "with": "something simple", "configuration": "html", "params": { "type": "attr", "attr": "title" } }

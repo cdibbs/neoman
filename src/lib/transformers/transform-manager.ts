@@ -95,25 +95,51 @@ export class TransformManager implements i.ITransformManager{
     }
 
     applyReplace(content: string, rdef: ir.IReplacementDefinition, path: string):  string {
-        if (rdef.regex) {
-            if (typeof rdef.with === "string")
-                return content.replace(new RegExp(<string>rdef.replace, rdef.regexFlags || ""), this.preprocess(rdef.with));
-            else
-                return content.replace(new RegExp(<string>rdef.replace, rdef.regexFlags || ""), this.buildReplacer(rdef));
-        } else if (rdef.configuration) {
-            try {
-                let config = this.configs[rdef.configuration]; // FIXME rdef.with could be handler
-                return config.pluginInstance.transform(path, content, rdef.replace, rdef.with, _.extend({}, config.parserOptions, rdef.params));
-            } catch (err) {
-                this.msg.error(`Error running plugin from "${rdef.configuration}" configuration:`, 3);
-                this.msg.error(err, 3);
-            }
-        } else {
-            if (typeof rdef.with !== "string")
-                return content; //FIXME: not done. throw new Error("Replace regular string with action call result not implemented, yet. Sorry.");
-
-            return content.split(<string>rdef.replace).join(this.preprocess(rdef.with));
+        // Minimally, we want fast, internal regex replacement. It should be overridable within the configurations section of a template.json.
+        let engine = this.chooseReplaceEngine(rdef);
+        switch(engine) {
+            case "regex":
+                if (typeof rdef.with === "string")
+                    return content.replace(new RegExp(<string>rdef.replace, rdef.regexFlags || ""), this.preprocess(rdef.with));
+                else
+                    return content.replace(new RegExp(<string>rdef.replace, rdef.regexFlags || ""), this.buildReplacer(rdef));
+            case "simple":
+                if (typeof rdef.with === "string")
+                    return content.split(<string>rdef.replace).join(this.preprocess(rdef.with));
+                else
+                    return content.split(<string>rdef.replace).join(this.buildReplacer(rdef)(<string>rdef.replace));
+            case "plugin":
+                try {
+                    let config = this.configs[rdef.configuration];
+                    if (typeof rdef.with === "string") {
+                        return config.pluginInstance.transform(path, content, rdef.replace, this.preprocess(rdef.with), _.extend({}, config.parserOptions, rdef.params));
+                    } else {
+                        return config.pluginInstance.transform(path, content, rdef.replace, this.buildReplacer(rdef), _.extend({}, config.parserOptions, rdef.params));
+                    }
+                } catch (err) {
+                    this.msg.error(`Error running plugin from "${rdef.configuration}" configuration:`, 3);
+                    this.msg.error(err, 3);
+                    return content;
+                }
+            default:
+                throw new Error(`Unimplemented replacement engine ${engine}.`);
         }
+    }
+
+    chooseReplaceEngine(rdef: ir.IReplacementDefinition) {
+        if (! rdef.configuration || rdef.configuration === "regex") {
+            if (this.configs.hasOwnProperty("regex")) // Then, the user wants to override the default.
+                return "plugin";
+            
+            return "regex";
+        } else if (rdef.configuration === "simple") {
+            if (this.configs.hasOwnProperty("simple"))
+                return "plugin";
+
+            return "simple";
+        }
+
+        return "plugin";
     }
 
     buildReplacer(rdef: ir.IReplacementDefinition): (substr: string) => string {
