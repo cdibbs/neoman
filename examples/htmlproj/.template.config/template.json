@@ -25,7 +25,8 @@
     "#": "Provides a way of interacting with the user.",
     "inputConfig": {
         "define": {
-            "title": "What will be the title of your website?"
+            "title": "What will be the title of your website?",
+            "subtitle": "What subtitle?"
         }
     },
 
@@ -34,8 +35,8 @@
         "configuration type, glob, or ."],
     "replace": [
         "# Strings like this are comments, in this section.",
-        { "replace": "text", "regex": true, "with": "content", "files": ["**/*.html"] },
-        { "replace": "html>body>h1:first-child", "with": "My new title", "configuration": "html", "params": { "type": "text" } }
+        { "replace": "text", "regex": true, "with": "content: {{title}}", "files": ["**/*.html"] },
+        { "replace": "html>body>h1:first-child", "with": "My new subtitle: {{subtitle}}", "configuration": "html", "params": { "type": "text" } }
     ],
 
     "#": "We're leaving out unnecessary sections, in this example, such as files and ignore.",

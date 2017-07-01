@@ -8,20 +8,25 @@
     "neoman": "./bin/neoman"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pretest": "tsc -p tsconfig-mocha.json",
+    "test": "mocha \"test/**/*.spec.js\""
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/chai": "^4.0.1",
     "@types/fs-extra": "^3.0.3",
     "@types/glob": "^5.0.30",
+    "@types/mocha": "^2.2.41",
     "@types/node": "^7.0.28",
     "@types/underscore": "^1.8.1",
+    "chai": "^4.0.2",
     "commandpost": "^1.1.0",
     "fs-extra": "^3.0.1",
     "glob": "^7.1.2",
     "inversify": "^4.1.1",
     "minimatch": "^3.0.4",
+    "mocha": "^3.4.2",
     "optimist": "^0.6.1",
     "reflect-metadata": "^0.1.10",
     "requireg": "^0.1.6",

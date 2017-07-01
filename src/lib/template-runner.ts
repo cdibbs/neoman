@@ -37,9 +37,8 @@ export class TemplateRunner implements i.ITemplateRunner {
         }
 
         this.inputManager.ask(tmpl.inputConfig).then(inputs => {
-            console.log(inputs);
-            this.transformManager.configure(tmpl);
-            emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.replace, inputs, verbosity));
+            this.transformManager.configure(tmpl, inputs);
+            emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.replace, verbosity));
             emitter.on('tentative', this.tentativeMatchTmplFile.bind(this, path, verbosity));
             emitter.on('error', this.templateError.bind(this))
             if (verbosity === VERBOSITY.debug || showExcluded) {
@@ -68,7 +67,7 @@ export class TemplateRunner implements i.ITemplateRunner {
         return !missing;
     }
 
-    matchTmplFile(path: string, replaceDef: IReplacementDefinition, inputs: any, verbosity: Verbosity, tmplFile: i.ITemplateFile): void {
+    matchTmplFile(path: string, replaceDef: IReplacementDefinition, verbosity: Verbosity, tmplFile: i.ITemplateFile): void {
         if (verbosity === VERBOSITY.debug)
             this.msg.debug(`Include: ${tmplFile.absolutePath}`);
 

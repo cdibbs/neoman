@@ -11,6 +11,7 @@ import { TemplateConfiguration } from './models/configuration';
 @injectable()
 export class TransformManager implements i.ITransformManager{
     configs: { [key: string]: TemplateConfiguration };
+    inputs: { [key: string]: any };
 
     constructor(
         @inject(TYPES.FilePatterns) private filePatterns: bi.IFilePatterns,
@@ -19,9 +20,11 @@ export class TransformManager implements i.ITransformManager{
 
     }
 
-    configure(tmpl: ir.ITemplate) {
+    configure(tmpl: ir.ITemplate, inputs: { [key: string]: any }) {
         this.configs = {};
+        this.inputs = inputs;
         let tconfigs: ir.IConfigurations = tmpl.configurations;
+
         for (let key in tconfigs) {
             let tconfig = tconfigs[key];
             let config = new TemplateConfiguration();
@@ -107,7 +110,7 @@ export class TransformManager implements i.ITransformManager{
             }
         } else {
             if (typeof rdef.with !== "string")
-                return content; //throw new Error("Replace regular string with action call result not implemented, yet. Sorry.");
+                return content; //FIXME: not done. throw new Error("Replace regular string with action call result not implemented, yet. Sorry.");
 
             return content.split(<string>rdef.replace).join(this.preprocess(rdef.with));
         }
@@ -120,12 +123,16 @@ export class TransformManager implements i.ITransformManager{
             return (substr: string) => substr;
         }
 
-        throw new Error(`Not yet implemented for 'with' is '${typeof rdef.with}'.`);
+        throw new Error(`Handler definition missing for replace '${rdef.replace}'.`);
     }
 
+    private varMatcher = /{{[^}]*}}/g;
     preprocess(withDef: string): string {
-        // TODO FIXME
-        return withDef;
+        let result = withDef.replace(this.varMatcher, (match) => {
+            return this.inputs[match.substr(2, match.length-4)] /* found it? */
+                || (match === "{{{{}}" ? "{{" /* is an escape */ : match /* nope, return same */)
+        });
+        return result;
     }
 
     /**

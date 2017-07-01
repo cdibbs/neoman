@@ -11,7 +11,7 @@
 		"emitDecoratorMetadata": true,
 		"sourceMap": false,
 		"declaration": true,
-		"outDir": "dist",
+		"outDir": "test",
 		"removeComments": false,
 		"typeRoots": [
 			"node_modules/@types",
@@ -22,11 +22,10 @@
 			"requireg"
 		]
 	},
-	"files": [
-		"src/lib/index.ts"
+	"include": [
+		"src/lib/**/*.spec.ts"
 	],
 	"exclude": [
-		"node_modules",
-		"*.spec.ts"
+		"node_modules"
 	]
 }
