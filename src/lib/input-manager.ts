@@ -1,38 +1,40 @@
+import { injectable, inject } from 'inversify';
+import TYPES from './di/types';
+
 import * as i from './i';
 import * as it from './i/template';
 
+@injectable()
 export class InputManager implements i.IInputManager {
-    ask(config: it.IInputConfig): { [key: string]: any } {
-        if (typeof config.userInterface === "undefined") {
-            // assume prompt
-            return this.prompt(config);
-        } else if (typeof config.userInterface === "string") {
-            switch(config.userInterface) {
-                case "browser": return this.browser(config);
-                case "prompt": return this.prompt(config);
-                default: return this.custom(config);
+    constructor(
+        @inject(TYPES.PromptInputManager) private promptMgr: i.IInputManager,
+        @inject(TYPES.BrowserInputManager) private browserMgr: i.IInputManager,
+        @inject(TYPES.CustomInputManager) private customMgr: i.IInputManager
+    ) {}
+
+    ask(config: it.IInputConfig): Promise<{ [key: string]: any }> {
+        try {
+            if (typeof config.defaultInterface === "undefined") {
+                // assume prompt
+                return this.promptMgr.ask(config);
+            } else if (typeof config.defaultInterface === "string") {
+                switch(config.defaultInterface) {
+                    case "browser": return this.browserMgr.ask(config);
+                    case "prompt": return this.promptMgr.ask(config);
+                    default: return this.customMgr.ask(config);
+                }
+            } else if (typeof config.defaultInterface === "object") {
+                switch(config.defaultInterface.type) {
+                    case "browser": return this.browserMgr.ask(config);
+                    case "prompt": return this.promptMgr.ask(config);
+                    default: return this.customMgr.ask(config);
+                }
             }
-        } else if (typeof config.userInterface === "object") {
-            switch(config.userInterface.type) {
-                case "browser": return this.browser(config);
-                case "prompt": return this.prompt(config);
-                default: return this.custom(config);
-            }
+
+            return new Promise((_, reject) => reject("Unrecognized inputConfig format."));
+        } catch(err) {
+            return new Promise((_, reject) => reject(err));
         }
-
-        throw new Error("Unrecognized inputConfig format.");
-    }
-
-    prompt(config: it.IInputConfig): { [key: string]: any } {
-        
-    }
-
-    browser(config: it.IInputConfig): { [key: string]: any } {
-
-    }
-
-    custom(config: it.IInputConfig): { [key: string]: any } {
-
     }
 
     protected countQuestions(inputs: it.ITemplateInputs): number {

@@ -14,8 +14,11 @@ let TYPES = {
     TemplateRunner: Symbol("TemplateRunner"),
     FilePatterns: Symbol("FilePatterns"),
     TransformManager: Symbol("TransformManager"),
+    TemplateValidator: Symbol("TemplateValidator"),
     InputManager: Symbol("InputManager"),
-    TemplateValidator: Symbol("TemplateValidator")
+    BrowserInputManager: Symbol("BrowserInputManager"),
+    CustomInputManager: Symbol("CustomInputManager"),
+    PromptInputManager: Symbol("PromptInputManager")
 }
 
 export default TYPES;

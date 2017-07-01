@@ -1,6 +1,6 @@
-import { ITemplateInputs } from './i-template-inputs';
+import { IInputConfig } from './template';
 import * as it from './template';
 
 export interface IInputManager {
-    ask(tmpl: it.ITemplate, inputs: ITemplateInputs): any;
+    ask(inputs: IInputConfig): Promise<{ [key: string]: any }>;
 }

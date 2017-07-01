@@ -11,6 +11,9 @@ import { FilePatterns } from '../file-patterns';
 import { UserMessager } from '../user-messager';
 import { TemplateValidator } from '../template-validator';
 import { InputManager } from '../input-manager';
+import { BrowserInputManager } from '../browser-input-manager';
+import { CustomInputManager } from '../custom-input-manager';
+import { PromptInputManager } from '../prompt-input-manager';
 import { Globber, Kernel, SettingsProvider, TemplateManager } from "./entities";
 import { CommandFactory, SetDirCommand, NewCommand, ListCommand, InfoCommand } from '../commands';
 import { ICommand, ICommandFactory } from "../commands/i";
@@ -32,6 +35,9 @@ container.bind<it.ITransformManager>(TYPES.TransformManager).to(TransformManager
 container.bind<i.ITemplateValidator>(TYPES.TemplateValidator).to(TemplateValidator);
 container.bind<i.IFilePatterns>(TYPES.FilePatterns).to(FilePatterns);
 container.bind<i.IInputManager>(TYPES.InputManager).to(InputManager);
+container.bind<i.IInputManager>(TYPES.BrowserInputManager).to(BrowserInputManager);
+container.bind<i.IInputManager>(TYPES.CustomInputManager).to(CustomInputManager);
+container.bind<i.IInputManager>(TYPES.PromptInputManager).to(PromptInputManager);
 
 container.bind<ICommand<any, any>>(TYPES.Commands).to(SetDirCommand);
 container.bind<ICommand<any, any>>(TYPES.Commands).to(NewCommand);

@@ -24,7 +24,7 @@
 
     "#": "Provides a way of interacting with the user.",
     "inputConfig": {
-        "userInterface": "prompt", "#": "possible values: 'browser', 'prompt', or 'custom'.",
+        "defaultInterface": "prompt", "#": "possible values: 'browser', 'prompt', or 'custom'.",
         "handler": "",
         "preface": "",
         "define": {

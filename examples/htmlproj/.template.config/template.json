@@ -23,8 +23,10 @@
     },
 
     "#": "Provides a way of interacting with the user.",
-    "inputs": {
-        "title": "What will be the title of your website?"
+    "inputConfig": {
+        "define": {
+            "title": "What will be the title of your website?"
+        }
     },
 
     "#": [

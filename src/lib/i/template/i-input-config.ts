@@ -27,7 +27,7 @@ export interface ICustomInputInterface {
 }
 
 export interface IInputConfig {
-    userInterface?: "prompt" | "browser" | ICustomInputInterface;
+    defaultInterface?: "prompt" | "browser" | ICustomInputInterface;
 
     /**
      * Specifies a .js file in the .template.config/handlers/ directory.

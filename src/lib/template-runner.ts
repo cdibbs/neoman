@@ -36,16 +36,18 @@ export class TemplateRunner implements i.ITemplateRunner {
             return;
         }
 
-        let inputs = this.inputManager.ask(tmpl.inputs);
-        this.transformManager.configure(tmpl);
-        emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.replace, inputs, verbosity));
-        emitter.on('tentative', this.tentativeMatchTmplFile.bind(this, path, verbosity));
-        emitter.on('error', this.templateError.bind(this))
-        if (verbosity === VERBOSITY.debug || showExcluded) {
-            emitter.on('exclude', this.tentativeMatchTmplFile.bind(this));
-        }
+        this.inputManager.ask(tmpl.inputConfig).then(inputs => {
+            console.log(inputs);
+            this.transformManager.configure(tmpl);
+            emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.replace, inputs, verbosity));
+            emitter.on('tentative', this.tentativeMatchTmplFile.bind(this, path, verbosity));
+            emitter.on('error', this.templateError.bind(this))
+            if (verbosity === VERBOSITY.debug || showExcluded) {
+                emitter.on('exclude', this.tentativeMatchTmplFile.bind(this));
+            }
 
-        this.getDescendents(tmpl.__tmplPath, tmpl.__tmplPath, emitter, tmpl.files, tmpl.ignore);
+            this.getDescendents(tmpl.__tmplPath, tmpl.__tmplPath, emitter, tmpl.files, tmpl.ignore);
+        });
     }
 
     destinationEmpty(path: string): boolean {
