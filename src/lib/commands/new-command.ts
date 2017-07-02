@@ -34,8 +34,12 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
         let path = opts.path[0] || cwd;        
         this.msg.write(`Generating project ${name} from template ${args.template}...`);
         this.msg.write(`Copying and transforming files into ${path}`);
-        this.tmplMgr.info(args.template)
+        this.tmplMgr
+            .info(args.template)
             .then(this.trunner.run.bind(this.trunner, path, opts.verbosity[0], opts.showExcluded))
+            .then(() => {
+                this.process.exit();
+            })
             .catch(err => console.error(err));
     }
 }

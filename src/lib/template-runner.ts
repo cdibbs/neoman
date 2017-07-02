@@ -20,11 +20,12 @@ export class TemplateRunner implements i.ITemplateRunner {
         @inject(TYPES.FilePatterns) private patterns: i.IFilePatterns,
         @inject(TYPES.InputManager) private inputManager: i.IInputManager,
         @inject(TYPES.TransformManager) private transformManager: it.ITransformManager,
-        @inject(TYPES.TemplateValidator) private validator: i.ITemplateValidator
+        @inject(TYPES.TemplateValidator) private validator: i.ITemplateValidator,
+        @inject(TYPES.Process) private process: NodeJS.Process
     ) {
     }
 
-    run(path: string, verbosity: Verbosity, showExcluded: boolean, tmpl: ITemplate): void {
+    run(path: string, verbosity: Verbosity, showExcluded: boolean, tmpl: ITemplate): Promise<number> {
         let results: string[] = [];
         let emitter = new EventEmitter<TemplateFilesEmitterType>();
         if (!this.validate(tmpl)) {
@@ -36,7 +37,7 @@ export class TemplateRunner implements i.ITemplateRunner {
             return;
         }
 
-        this.inputManager.ask(tmpl.inputConfig).then(inputs => {
+        return this.inputManager.ask(tmpl.inputConfig).then(inputs => {
             this.transformManager.configure(tmpl, inputs);
             emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.replace, verbosity));
             emitter.on('tentative', this.tentativeMatchTmplFile.bind(this, path, verbosity));
@@ -45,7 +46,11 @@ export class TemplateRunner implements i.ITemplateRunner {
                 emitter.on('exclude', this.tentativeMatchTmplFile.bind(this));
             }
 
-            this.getDescendents(tmpl.__tmplPath, tmpl.__tmplPath, emitter, tmpl.files, tmpl.ignore);
+            return this.getDescendents(tmpl.__tmplPath, tmpl.__tmplPath, emitter, tmpl.files, tmpl.ignore)
+                .then((count: number) => {
+                    this.msg.info(`${count} files processed.`);
+                    return count;
+                });
         });
     }
 
@@ -98,13 +103,13 @@ export class TemplateRunner implements i.ITemplateRunner {
         this.msg.error(err.stack);
     }
 
-    getDescendents(baseDir: string, dir: string, emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>, include: string[] = [], ignore: string[] = []): void {
+    getDescendents(baseDir: string, dir: string, emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>, include: string[] = [], ignore: string[] = []): Promise<number> {
         try {
-            fse.readdir(dir)
+            return fse.readdir(dir)
                 .then(files => {
-                    files.map(file => {
+                    return Promise.all(files.map(file => {
                         let p = this.path.join(dir, file);
-                        fse.stat(p).then((stat: fse.Stats) => {
+                        return fse.stat(p).then((stat: fse.Stats) => {
                             let f = <i.ITemplateFile>{
                                 absolutePath: p,
                                 relativePath: p.substr(baseDir.length + 1),
@@ -125,10 +130,14 @@ export class TemplateRunner implements i.ITemplateRunner {
                                 emitter.emit('match', f);
                             }
                         }).catch(err => emitter.emit('error', err));
-                    });
-            }).catch(err => emitter.emit('error', err));
+                    }));
+            })
+            .then((files) => {
+                return new Promise((resolve) => resolve(files.length));
+            })
+            .catch(err => emitter.emit('error', err));
         } catch (err) {
-            emitter.emit('error', err);
+            return new Promise((_, reject) => reject(err));
         }
     }
 }

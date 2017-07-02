@@ -34,7 +34,6 @@ export class TransformManager implements i.ITransformManager{
             config.parserPlugin = tconfig.parserPlugin;
             config.parserOptions = tconfig.parserOptions;
             let PluginClass = requireg(`neoman-plugin-${config.parserPlugin}`);
-            console.log(PluginClass);
             config.pluginInstance = new PluginClass();
             config.pluginInstance.configure(config.parserOptions);
             this.configs[key] = config;
@@ -176,8 +175,7 @@ export class TransformManager implements i.ITransformManager{
         let configMatches = configKey ? this.configDoesApply(path, configKey) : true;
         let filesMatch = (files && (files instanceof Array) && files.length) ? this.filePatterns.match(path, files) : [];
         let ignoresMatch = (ignore && (ignore instanceof Array) && ignore.length) ? this.filePatterns.match(path, ignore) : [];
-        console.log(configMatches, files, path, filesMatch, ignoresMatch);
-
+        //console.log(configMatches, files, path, filesMatch, ignoresMatch);
         if (typeof files === "undefined" && (typeof ignore !== "undefined" && ! ignoresMatch.length))
             return configMatches; // Files undefined, ignores defined, but no ignore matches. Global replace if config matches.
 

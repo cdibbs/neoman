@@ -11,11 +11,9 @@ export class PromptInputManager implements i.IInputManager {
     ) {}
 
     ask(config: it.IInputConfig): Promise<{ [key: string]: any }> {
-        console.log("here")
         let promise: Promise<{ [key: string]: any }> = null;
         for(let key in config.define) {
             let q = config.define[key];
-            console.log(key, q);
             if (promise === null) {
                 promise = this.prompt(q).then(a => { let answers = {}; answers[key] = a; return answers; });
             } else {
@@ -34,7 +32,8 @@ export class PromptInputManager implements i.IInputManager {
                 if (typeof question !== "string")
                     throw new Error("Not supported, yet.");
 
-                this.process.stdout.write(question);
+                this.process.stdin.resume();
+                this.process.stdout.write(question, () => {});
                 this.process.stdin.once('data', function (data: any) {
                     resolve(data.toString().trim());
                 });
