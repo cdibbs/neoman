@@ -24,6 +24,7 @@
 
     "#": "Provides a way of interacting with the user.",
     "inputConfig": {
+        "defaultInterface": "browser",
         "define": {
             "title": "What will be the title of your website?",
             "subtitle": "What subtitle?"

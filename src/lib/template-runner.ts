@@ -33,11 +33,12 @@ export class TemplateRunner implements i.ITemplateRunner {
         }
 
         if (!this.destinationEmpty(path) /* && not force */) {
-            this.msg.write(`The destination directory is not empty (${path}). Aborting.`);
+            this.msg.error(`The destination directory is not empty (${path}). Aborting.`);
             return;
         }
 
         return this.inputManager.ask(tmpl.inputConfig).then(inputs => {
+            this.msg.write(`Copying and transforming files into ${path}...`);
             this.transformManager.configure(tmpl, inputs);
             emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.replace, verbosity));
             emitter.on('tentative', this.tentativeMatchTmplFile.bind(this, path, verbosity));
