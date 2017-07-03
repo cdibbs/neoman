@@ -36,7 +36,7 @@ export class BrowserInputManager implements i.IInputManager {
             app.post('/', function(req, res) {
                 console.log(req.body);
                 resolve(req.body);
-                //instance.stop(() => {});
+                instance.stop(() => {});
                 server.close();
             });
 
