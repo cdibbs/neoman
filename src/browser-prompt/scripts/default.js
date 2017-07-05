@@ -8,6 +8,10 @@ $(document).ready(function() {
         }
     });
 
+    $(window).bind("neoman.beforeunload", function(event) {
+        event.preventDefault();
+    });
+
     $("#submit").click(function() {
         let answers = $(".question")
             .get()

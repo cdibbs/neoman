@@ -17,25 +17,36 @@ $(document).ready(function() {
      * Events: */
     const neoman_disconnected = "neoman.disconnected"; // When we no longer hear from the Neoman internal HTTP server.
     const neoman_connected = "neoman.connected"; // Based on ws.onopen.
-    const neoman_unload = "neoman.unload"; // When we're about to send an unload notification to the Neoman server. Based on browser beforeunload.
+    const neoman_beforeunload = "neoman.beforeunload"; // Based on browser beforeunload. preventDefault() here can prevent Neoman console app from aborting.
+    const neoman_unload = "neoman.unload"; // Based on browser unload.
     const neoman_load = "neoman.load"; //  When we're about to send a load notification. Based on WebSocket.onopen.
     const neoman_ws_error = "neoman.ws.error"; // WebSocket errors.
     const neoman_ws_message = "neoman.ws.message"; // Messages from Neoman. Not currently used.
 
+    var prevent = {
+        unload: undefined
+    };
+
     var ws = new WebSocket("ws://localhost:3638");
-    setupUserEvents(ws);
+    setupEventDefaultActions(ws);
     setupLowLevelEvents(ws); // trigger user-land events.
 
-    function setupUserEvents(ws) {
+    function setupEventDefaultActions(ws) {
         $(window).bind(neoman_connected, function() {
             ws.send(JSON.stringify({
                 eventType: "load"
             }));
         });
 
-        $(window).bind(neoman_unload, function() {
+        $(window).bind(neoman_beforeunload, function(event) {
             // Let the primary user page/library handle warning the user about unload.
-            // return confirm("Do you really want to leave?"); 
+            // event.preventDefault() to stop ws.send.
+            if (event.isDefaultPrevented()) {
+                prevent.unload = true;
+            }
+        });
+
+        $(window).bind(neoman_unload, function(event) {
             ws.send(JSON.stringify({
                 eventType: "unload"
             }));
@@ -57,7 +68,7 @@ $(document).ready(function() {
 
     function setupLowLevelEvents(ws) {
         ws.onopen = function(event) {
-            $(window).trigger(neoman_connected);
+            $(window).trigger(new $.Event(neoman_connected));
         };
         ws.onerror = function(event) {
             // Should we do something with this?
@@ -69,20 +80,18 @@ $(document).ready(function() {
             $(window).trigger(neoman_ws_message, msgEvent);
         };
 
-        $(window).bind("beforeunload", function() { 
-            $(window).trigger(neoman_unload);
+        $(window).on('beforeunload', function() { 
+            $(window).trigger(neoman_beforeunload);
+            return prevent.unload;
         });
 
-        const interval = setInterval(function ping() {
-            if (ws.isAlive === false)
-            {   
-                $(window).trigger(neoman_disconnected);
-                return ws.terminate();
-            }
+        $(window).on('unload', function() { 
+            $(window).trigger(neoman_unload);
+        })
 
-            ws.isAlive = false;
-            ws.ping('', false, true);
-        }, 1000);
+        ws.onclose = function(ev) {
+            $(window).trigger(neoman_disconnected);
+        };
 
         // If we're here, we're all loaded and setup.
         $(window).trigger(neoman_load);

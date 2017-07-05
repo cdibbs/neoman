@@ -1,7 +1,9 @@
 # Neoman Template Manager
 neoman - _Old Saxon_. None, nobody.
 
-A template manager that intends to be _nobody_ and _nothing_; it does not want to impose on your code. Neoman knows that your code shouldn't have to become a template, for it already is one.
+A template manager that intends to be _nobody_ and _nothing_; it does not want to impose on your code. Neoman knows that your code shouldn't have to become a template, _for it already is one._ :smiley:
+
+## Basic Usage
 
 Drop a single, unobtrusive folder into your project, and Neoman will have all it needs.
 

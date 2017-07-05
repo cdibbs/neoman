@@ -99,7 +99,7 @@ export class BrowserInputManager implements i.IInputManager {
                         this.msg.warn(`Didn't understand wss event type: ${message.eventType}.`);
                 }
             } else {
-                throw new Error("Didn't understand wss message format.");
+                throw new Error("Didn't understand wss message format: " + msgString);
             }
         } catch (err) {
             this.msg.warn(err);
