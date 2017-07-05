@@ -26,6 +26,7 @@
     "@types/mocha": "^2.2.41",
     "@types/node": "^7.0.28",
     "@types/underscore": "^1.8.1",
+    "@types/ws": "^3.0.0",
     "body-parser": "^1.17.2",
     "chai": "^4.0.2",
     "commandpost": "^1.1.0",
@@ -43,6 +44,7 @@
     "requireg": "^0.1.6",
     "rxjs": "^5.4.0",
     "underscore": "^1.8.3",
-    "user-settings": "^0.1.5"
+    "user-settings": "^0.1.5",
+    "ws": "^3.0.0"
   }
 }

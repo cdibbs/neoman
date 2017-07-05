@@ -39,6 +39,10 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
             .then(() => {
                 this.process.exit();
             })
-            .catch(err => console.error(err));
+            .catch(err => {
+                this.msg.error(err);
+                this.msg.info("Aborting.");
+                this.process.exit();
+            });
     }
 }
