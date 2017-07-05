@@ -32,7 +32,7 @@ export class BrowserInputManager implements i.IInputManager {
             app.use(bodyParser.json());
             app.use('/', express.static(this.path.join(__dirname, '..', 'browser-prompt')));
             app.get('/questions', (req, res) => res.json(config));
-            app.post('/', this.handleUserInput.bind(this, this));
+            app.post('/', this.handleUserInput.bind(this, resolve, reject));
             this.serverInstance = app.listen(3638, this.launchBrowser.bind(this, reject));
             wss = new WebSocket.Server({ server: this.serverInstance });
             wss.on('connection', this.wssConnection.bind(this, resolve, reject));
