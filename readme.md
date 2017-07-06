@@ -1,5 +1,6 @@
 # Neoman Template Manager
-neoman - _Old Saxon_. None, nobody.
+
+**neoman** - _Old Saxon_. None, nobody.
 
 A template manager that intends to be _nobody_ and _nothing_; it does not want to impose on your code. Neoman knows that your code shouldn't have to become a template, _because it already is one._ :relieved:
 
