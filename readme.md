@@ -2,7 +2,7 @@
 
 **neoman** - _Old Saxon_. None, nobody.
 
-A template manager that intends to be _nobody_ and _nothing_; it does not want to impose on your code. Neoman knows that your code shouldn't have to become a template, _because it already is one._ :relieved:
+A template manager that intends to be _nobody_ and _nothing_; it doesn't want to impose. Neoman knows that your code shouldn't have to become a template, _because it already is one._ :relieved:
 
 ## Basic Usage
 
