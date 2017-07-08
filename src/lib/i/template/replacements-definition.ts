@@ -1,3 +1,3 @@
 import { IReplacementDefinition } from './i-replacement-definition';
 
-export type ReplacementsDefinition = string | IReplacementDefinition | IReplacementDefinition[];
+export type ReplacementsDefinition = string | IReplacementDefinition | ( string | IReplacementDefinition)[];

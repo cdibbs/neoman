@@ -25,6 +25,7 @@
     "#": "Provides a way of interacting with the user.",
     "inputConfig": {
         "defaultInterface": "prompt", "#": "possible values: 'browser', 'prompt', or 'custom'.",
+        "interfaceOptions": {},
         "handler": "",
         "preface": "",
         "define": {
@@ -38,29 +39,29 @@
     "#": [
         "Replacements occur in the order they are defined. They apply to all non-ignored files unless constrained by a",
         "configuration type, glob, or custom handler."],
-    "replace": [
+    "transform": [
         "# Strings like this are comments, in this section.",
-        { "replace": "export", "regex": true, "with": "My replacement{{color}}", "files": ["**/*.js"] },
+        { "subject": "export", "regex": true, "with": "My replacement{{color}}", "files": ["**/*.js"] },
 
         "# A subsection applying to a particular glob or configuration.",
         {
             "section": { "files": "**/*.ts" },
-            "replace": [
+            "subject": [
 
             ]
         },
 
         "/\/\//myreplacement/g", "# Do we support regex strings? Undecided.",
-        { "replace": "what", "with": { "handler": "myaction" } },
-        { "replace": "what", "with": { "handler": "myaction" } },
+        { "subject": "what", "with": { "handler": "myaction" } },
+        { "subject": "what", "with": { "handler": "myaction" } },
 
         "# Perform filetype-specific replacements with a plugin configured for that filetype.",
-        { "replace": "mynamespace", "with": "yournamespace", "configuration": "typescript" },
-        { "replace": "(\\w+)namespace", "with": "something else", "configuration": "typescript", "params": { "type": "namespace", "regex": true } },
-        { "replace": "(\\w+)varname", "with": "othervarname", "configuration": "typescript", "params": { "type": "variable", "regex": true } },
+        { "subject": "mynamespace", "with": "yournamespace", "configuration": "typescript" },
+        { "subject": "(\\w+)namespace", "with": "something else", "configuration": "typescript", "params": { "type": "namespace", "regex": true } },
+        { "subject": "(\\w+)varname", "with": "othervarname", "configuration": "typescript", "params": { "type": "variable", "regex": true } },
 
-        { "replace": "html>body>h1:first-child", "with": { "handler" : "myhandler" }, "configuration": "html" },
-        { "replace": "html>body>h1:first-child", "with": "something simple", "configuration": "html", "params": { "type": "attr", "attr": "title" } }
+        { "subject": "html>body>h1:first-child", "with": { "handler" : "myhandler" }, "configuration": "html" },
+        { "subject": "html>body>h1:first-child", "with": "something simple", "configuration": "html", "params": { "type": "attr", "attr": "title" } }
     ],
 
     "filesystemTransforms": [

@@ -24,7 +24,7 @@
 
     "#": "Provides a way of interacting with the user.",
     "inputConfig": {
-        "defaultInterface": "browser",
+        "defaultInterface": "prompt",
         "define": {
             "title": "What will be the title of your website?",
             "subtitle": "What subtitle?"
@@ -32,24 +32,31 @@
     },
 
     "#": [
-        "Replacements occur in the order they are defined. They apply to all files unless constrained by a",
+        "Transforms occur in the order they are defined. They apply to all files unless constrained by a",
         "configuration type, glob, or ."],
-    "replace": [
+    "transform": [
         "# Strings like this are comments, in this section.",
-        { "replace": "text", "with": "content: {{subtitle}}", "files": ["**/*.html"] },
-        { "replace": "html>body>h1:first-child", "with": "My new title: {{title}}", "configuration": "html", "params": { "type": "text" } }
+        { "subject": "text", "with": "content: {{subtitle}}", "files": ["**/*.html"] },
+        { "subject": "$.name", "with": "test2", "configuration": "json", "params": { "action": "set", "type": "string" } },
+        { "subject": "$.tags[2]", "with": "super", "configuration": "json", "params": { "action": "set", "type": "string" } },
+        { "subject": "$.tags[3]", "with": "super", "configuration": "json", "params": { "action": "set", "type": "number" } },
+        { "subject": "html>body>h1:first-child", "with": "My new title: {{title}}", "configuration": "html", "params": { "type": "text" } }
     ],
 
     "#": "We're leaving out unnecessary sections, in this example, such as files and ignore.",
-    "files": [ "**/*.html" ],
+    "files": [ "**/*.html", "package.json" ],
 
     "#": "Optional section to define configurations per file type.",
     "configurations": {
         "#": "Configuration keys should be short but descriptive. ",
         "html": {
-            "files": ["*.html"],
+            "files": ["**/*.html"],
             "parserPlugin": "xml",
             "#": "Will try to find the plugin in ./plugins, first, then node_modules? Let's see."
+        },
+        "json": {
+            "files": ["**/*.json"],
+            "parserPlugin": "json"
         }
     }
 }

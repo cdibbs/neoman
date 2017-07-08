@@ -2,15 +2,10 @@ import { IReplacementFilter } from './i-replacement-filter';
 import { IWithDefinition } from './i-with-definition';
 
 export interface IReplacementDefinition extends IReplacementFilter {
-    section: IReplacementFilter;
-
-    replace: string | IReplacementDefinition[];
-
+    section?: IReplacementFilter;
+    subject: string;
     with: string | IWithDefinition;
-
-    regex: boolean;
-
-    regexFlags: string;
-
-    params: any;
+    simple?: boolean;
+    regexFlags?: string;
+    params?: any;
 }

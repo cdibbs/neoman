@@ -1,7 +1,5 @@
 export interface IReplacementFilter {
-    configuration: string;
-
-    files: string[];
-
-    ignore: string[];
+    configuration?: string;
+    files?: string[];
+    ignore?: string[];
 }

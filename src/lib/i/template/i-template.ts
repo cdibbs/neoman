@@ -25,7 +25,7 @@ export interface ITemplate {
 
     inputs?: IInputConfig;
 
-    replace?: ReplacementsDefinition;
+    transform?: ReplacementsDefinition;
 
     files?: string[];
 

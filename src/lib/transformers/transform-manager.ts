@@ -59,9 +59,8 @@ export class TransformManager implements i.ITransformManager{
         let replaceComponent: string = components[2];
         let flagsComponent: string = components[3];
         return <ir.IReplacementDefinition>{
-            "replace": searchComponent,
+            "subject": searchComponent,
             "with": replaceComponent,
-            "regex": true,
             "regexFlags": flagsComponent
         };
     }
@@ -77,12 +76,12 @@ export class TransformManager implements i.ITransformManager{
             
             if (typeof rdef === "object") {
                 if (this.replaceDoesApply(path, rdef.files, rdef.ignore, rdef.configuration)) {
-                    this.msg.debug(`Applying transform definition for "${rdef.replace}"${rdef.configuration ? ' (config: ' + rdef.configuration + ')' : ""}.`, 2)
+                    this.msg.debug(`Applying transform definition for "${rdef.subject}"${rdef.configuration ? ' (config: ' + rdef.configuration + ')' : ""}.`, 2)
                     count ++;
                     //this.msg.debug(`Applying replace definition for ${rdef.replace}...`);
                     content = this.applyReplace(content, rdef, path);
                 } else {
-                    this.msg.debug(`Skipping transform definition for "${rdef.replace}"${rdef.configuration ? ' (config: ' + rdef.configuration + ')' : ""}.`, 2);
+                    this.msg.debug(`Skipping transform definition for "${rdef.subject}"${rdef.configuration ? ' (config: ' + rdef.configuration + ')' : ""}.`, 2);
                 }
             } else {
                 throw new Error(`Unrecognized replacement definition ${i}, type: ${typeof rdef}.`);
@@ -99,25 +98,25 @@ export class TransformManager implements i.ITransformManager{
         switch(engine) {
             case "regex":
                 if (typeof rdef.with === "string")
-                    return content.replace(new RegExp(<string>rdef.replace, rdef.regexFlags || ""), this.preprocess(rdef.with));
+                    return content.replace(new RegExp(<string>rdef.subject, rdef.regexFlags || ""), this.preprocess(rdef.with));
                 else
-                    return content.replace(new RegExp(<string>rdef.replace, rdef.regexFlags || ""), this.buildReplacer(rdef));
+                    return content.replace(new RegExp(<string>rdef.subject, rdef.regexFlags || ""), this.buildReplacer(rdef));
             case "simple":
                 if (typeof rdef.with === "string")
-                    return content.split(<string>rdef.replace).join(this.preprocess(rdef.with));
+                    return content.split(<string>rdef.subject).join(this.preprocess(rdef.with));
                 else
-                    return content.split(<string>rdef.replace).join(this.buildReplacer(rdef)(<string>rdef.replace));
+                    return content.split(<string>rdef.subject).join(this.buildReplacer(rdef)(<string>rdef.subject));
             case "plugin":
                 try {
                     let config = this.configs[rdef.configuration];
                     if (typeof rdef.with === "string") {
-                        return config.pluginInstance.transform(path, content, rdef.replace, this.preprocess(rdef.with), _.extend({}, config.parserOptions, rdef.params));
+                        return config.pluginInstance.transform(path, content, rdef.subject, this.preprocess(rdef.with), _.extend({}, config.parserOptions, rdef.params));
                     } else {
-                        return config.pluginInstance.transform(path, content, rdef.replace, this.buildReplacer(rdef), _.extend({}, config.parserOptions, rdef.params));
+                        return config.pluginInstance.transform(path, content, rdef.subject, this.buildReplacer(rdef), _.extend({}, config.parserOptions, rdef.params));
                     }
                 } catch (err) {
                     this.msg.error(`Error running plugin from "${rdef.configuration}" configuration:`, 3);
-                    this.msg.error(err, 3);
+                    this.msg.error(err.toString(), 3);
                     return content;
                 }
             default:
@@ -148,7 +147,7 @@ export class TransformManager implements i.ITransformManager{
             return (substr: string) => substr;
         }
 
-        throw new Error(`Handler definition missing for replace '${rdef.replace}'.`);
+        throw new Error(`Handler definition missing for replace '${rdef.subject}'.`);
     }
 
     private varMatcher = /{{[^}]*}}/g;
@@ -169,17 +168,18 @@ export class TransformManager implements i.ITransformManager{
      * @param configKey A configuration definition to match (itself containing include/ignore globs).
      */
     replaceDoesApply(path: string, files: string[], ignore: string[], configKey: string): boolean {
-        if (typeof files === "undefined" && typeof ignore === "undefined")
-            return true; // No explicit inclusions or exclusions. Global replace.
+        if (typeof files === "undefined" && typeof ignore === "undefined" && typeof configKey === "undefined")
+            return true; // No explicit inclusions or exclusions --> Global replace.
         
         let configMatches = configKey ? this.configDoesApply(path, configKey) : true;
         let filesMatch = (files && (files instanceof Array) && files.length) ? this.filePatterns.match(path, files) : [];
         let ignoresMatch = (ignore && (ignore instanceof Array) && ignore.length) ? this.filePatterns.match(path, ignore) : [];
+        //console.log(configMatches, filesMatch, ignoresMatch);
         //console.log(configMatches, files, path, filesMatch, ignoresMatch);
         if (typeof files === "undefined" && (typeof ignore !== "undefined" && ! ignoresMatch.length))
             return configMatches; // Files undefined, ignores defined, but no ignore matches. Global replace if config matches.
 
-        return (configMatches && filesMatch.length && !ignoresMatch.length);
+        return (configMatches && (!files || !files.length || filesMatch.length) && !ignoresMatch.length);
     }
 
     /**
@@ -191,7 +191,9 @@ export class TransformManager implements i.ITransformManager{
     configDoesApply(path: string, configKey: string): boolean {
         if (this.configs.hasOwnProperty(configKey)) {
             let c = this.configs[configKey];
-            return this.replaceDoesApply(path, c.files, c.ignore, null);
-        } 
+            return this.replaceDoesApply(path, c.files, c.ignore, undefined);
+        } else {
+            throw new Error(`Configuration key "${configKey}" does not exist.`);
+        }
     }
 }
