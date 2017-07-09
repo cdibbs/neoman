@@ -14,11 +14,11 @@ A minimal `template.json` would look like this:
 
 ```json
 {
-    "name": "My Project",
-    "description": "My useful project will lead many to triumph.",
+    "name": "My Project Template",
+    "description": "My useful project template will lead many to triumph.",
     "author": "Noh Body",
     "url": "https://en.wikipedia.org/wiki/Outis",
-    "identity": "myproj",
+    "identity": "myprojtmp",
 
     "inputConfig": {
         "defaultInterface": "prompt",
