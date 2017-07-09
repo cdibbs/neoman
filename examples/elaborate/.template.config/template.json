@@ -8,18 +8,9 @@
     "name": "Template Project Two",
     "description": "A demo template project for testing the Neoman templating engine.",
     "author": "Chris Dibbern",
-
-    "#": "Tags for this template.",
-    "classifications": [
-        "typescript",
-        "templating",
-        "demo"
-    ], 
-
-    "identity": "folproof", "#": "A unique ID for the project template. Used when creating a project from a template.",
-    "shortName": "fol", "#": "You can create the project using this short name instead of the one above.",
     "tags": {
-        "language": "Typescript", "#": "The dominant language in this solution."
+        "keywords": ["typescript", "templating", "demo"],
+        "language": "Typescript", "#": "The primary language in this solution."
     },
 
     "#": "Provides a way of interacting with the user.",
@@ -64,9 +55,20 @@
         { "subject": "html>body>h1:first-child", "with": "something simple", "configuration": "html", "params": { "type": "attr", "attr": "title" } }
     ],
 
-    "filesystemTransforms": [
-
+    "pathTransform": [
+        "/myfile.(\\d{4})-(\\d{2})-(\\d{2}).txt/yourfile\\1\\2\\3.txt/",
+        { "subject": "", "with": "" },
+        { "subject": "", "with": { "handler": "myscript" }},
+        { "subject": "", "with": { "handler": "myscript" }, "configuration": "myconfig", "params": {} },
+        { "subject": "", "with": "", "files": [], "ignore": [] }
     ],
+
+    "#":[
+      "Event hooks are just a thought. We'll see where the project goes."  
+    ],
+    "eventHooks": {
+
+    },
 
     "#": [
         "The root files and ignore sections define the set of files visible within the configuration sections.",

@@ -6,7 +6,7 @@ A template manager that intends to be _nobody_ and _nothing_; it doesn't want to
 
 ## Basic Usage
 
-Drop a single, unobtrusive folder into your project, and Neoman will have all it needs.
+Drop the following folder and file into your project, and Neoman will have all it needs.
 
 `MyProject/.template.config/template.json`
 
@@ -45,6 +45,7 @@ For documentation, please refer to [the wiki](https://github.com/cdibbs/neoman/w
 To build and run Neoman from source, clone the repository and, from its directory, run:
 
 ```
+npm install
 npm run build
 npm link
 neoman
