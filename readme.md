@@ -27,11 +27,11 @@ A minimal `template.json` would look like this:
         }
     },
 
-    "replace": [
-        { "replace": "my.project.namespace", "with": "{{namespace}}" }
+    "transform": [
+        { "subject": "my.project.namespace", "with": "{{namespace}}" }
     ],
 
-    "#": "Really, you don't need 'files' if you want the 'replace' section to apply to all files",
+    "#": "You don't need 'files' if you want the 'transform' and 'transformFiles' sections to apply to all files",
     "files": ["**/*.ts"]
 }
 ```
