@@ -79,14 +79,14 @@ export class TemplateRunner implements i.ITemplateRunner {
         if (verbosity === VERBOSITY.debug)
             this.msg.debug(`Include: ${tmplFile.absolutePath}`);
 
+        this.msg.info(`Processing ${tmplFile.absolutePath}...`);
+        this.msg.debug(`Applying path transforms...`, 1);
         let destRelPath = this.pathTransformManager.applyTransforms(tmplFile.relativePath, pathTransforms);
         let destFile = this.path.join(path, destRelPath);
         let destPath = this.path.dirname(destFile);
-        this.msg.info(`Processing ${tmplFile.absolutePath}...`);
         let content = fse.readFileSync(tmplFile.absolutePath).toString("utf8");
         this.msg.debug(`Applying transforms...`, 1);
         content = this.transformManager.applyTransforms(tmplFile.relativePath, content, transforms);
-        //content = this.replaceAllInFile(tmplFile.relativePath, content, replaceDef);
         this.msg.debug(`Writing to destination: ${destFile}`, 1);
         fse.ensureDirSync(destPath);
         fse.writeFileSync(destFile, content);

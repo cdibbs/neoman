@@ -57,7 +57,9 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
 
             if (typeof t === "object") {
                 if (this.replaceDoesApply(processing, t.files, t.ignore, t.configuration)) {
-                    processing = this.applyReplace(processing, t, path);
+                    processing = this.applyIfMatch(t, processing);
+                } else {
+                    this.msg.debug(`Skipping path transform def #${i}, "${t.subject}" (no match: config or globs).`, 2);
                 }
             } else {
                 throw new Error(`I do not understand format of path transform #${i + 1}, type ${typeof t}.`);
@@ -65,6 +67,18 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
         }
 
         return processing;
+    }
+
+    applyIfMatch(t: ir.IPathTransform, path: string): string {
+        if (path.match(t.subject)) {
+            this.msg.debug(`Applying path transform for "${t.subject}".`, 2);
+            path = this.applyReplace(path, t, path);
+            this.msg.debug(`Int. result: ${path}`, 3);
+        } else {
+            this.msg.debug(`Skipping path transform def #${i} (no match: "${t.subject}").`, 2);
+        }
+
+        return path;
     }
 
     regexToTransform(regexStr: string): ir.IPathTransform {

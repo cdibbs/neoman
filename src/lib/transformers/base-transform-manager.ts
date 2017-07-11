@@ -10,7 +10,7 @@ import { TemplateConfiguration } from './models/configuration';
 
 @injectable()
 export class BaseTransformManager {
-    protected splitter: RegExp = new RegExp(/^\/(.*(?!\\))\/(.*)\/([gimuy]*)$/).compile();
+    protected splitter: RegExp = new RegExp(/^\/(.*(?!\\))\/(.*)\/([gimuy]*)$/);
 
     protected configs: { [key: string]: TemplateConfiguration };
     protected inputs: { [key: string]: any };

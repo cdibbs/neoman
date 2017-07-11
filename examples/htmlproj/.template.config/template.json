@@ -44,7 +44,7 @@
         "Input and output paths are always relative to the destination."
     ],
     "pathTransform": [
-        "/index.(\\d{4})-(\\d{2})-(\\d{2}).html/index\\1\\2\\3.html/"
+        "/index.(\\d{4})-(\\d{2})-(\\d{2}).html/index$1$2$3.html/"
     ],
 
     "#": "We're leaving out unnecessary sections, in this example, such as files and ignore.",
