@@ -1,3 +1,9 @@
+[![npm version](https://badge.fury.io/js/neoman.svg)](https://badge.fury.io/js/neoman)
+[![Build Status](https://travis-ci.org/cdibbs/neoman.svg?branch=master)](https://travis-ci.org/cdibbs/neoman)
+[![dependencies Status](https://david-dm.org/cdibbs/neoman/status.svg)](https://david-dm.org/cdibbs/neoman)
+[![devDependencies Status](https://david-dm.org/cdibbs/neoman/dev-status.svg)](https://david-dm.org/cdibbs/neoman?type=dev)
+[![codecov](https://codecov.io/gh/cdibbs/neoman/branch/master/graph/badge.svg)](https://codecov.io/gh/cdibbs/neoman)
+
 # Neoman Template Manager
 
 **neoman** - _Old Saxon_. None, nobody.
