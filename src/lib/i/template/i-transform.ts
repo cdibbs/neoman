@@ -1,8 +1,8 @@
-import { IReplacementFilter } from './i-replacement-filter';
+import { ITransformFilter } from './i-transform-filter';
 import { IWithDefinition } from './i-with-definition';
 
-export interface IReplacementDefinition extends IReplacementFilter {
-    section?: IReplacementFilter;
+export interface ITransform extends ITransformFilter {
+    section?: ITransformFilter;
     subject: string;
     with: string | IWithDefinition;
     simple?: boolean;

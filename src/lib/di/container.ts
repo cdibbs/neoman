@@ -5,7 +5,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 import TYPES from "./types";
-import { TransformManager } from '../transformers/transform-manager';
+import { TransformManager, PathTransformManager } from '../transformers';
 import { TemplateRunner } from '../template-runner';
 import { FilePatterns } from '../file-patterns';
 import { UserMessager } from '../user-messager';
@@ -29,6 +29,7 @@ container.bind<i.ISettingsProvider>(TYPES.SettingsProvider).to(SettingsProvider)
 container.bind<i.IUserMessager>(TYPES.UserMessager).to(UserMessager);
 container.bind<i.ITemplateManager>(TYPES.TemplateManager).to(TemplateManager);
 container.bind<it.ITransformManager>(TYPES.TransformManager).to(TransformManager);
+container.bind<it.IPathTransformManager>(TYPES.PathTransformManager).to(PathTransformManager);
 container.bind<i.ITemplateValidator>(TYPES.TemplateValidator).to(TemplateValidator);
 container.bind<i.IFilePatterns>(TYPES.FilePatterns).to(FilePatterns);
 container.bind<i.IInputManager>(TYPES.InputManager).to(InputManager);

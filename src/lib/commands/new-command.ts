@@ -6,7 +6,6 @@ import { Commands, COMMANDS } from './commands';
 import { Verbosity, VERBOSITY } from './verbosity';
 import { BaseCommand } from './base-command';
 import { IPath, IUserMessager, ITemplateManager, IGlob, IFileSystem, ITemplateFile, ITemplateRunner } from '../i';
-import { ITemplate, ReplacementsDefinition, IReplacementDefinition } from '../i/template';
 import { IEventEmitter } from '../emitters/i';
 import { TemplateFilesEmitterType, EventEmitter } from '../emitters';
 import { INewCmdArgs, INewCmdOpts } from './i';

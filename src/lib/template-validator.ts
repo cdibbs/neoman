@@ -15,9 +15,9 @@ export class TemplateValidator implements i.ITemplateValidator {
         let installed: { [key: string]: boolean } = {};
         for(var key in configs) {
             let config: it.IConfiguration = configs[key];
-            let fullname: string = PLUGIN_PREFIX + config.parserPlugin;
+            let fullname: string = PLUGIN_PREFIX + config.plugin;
             try {
-                requireg.resolve(PLUGIN_PREFIX + config.parserPlugin);
+                requireg.resolve(PLUGIN_PREFIX + config.plugin);
                 installed[fullname] = true;
             } catch (err) {
                 console.log(err);

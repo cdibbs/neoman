@@ -27,25 +27,25 @@ describe('TransformManager', () => {
 
     describe('#preprocess', () => {
         it('should substitute an unescaped variable', () => {
-            tm.inputs = { "hello": "world" };
+            tm['inputs'] = { "hello": "world" };
             let result = tm.preprocess("I just wanted to say {{hello}}.");
             expect(result).to.equal("I just wanted to say world.");
         });
 
         it('should substitute many variables', () => {
-            tm.inputs = { "hello": "world", "another": "also" };
+            tm['inputs'] = { "hello": "world", "another": "also" };
             let result = tm.preprocess("I just wanted to say {{hello}} {{another}}.");
             expect(result).to.equal("I just wanted to say world also.");
         });
 
         it('should not substitute a variable that does not exist.', () => {
-            tm.inputs = { "hello": "world", "another": "also" };
+            tm['inputs'] = { "hello": "world", "another": "also" };
             let result = tm.preprocess("I just wanted to say {{missing}}.");
             expect(result).to.equal("I just wanted to say {{missing}}.");
         });
 
         it('should ignore bracket mismatches.', () => {
-            tm.inputs = { "hello": "world" };
+            tm['inputs'] = { "hello": "world" };
             let result = tm.preprocess("I just wanted to say {{hello.");
             expect(result).to.equal("I just wanted to say {{hello.");
             result = tm.preprocess("I just wanted to say hello}}.");
@@ -55,7 +55,7 @@ describe('TransformManager', () => {
         it('should ignore escaped curly brackets.', () => {
             // Wrapping the starting {{ in "{{" and "}}" is a special case which will result in escaping the input reference.
             // An alternative is to put { "hello" : "{{hello}}" } in your inputConfig.baseInputs.
-            tm.inputs = { "hello": "world", "another": "also" };
+            tm['inputs'] = { "hello": "world", "another": "also" };
             let result = tm.preprocess("I just wanted to say {{{{}}hello}} {{another}}.");
             expect(result).to.equal("I just wanted to say {{hello}} also.");
         });

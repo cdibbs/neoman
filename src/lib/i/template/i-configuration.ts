@@ -1,6 +1,6 @@
 export interface IConfiguration {
     files: string[];
     ignore: string[];
-    parserPlugin: string;
+    plugin: string;
     parserOptions: any;
 }

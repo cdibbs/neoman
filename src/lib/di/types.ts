@@ -14,6 +14,7 @@ let TYPES = {
     TemplateRunner: Symbol("TemplateRunner"),
     FilePatterns: Symbol("FilePatterns"),
     TransformManager: Symbol("TransformManager"),
+    PathTransformManager: Symbol("PathTransformManager"),
     TemplateValidator: Symbol("TemplateValidator"),
     InputManager: Symbol("InputManager"),
     BrowserInputManager: Symbol("BrowserInputManager"),

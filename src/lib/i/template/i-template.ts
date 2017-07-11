@@ -1,6 +1,7 @@
 import { IInputConfig } from './i-input-config';
 import { IConfigurations } from './i-configurations';
-import { ReplacementsDefinition } from './replacements-definition';
+import { Transforms } from './transforms';
+import { PathTransforms } from './path-transforms';
 
 export interface ITemplate {
     __tmplPath: string;
@@ -18,14 +19,17 @@ export interface ITemplate {
     shortName?: string;
 
     tags?: {
+        keywords: string[];
         language: string;
 
-        [key: string]: string;
+        [key: string]: string | string[];
     };
 
     inputs?: IInputConfig;
 
-    transform?: ReplacementsDefinition;
+    transform?: Transforms;
+
+    pathTransform?: PathTransforms;
 
     files?: string[];
 
