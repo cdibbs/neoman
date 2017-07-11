@@ -100,7 +100,7 @@ export class BaseTransformManager {
             return (substr: string) => substr;
         }
 
-        throw new Error(`Handler definition missing for replace '${tdef.subject}'.`);
+        throw new Error(`Handler definition missing for transform.`);
     }
 
     private varMatcher = /{{[^}]*}}/g;

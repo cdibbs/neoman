@@ -41,6 +41,7 @@ export class TemplateRunner implements i.ITemplateRunner {
         return this.inputManager.ask(tmpl.inputConfig).then(inputs => {
             this.msg.write(`Copying and transforming files into ${path}...`);
             this.transformManager.configure(tmpl, inputs);
+            this.pathTransformManager.configure(tmpl, inputs);
             emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.pathTransform, tmpl.transform, verbosity));
             emitter.on('tentative', this.tentativeMatchTmplFile.bind(this, path, verbosity));
             emitter.on('error', this.templateError.bind(this))
@@ -108,7 +109,7 @@ export class TemplateRunner implements i.ITemplateRunner {
 
     getDescendents(baseDir: string, dir: string, emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>, include: string[] = [], ignore: string[] = []): Promise<number> {
         try {
-            let r = fse.readdir(dir)
+            return fse.readdir(dir)
                 .then(files => {
                     return Promise.all(files.map(this.getFileInfo.bind(this, baseDir, dir, include, ignore, emitter)));
                 })
