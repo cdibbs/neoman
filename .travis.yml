@@ -11,5 +11,5 @@ install:
 
 script:
   - tsc -p tsconfig-mocha.json
-  - istanbul cover ./node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec test/**/*.spec.js
+  - istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec test/**/*.spec.js
   - codecov
