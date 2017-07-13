@@ -13,7 +13,7 @@
     "cover": "nyc npm test",
     "build": "npm-run-all tsc copystatic",
     "tsc": "tsc",
-    "report_coverage": "nyc report --reporter=lcov | codecov",
+    "report_coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "copystatic": "copyfiles -u 2 src/browser-prompt/**/* dist/browser-prompt"
   },
   "nyc": {
