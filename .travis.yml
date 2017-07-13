@@ -9,4 +9,5 @@ install:
 - npm install
 
 script:
+  - npm run cover
   - npm run report_coverage
