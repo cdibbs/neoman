@@ -8,15 +8,36 @@
     "neoman": "./bin/neoman"
   },
   "scripts": {
-    "pretest": "tsc -p tsconfig-mocha.json",
-    "test": "mocha \"test/**/*.spec.js\"",
+    "# pretest": "tsc -p tsconfig-mocha.json",
+    "test": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\",\\\"project\":\\\"tsconfig-mocha.json\\\"} mocha --recursive --compilers ts:ts-node/register --compilerOptions --bail src/lib",
+    "cover": "nyc npm test",
     "build": "npm-run-all tsc copystatic",
     "tsc": "tsc",
     "_nyc": "nyc mocha test/**/*.spec.js | codecov",
     "coverage": "npm-run-all pretest _nyc",
     "copystatic": "copyfiles -u 2 src/browser-prompt/**/* dist/browser-prompt"
   },
-  "author": "",
+  "nyc": {
+    "include": [
+      "src/lib/*.ts",
+      "src/lib/**/*.ts"
+    ],
+    "exclude": [
+      "typings",
+      "**/*.d.ts"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "json", "html"
+    ],
+    "all": true
+  },
+  "author": "Chris Dibbern",
   "license": "ISC",
   "devDependencies": {
     "@types/body-parser": "^1.16.4",
@@ -34,6 +55,7 @@
     "codecov": "^2.2.0",
     "commandpost": "^1.1.0",
     "copyfiles": "^1.2.0",
+    "cross-env": "^5.0.1",
     "express": "^4.15.3",
     "fs-extra": "^3.0.1",
     "glob": "^7.1.2",
@@ -48,6 +70,7 @@
     "reflect-metadata": "^0.1.10",
     "requireg": "^0.1.6",
     "rxjs": "^5.4.2",
+    "ts-node": "^3.2.0",
     "typescript": "^2.4.1",
     "underscore": "^1.8.3",
     "user-settings": "^0.1.5",

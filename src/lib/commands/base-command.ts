@@ -1,4 +1,5 @@
 import { injectable, inject } from 'inversify';
+import 'reflect-metadata';
 import { COMMANDS, Commands } from './commands';
 import { ICommand } from './i';
 import { IUserMessager } from '../i';
