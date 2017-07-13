@@ -41,7 +41,7 @@ A minimal `template.json` would look like this:
         { "subject": "my.project.namespace", "with": "{{namespace}}" }
     ],
 
-    "#": "You don't need 'files' if you want the 'transform' and 'transformFiles' sections to apply to all files",
+    "#": "You don't need 'files' if you want the 'transform' and 'pathTransform' sections to apply to all files",
     "files": ["**/*.ts"]
 }
 ```
