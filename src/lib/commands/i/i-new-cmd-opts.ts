@@ -1,4 +1,4 @@
-import { Verbosity } from '../verbosity';
+import { Verbosity } from '../../types/verbosity';
 
 export interface INewCmdOpts {
     name: string[];

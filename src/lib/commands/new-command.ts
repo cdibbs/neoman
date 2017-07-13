@@ -48,7 +48,7 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
 
     buildOptions(opts: INewCmdOpts): RunOptions {
         let options = new RunOptions();
-        options.verbosity = opts.verbosity[0] || options.verbosity;
+        options.verbosity = <Verbosity>opts.verbosity[0] || options.verbosity;
         options.showExcluded = (typeof opts.showExcluded !== "boolean") || options.showExcluded;
         return options;
     }
