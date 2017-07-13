@@ -3,11 +3,11 @@
 import "reflect-metadata";
 import { expect } from 'chai';
 
-import { TransformManager } from './transform-manager';
+import { BaseTransformManager } from './base-transform-manager';
 import * as i from '../i';
 
-describe('TransformManager', () => {
-    var tm: TransformManager;
+describe('BaseTransformManager', () => {
+    var tm: BaseTransformManager;
 
     beforeEach(() => {
         let filePatterns: i.IFilePatterns = {
@@ -22,7 +22,7 @@ describe('TransformManager', () => {
             error: (message: any, indent?: number): void => {},
             write: (message: string, indent: number = 0, level: i.Levels = i.LEVELS.Debug): void => {}
         };
-        tm = new TransformManager(filePatterns, userMessager);
+        tm = new BaseTransformManager(filePatterns, userMessager);
     })
 
     describe('#preprocess', () => {

@@ -4,6 +4,7 @@ import { Stats } from 'fs';
 import "reflect-metadata";
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
+import * as sinon from 'sinon';
 let expect = chai.expect, assert = chai.assert;
 
 import { EventEmitter, TemplateFilesEmitterType } from './emitters';
@@ -103,6 +104,7 @@ describe('TemplateRunner', () => {
             let p = "two/";
             tr["path"].join = (a, b) => a + b;
             tr["stat"] = (result) => { expect(result).to.equal(p + f); done(); return Promise.resolve(<Stats>{}); };
+            tr["prepareFileInfo"] = (...args: any[]) => <i.ITemplateFile>{};
             tr["handleFileInfo"] = (...args: any[]) => 1;
             tr["getFileInfo"](p, p, [], [], em, f)
         });
@@ -117,8 +119,28 @@ describe('TemplateRunner', () => {
             tr["stat"] = (result) => Promise.reject("bogus");
             tr["getFileInfo"]("", "", [], [], em, "");
         });
+        it('should properly curry prepareFileInfo', (done) => {
+            let stats = <Stats>{};
+            tr["prepareFileInfo"] = (baseDir, p, include, ignore, emitter) =>
+            {
+                try {
+                    expect(this).to.equal(tr);
+                    expect(baseDir).to.equal("a");
+                    expect(p).to.equal("a");
+                    expect(include).to.deep.equal(["c"]);
+                    expect(ignore).to.deep.equal(["d"]);
+                    expect(emitter).to.equal(em);
+                } finally {
+                    done();
+                    return <i.ITemplateFile>{};
+                }
+            };
+            tr["stat"] = () => Promise.resolve(stats);
+            tr["getFileInfo"]("a", "b", ["c"], ["d"], em, "");
+        });
         it('should properly curry handleFileInfo', (done) => {
             let stats = <Stats>{};
+            tr["prepareFileInfo"] = () => <i.ITemplateFile>{};
             tr["handleFileInfo"] = (baseDir, p, include, ignore, emitter) =>
             {
                 try {
@@ -130,11 +152,118 @@ describe('TemplateRunner', () => {
                     expect(emitter).to.equal(em);
                 } finally {
                     done();
-                    return 0;
+                    return 1;
                 }
             };
             tr["stat"] = () => Promise.resolve(stats);
             tr["getFileInfo"]("a", "b", ["c"], ["d"], em, "");
+        });
+    });
+
+    describe("#prepareFileInfo", () => {
+        let em: EventEmitter<TemplateFilesEmitterType>;
+
+        beforeEach(() => {
+            em = <EventEmitter<TemplateFilesEmitterType>>{
+                emit: (ev, err) => {}
+            };
+        });
+
+        it('should set needed properties', () => {
+            let baseDir = "/my/base/", relPath = "one/more.txt", filePath = baseDir + "/" + relPath;
+            let stats = <Stats>{
+                isDirectory: () => true,
+                size: 314
+            };
+            let spy = sinon.spy();
+            tr["patterns"].match = spy;
+            let result = tr["prepareFileInfo"](baseDir, filePath, ["c"], ["d"], em, stats);
+            expect(result).to.be.not.null;
+            expect(result.absolutePath).to.equal(filePath);
+            expect(result.relativePath).to.equal(relPath);
+            expect(result.isDirectory).to.be.true;
+            expect(result.size).to.equal(stats.size);
+            expect(spy.calledTwice).to.be.true;
+            expect(result.includedBy).to.equal(spy.returnValues[0]);
+            expect(result.excludedBy).to.equal(spy.returnValues[1]);
+        });
+    });
+
+    describe("#handleFileInfo", () => {
+        let em: EventEmitter<TemplateFilesEmitterType>;
+        let baseDir = "/my/base/", relPath = "one/more.txt", filePath = baseDir + "/" + relPath;
+        let include = ["a"], ignore = ["b"];
+
+        beforeEach(() => {
+            em = <EventEmitter<TemplateFilesEmitterType>>{
+                emit: (ev, err) => {}
+            };
+        });
+
+        it('should get descendents and emit tentative when not an excluded directory', () => {
+            let gdspy = sinon.spy(), emitSpy = sinon.spy();
+            tr["getDescendents"] = gdspy;
+            em.emit = emitSpy;
+            let f = <i.ITemplateFile>{
+                isDirectory: true,
+                includedBy: [],
+                excludedBy: []
+            };
+            let rv = tr["handleFileInfo"](baseDir, filePath, include, ignore, em, f);
+            expect(gdspy.calledOnce).to.be.true;
+            expect(gdspy.calledWith(baseDir, filePath, em, include, ignore));
+            expect(emitSpy.calledOnce).to.be.true;
+            expect(emitSpy.calledWith("tentative", f)).to.be.true;
+            expect(rv).to.equal(1);
+        });
+
+        it('should emit exclude when an excluded directory, even if include.', () => {
+            let gdspy = sinon.spy(), emitSpy = sinon.spy();
+            tr["getDescendents"] = gdspy;
+            em.emit = emitSpy;
+            let f = <i.ITemplateFile>{
+                isDirectory: true,
+                includedBy: ["doesn't matter; overridden by excludedBy"],
+                excludedBy: ["some glob"]
+            };
+            let rv = tr["handleFileInfo"](baseDir, filePath, include, ignore, em, f);
+            expect(gdspy.called).to.be.false;
+            expect(emitSpy.calledOnce).to.be.true;
+            expect(emitSpy.calledWith("exclude", f)).to.be.true;
+            expect(rv).to.equal(0);
+        });
+
+        it('should emit match when included explicity and not excluded', () => {
+            let gdspy = sinon.spy(), emitSpy = sinon.spy();
+            tr["getDescendents"] = gdspy;
+            em.emit = emitSpy;
+            let f = <i.ITemplateFile>{
+                isDirectory: false,
+                includedBy: ["some glob"],
+                excludedBy: []
+            };
+            let rv = tr["handleFileInfo"](baseDir, filePath, include, ignore, em, f);
+            expect(gdspy.called).to.be.false;
+            expect(emitSpy.calledOnce).to.be.true;
+            expect(emitSpy.calledWith("match", f)).to.be.true;
+            expect(rv).to.equal(1);
+        });
+
+        it('should emit match when included implicitly and not excluded', () => {
+            let gdspy = sinon.spy(), emitSpy = sinon.spy();
+            let include: string[] = []; // no includedBy + no explicit include + no excludedBy = should include.
+            tr["getDescendents"] = gdspy;
+            em.emit = emitSpy;
+            let f = <i.ITemplateFile>{
+                isDirectory: false,
+                includedBy: [],
+                excludedBy: []
+            };
+            let rv = tr["handleFileInfo"](baseDir, filePath, include, ignore, em, f);
+            expect(gdspy.called).to.be.false;
+            expect(emitSpy.calledOnce).to.be.true;
+            expect(emitSpy.calledWith("match", f)).to.be.true;
+            expect(rv).to.equal(1);
         });
     });
 });

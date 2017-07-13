@@ -146,8 +146,28 @@ export class TemplateRunner implements i.ITemplateRunner {
     {
         let p = this.path.join(sourceDir, file);
         return <Promise<number>>this.stat(p)
+            .then(this.prepareFileInfo.bind(this, baseDir, p, include, ignore, emitter))
             .then<number>(this.handleFileInfo.bind(this, baseDir, p, include, ignore, emitter))
             .catch(err => emitter.emit('error', err));
+    }
+
+    protected prepareFileInfo(
+        baseDir: string,
+        sourceFilePath: string,
+        include: string[],
+        ignore: string[],
+        emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>,
+        stat: fse.Stats): i.ITemplateFile
+    {
+        let relPath: string = sourceFilePath.substr(baseDir.length + 1);
+        return <i.ITemplateFile>{
+            absolutePath: sourceFilePath,
+            relativePath: relPath,
+            size: stat.size,
+            isDirectory: stat.isDirectory(),
+            includedBy: this.patterns.match(relPath, include),
+            excludedBy: this.patterns.match(relPath, ignore)
+        };
     }
 
     protected handleFileInfo(
@@ -156,18 +176,10 @@ export class TemplateRunner implements i.ITemplateRunner {
         include: string[],
         ignore: string[],
         emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>,
-        stat: fse.Stats): number
+        f: i.ITemplateFile): number
     {
-        let f = <i.ITemplateFile>{
-            absolutePath: sourceFilePath,
-            relativePath: sourceFilePath.substr(baseDir.length + 1),
-            size: stat.size
-        };
-        f.includedBy = this.patterns.match(f.relativePath, include);
-        f.excludedBy = this.patterns.match(f.relativePath, ignore);
-        if (stat.isDirectory()) {
+        if (f.isDirectory) {
             if (f.excludedBy.length === 0) {
-                f.isDirectory = true;
                 emitter.emit('tentative', f);
                 this.getDescendents(baseDir, sourceFilePath, emitter, include, ignore);
                 return 1;
@@ -175,12 +187,10 @@ export class TemplateRunner implements i.ITemplateRunner {
                 emitter.emit('exclude', f);
                 return 0;
             }
-        } else if (f.excludedBy.length === 0 && f.includedBy.length > 0) {
-            f.isDirectory = false;
+        } else if (f.excludedBy.length === 0 && (f.includedBy.length > 0 || include.length === 0)) {
             emitter.emit('match', f);
             return 1;
         } else {
-            f.isDirectory = false;
             emitter.emit('exclude', f);
             return 0;
         }

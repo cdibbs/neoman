@@ -16,12 +16,16 @@
     "copystatic": "copyfiles -u 2 src/browser-prompt/**/* dist/browser-prompt"
   },
   "nyc": {
+    "include": [
+      "src/lib/**/*.ts"
+    ],
     "extension": [
       ".ts"
     ],
     "exclude": [
       "typings",
-      "**/*.d.ts"
+      "**/*.d.ts",
+      "**/*.spec.ts"
     ],
     "reporter": [
       "json",
@@ -45,6 +49,7 @@
     "@types/launchpad": "^0.6.0",
     "@types/mocha": "^2.2.41",
     "@types/node": "^7.0.28",
+    "@types/sinon": "^2.3.2",
     "@types/underscore": "^1.8.1",
     "@types/ws": "^3.0.0",
     "body-parser": "^1.17.2",
