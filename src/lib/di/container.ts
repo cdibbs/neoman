@@ -17,7 +17,7 @@ import { ICommand, ICommandFactory } from "../commands/i";
 import * as i from '../i';
 import * as it from '../transformers/i';
 
-let json = require("../../package.json");
+let json = require("../../../package.json");
 
 var container = new Container();
 container.bind<i.IGlobber>(TYPES.Globber).to(Globber);

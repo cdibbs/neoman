@@ -9,29 +9,27 @@
   },
   "scripts": {
     "# pretest": "tsc -p tsconfig-mocha.json",
-    "test": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\",\\\"project\\\":\\\"tsconfig-mocha.json\\\"} mocha --recursive --compilers ts:ts-node/register --compilerOptions --bail src/lib",
+    "test": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\"} mocha --recursive --compilers ts:ts-node/register --compilerOptions --bail src/lib/**/*.spec.ts",
     "cover": "nyc npm test",
     "build": "npm-run-all tsc copystatic",
     "tsc": "tsc",
     "copystatic": "copyfiles -u 2 src/browser-prompt/**/* dist/browser-prompt"
   },
   "nyc": {
-    "include": [
-      "src/lib/*.ts",
-      "src/lib/**/*.ts"
+    "extension": [
+      ".ts"
     ],
     "exclude": [
       "typings",
       "**/*.d.ts"
     ],
-    "extension": [
-      ".ts"
+    "reporter": [
+      "json",
+      "html"
     ],
     "require": [
-      "ts-node/register"
-    ],
-    "reporter": [
-      "json", "html"
+      "ts-node/register",
+      "source-map-support/register"
     ],
     "all": true
   },
@@ -49,7 +47,7 @@
     "@types/underscore": "^1.8.1",
     "@types/ws": "^3.0.0",
     "body-parser": "^1.17.2",
-    "chai": "^4.0.2",
+    "chai": "^4.0.2", 
     "codecov": "^2.2.0",
     "commandpost": "^1.1.0",
     "copyfiles": "^1.2.0",
@@ -68,6 +66,7 @@
     "reflect-metadata": "^0.1.10",
     "requireg": "^0.1.6",
     "rxjs": "^5.4.2",
+    "source-map-support": "^0.4.15",
     "ts-node": "^3.2.0",
     "typescript": "^2.4.1",
     "underscore": "^1.8.3",
