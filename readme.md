@@ -71,4 +71,4 @@ neoman
 [prs-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
 [prs]: http://makeapullrequest.com
 [coc-badge]: https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
-[coc]: https://github.com/cdibbs/neoman/blob/master/other/CODE_OF_CONDUCT.md
+[coc]: https://github.com/cdibbs/neoman/blob/master/other/code_of_conduct.md
