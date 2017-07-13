@@ -76,7 +76,7 @@
     ],
     "ignore": [
         "base.spec.ts",
-        ".template.config",
+        ".neoman.config",
         ".git",
         "node_modules",
         "**/*.config.js"

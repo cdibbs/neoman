@@ -25,7 +25,7 @@ export class TemplateManager implements ITemplateManager {
         let templates: ITemplate[] = [];
         let emitter = new EventEmitter<TemplateSearchEmitterType>();
         emitter.on("match", (tmpl: ITemplate) => { templates.push(tmpl); });
-        let g = new this.glob.Glob("*/.template.config/template.json", { cwd: this.tmplDir });
+        let g = new this.glob.Glob("*/.neoman.config/template.json", { cwd: this.tmplDir });
         g.on("match", (() => { return (file: string) => this.templateMatch.bind(this)(file, emitter); })());
         g.on("end", () => emitter.emit('end', templates));
         return emitter;

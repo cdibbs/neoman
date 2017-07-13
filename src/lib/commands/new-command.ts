@@ -25,7 +25,7 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
         super(msg, process);
     }
 
-    run(opts: INewCmdOpts, args: INewCmdArgs): void {
+    run(opts: INewCmdOpts, args: INewCmdArgs): Promise<any> {
         super.run(opts, args);
 
         let cwd = this.process.cwd(), cdname = cwd.split(this.path.sep).pop();
@@ -33,14 +33,14 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
         let name = optsName || cdname;
         let path = opts.path[0] || cwd;        
         this.msg.write(`Generating project ${name} from template ${args.template}...`);
-        this.tmplMgr
+        return this.tmplMgr
             .info(args.template)
             .then(this.trunner.run.bind(this.trunner, path, this.buildOptions(opts)))
             .then(() => {
                 this.process.exit();
             })
             .catch(err => {
-                this.msg.error(err.stack);
+                this.msg.error(err.stack || err);
                 this.msg.info("Aborting.");
                 this.process.exit();
             });

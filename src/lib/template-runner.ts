@@ -34,8 +34,7 @@ export class TemplateRunner implements i.ITemplateRunner {
         }
 
         if (!this.destinationEmpty(path) /* && not force */) {
-            this.msg.error(`The destination directory is not empty (${path}). Aborting.`);
-            return Promise.reject("Destination directory not empty.");
+            return Promise.reject(`The destination directory is not empty (${path}).`);
         }
 
         return this.getUserInputAndRun(path, options, tmpl);
@@ -43,23 +42,35 @@ export class TemplateRunner implements i.ITemplateRunner {
 
     protected getUserInputAndRun(path: string, options: RunOptions, tmpl: ITemplate): Promise<number> {
         let emitter = new EventEmitter<TemplateFilesEmitterType>();
-        return this.inputManager.ask(tmpl.inputConfig).then(inputs => {
-            this.msg.write(`Copying and transforming files into ${path}...`);
-            this.transformManager.configure(tmpl, inputs);
-            this.pathTransformManager.configure(tmpl, inputs);
-            emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.pathTransform, tmpl.transform, options.verbosity));
-            emitter.on('tentative', this.tentativeMatchTmplFile.bind(this, path, options.verbosity));
-            emitter.on('error', this.templateError.bind(this))
-            if (options.verbosity === VERBOSITY.debug || options.showExcluded) {
-                emitter.on('exclude', this.tentativeMatchTmplFile.bind(this));
-            }
+        return this.inputManager
+            .ask(tmpl.inputConfig)
+            .then(this.andRun.bind(this, path, options, tmpl, emitter))
+            .then<number>(this.finishRun.bind(this));
+    }
 
-            return this.getDescendents(tmpl.__tmplPath, tmpl.__tmplPath, emitter, tmpl.files, tmpl.ignore)
-                .then((count: number) => {
-                    this.msg.info(`${count} files processed.`);
-                    return count;
-                });
-        });
+    protected andRun(
+        path: string,
+        options: RunOptions,
+        tmpl: ITemplate,
+        emitter: EventEmitter<TemplateFilesEmitterType>,
+        inputs: { [key: string]: any }): Promise<number>
+    {
+        this.msg.write(`Copying and transforming files into ${path}...`);
+        this.transformManager.configure(tmpl, inputs);
+        this.pathTransformManager.configure(tmpl, inputs);
+        emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.pathTransform, tmpl.transform, options.verbosity));
+        emitter.on('tentative', this.tentativeMatchTmplFile.bind(this, path, options.verbosity));
+        emitter.on('error', this.templateError.bind(this))
+        if (options.verbosity === VERBOSITY.debug || options.showExcluded) {
+            emitter.on('exclude', this.tentativeMatchTmplFile.bind(this));
+        }
+
+        return this.getDescendents(tmpl.__tmplPath, tmpl.__tmplPath, emitter, tmpl.files, tmpl.ignore);
+    }
+
+    protected finishRun(count: number): number {
+        this.msg.info(`${count} files processed.`);
+        return count;
     }
 
     protected destinationEmpty(path: string): boolean {
@@ -121,39 +132,61 @@ export class TemplateRunner implements i.ITemplateRunner {
                 .then((files) => files.length)
                 .catch(err => { emitter.emit('error', err); return 0; });
         } catch (err) {
-            return new Promise<number>((_, reject) => reject(err));
+            return Promise.reject(err);
         }
     }
 
     protected getFileInfo(
         baseDir: string,
-        dir: string,
+        sourceDir: string,
         include: string[],
         ignore: string[],
         emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>,
-        file: string): Promise<any>
+        file: string): Promise<number>
     {
-        let p = this.path.join(dir, file);
-        return fse.stat(p).then((stat: fse.Stats) => {
-            let f = <i.ITemplateFile>{
-                absolutePath: p,
-                relativePath: p.substr(baseDir.length + 1),
-                size: stat.size
-            };
-            f.includedBy = this.patterns.match(f.relativePath, include);
-            f.excludedBy = this.patterns.match(f.relativePath, ignore);
-            if (stat.isDirectory()) {
-                if (f.excludedBy.length === 0) {
-                    f.isDirectory = true;
-                    emitter.emit('tentative', f);
-                    this.getDescendents(baseDir, p, emitter, include, ignore);
-                } else {
-                    emitter.emit('exclude', f);
-                }
-            } else if (f.excludedBy.length === 0 && f.includedBy.length > 0) {
-                f.isDirectory = false;
-                emitter.emit('match', f);
+        let p = this.path.join(sourceDir, file);
+        return <Promise<number>>this.stat(p)
+            .then<number>(this.handleFileInfo.bind(this, baseDir, p, include, ignore, emitter))
+            .catch(err => emitter.emit('error', err));
+    }
+
+    protected handleFileInfo(
+        baseDir: string,
+        sourceFilePath: string,
+        include: string[],
+        ignore: string[],
+        emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>,
+        stat: fse.Stats): number
+    {
+        let f = <i.ITemplateFile>{
+            absolutePath: sourceFilePath,
+            relativePath: sourceFilePath.substr(baseDir.length + 1),
+            size: stat.size
+        };
+        f.includedBy = this.patterns.match(f.relativePath, include);
+        f.excludedBy = this.patterns.match(f.relativePath, ignore);
+        if (stat.isDirectory()) {
+            if (f.excludedBy.length === 0) {
+                f.isDirectory = true;
+                emitter.emit('tentative', f);
+                this.getDescendents(baseDir, sourceFilePath, emitter, include, ignore);
+                return 1;
+            } else {
+                emitter.emit('exclude', f);
+                return 0;
             }
-        }).then(() => 1).catch(err => emitter.emit('error', err));
+        } else if (f.excludedBy.length === 0 && f.includedBy.length > 0) {
+            f.isDirectory = false;
+            emitter.emit('match', f);
+            return 1;
+        } else {
+            f.isDirectory = false;
+            emitter.emit('exclude', f);
+            return 0;
+        }
+    }
+
+    protected stat(p: string): Promise<fse.Stats> {
+        return fse.stat(p);
     }
 }

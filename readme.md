@@ -18,7 +18,7 @@ A template manager that intends to be _nobody_ and _nothing_; it doesn't want to
 
 Drop the following folder and file into your project, and Neoman will have all it needs.
 
-`MyProject/.template.config/template.json`
+`MyProject/.neoman.config/template.json`
 
 A minimal `template.json` would look like this:
 

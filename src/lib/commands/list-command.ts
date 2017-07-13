@@ -25,7 +25,7 @@ export class ListCommand extends BaseCommand<any, any> {
         this.msg.info("Listing templates in your template directory.");
         this.msg.info(`Using: ${this.tempDir}\n`);
 
-        let g = new this.glob.Glob("*/.template.config/template.json", { cwd: this.tempDir });
+        let g = new this.glob.Glob("*/.neoman.config/template.json", { cwd: this.tempDir });
         g.on("match", this.match.bind(this));
         g.on("end", this.end.bind(this));
     }

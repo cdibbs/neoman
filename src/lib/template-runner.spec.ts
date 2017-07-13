@@ -6,6 +6,7 @@ import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 let expect = chai.expect, assert = chai.assert;
 
+import { EventEmitter, TemplateFilesEmitterType } from './emitters';
 import { TemplateRunner } from './template-runner';
 import { RunOptions } from './models';
 import * as i from './i';
@@ -85,6 +86,55 @@ describe('TemplateRunner', () => {
             tr['destinationEmpty'] = () => false;
             let result = tr.run("", new RunOptions(), <itmp.ITemplate>{});
             return result.should.eventually.be.rejected;
+        });
+    });
+
+    describe("#getFileInfo", () => {
+        let em: EventEmitter<TemplateFilesEmitterType>;
+
+        beforeEach(() => {
+            em = <EventEmitter<TemplateFilesEmitterType>>{
+                emit: (ev, err) => {}
+            };
+        });
+
+        it('should stat the joined file + base path', (done) => {
+            let f = "one";
+            let p = "two/";
+            tr["path"].join = (a, b) => a + b;
+            tr["stat"] = (result) => { expect(result).to.equal(p + f); done(); return Promise.resolve(<Stats>{}); };
+            tr["handleFileInfo"] = (...args: any[]) => 1;
+            tr["getFileInfo"](p, p, [], [], em, f)
+        });
+        it('should emit error when error', (done) => {
+            let em = <EventEmitter<TemplateFilesEmitterType>>{
+                emit: ((ev, err) => {
+                    expect(ev).to.equal("error");
+                    expect(err).to.equal("bogus");
+                    done();
+                })
+            };
+            tr["stat"] = (result) => Promise.reject("bogus");
+            tr["getFileInfo"]("", "", [], [], em, "");
+        });
+        it('should properly curry handleFileInfo', (done) => {
+            let stats = <Stats>{};
+            tr["handleFileInfo"] = (baseDir, p, include, ignore, emitter) =>
+            {
+                try {
+                    expect(this).to.equal(tr);
+                    expect(baseDir).to.equal("a");
+                    expect(p).to.equal("a");
+                    expect(include).to.deep.equal(["c"]);
+                    expect(ignore).to.deep.equal(["d"]);
+                    expect(emitter).to.equal(em);
+                } finally {
+                    done();
+                    return 0;
+                }
+            };
+            tr["stat"] = () => Promise.resolve(stats);
+            tr["getFileInfo"]("a", "b", ["c"], ["d"], em, "");
         });
     });
 });
