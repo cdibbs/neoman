@@ -9,7 +9,7 @@
   },
   "scripts": {
     "# pretest": "tsc -p tsconfig-mocha.json",
-    "test": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\",\\\"project\":\\\"tsconfig-mocha.json\\\"} mocha --recursive --compilers ts:ts-node/register --compilerOptions --bail src/lib",
+    "test": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\",\\\"project\\\":\\\"tsconfig-mocha.json\\\"} mocha --recursive --compilers ts:ts-node/register --compilerOptions --bail src/lib",
     "cover": "nyc npm test",
     "build": "npm-run-all tsc copystatic",
     "tsc": "tsc",
