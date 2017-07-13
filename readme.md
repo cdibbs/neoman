@@ -4,6 +4,10 @@
 [![devDependencies Status](https://david-dm.org/cdibbs/neoman/dev-status.svg)](https://david-dm.org/cdibbs/neoman?type=dev)
 [![codecov](https://codecov.io/gh/cdibbs/neoman/branch/master/graph/badge.svg)](https://codecov.io/gh/cdibbs/neoman)
 
+[![MIT License][license-badge]][LICENSE]
+[![PRs Welcome][prs-badge]][prs]
+[![Code of Conduct][coc-badge]][coc]
+
 # Neoman Template Manager
 
 **neoman** - _Old Saxon_. None, nobody.
@@ -61,3 +65,10 @@ neoman
 ## Authors
 
 1. [Chris Dibbern](://github.com/cdibbs)
+
+[license-badge]: https://img.shields.io/npm/l/neoman.svg?style=flat-square
+[license]: https://github.com/cdibbs/neoman/blob/master/other/LICENSE
+[prs-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
+[prs]: http://makeapullrequest.com
+[coc-badge]: https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
+[coc]: https://github.com/cdibbs/neoman/blob/master/other/CODE_OF_CONDUCT.md
