@@ -66,8 +66,8 @@ neoman
 
 1. [Chris Dibbern](://github.com/cdibbs)
 
-[license-badge]: https://img.shields.io/npm/l/neoman.svg?style=flat-square
-[license]: https://github.com/cdibbs/neoman/blob/master/LICENSE
+[license-badge]: https://img.shields.io/badge/license-MIT-blue.svg
+[LICENSE]: https://github.com/cdibbs/neoman/blob/master/LICENSE
 [prs-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
 [prs]: http://makeapullrequest.com
 [coc-badge]: https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
