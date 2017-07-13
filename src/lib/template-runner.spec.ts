@@ -66,6 +66,26 @@ describe('TemplateRunner', () => {
         tr = new TemplateRunner(userMessager, fs, path, patterns, im, tm, ptm, v);
     })
 
+    describe("#getUserInputAndRun", () => {
+        it('should pass inputConfig to inputManager', () => {
+            let callback = sinon.stub();
+            callback.onCall(0).returns(Promise.resolve({}));
+            tr["inputManager"]["ask"] = callback;
+            tr["andRun"] = () => Promise.resolve(1);
+            tr["finishRun"] = () => 1;
+            let opts = new RunOptions();
+            let tmpl = <itmp.ITemplate>{
+                __tmplPath: "",
+                identity: "",
+                name: "",
+                inputConfig: {}
+            };
+            let result = tr["getUserInputAndRun"]("path", opts, tmpl);
+            expect(callback.called).to.be.true;
+            expect(callback.calledWith(tmpl.inputConfig)).to.be.true;
+            expect(result).to.eventually.equal(1);
+        });
+    });
     
     describe('#run', () => {
         it('should ask user input when valid and dest dir empty.', () => {
@@ -264,6 +284,23 @@ describe('TemplateRunner', () => {
             expect(emitSpy.calledOnce).to.be.true;
             expect(emitSpy.calledWith("match", f)).to.be.true;
             expect(rv).to.equal(1);
+        });
+
+        it('should emit exclude file when excluded explicitly', () => {
+            let gdspy = sinon.spy(), emitSpy = sinon.spy();
+            let include: string[] = []; // no includedBy + no explicit include + no excludedBy = should include.
+            tr["getDescendents"] = gdspy;
+            em.emit = emitSpy;
+            let f = <i.ITemplateFile>{
+                isDirectory: false,
+                includedBy: [],
+                excludedBy: ["something"]
+            };
+            let rv = tr["handleFileInfo"](baseDir, filePath, include, ignore, em, f);
+            expect(gdspy.called).to.be.false;
+            expect(emitSpy.calledOnce).to.be.true;
+            expect(emitSpy.calledWith("exclude", f)).to.be.true;
+            expect(rv).to.equal(0);
         });
     });
 });
