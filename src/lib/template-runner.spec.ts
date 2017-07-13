@@ -78,11 +78,11 @@ describe('TemplateRunner', () => {
                 __tmplPath: "",
                 identity: "",
                 name: "",
-                inputConfig: {}
+                inputConfig: { }
             };
             let result = tr["getUserInputAndRun"]("path", opts, tmpl);
             expect(callback.called).to.be.true;
-            expect(callback.calledWith(tmpl.inputConfig)).to.be.true;
+            sinon.assert.calledWith(callback, sinon.match.same(tmpl.inputConfig));
             expect(result).to.eventually.equal(1);
         });
     });
@@ -231,9 +231,9 @@ describe('TemplateRunner', () => {
             };
             let rv = tr["handleFileInfo"](baseDir, filePath, include, ignore, em, f);
             expect(gdspy.calledOnce).to.be.true;
-            expect(gdspy.calledWith(baseDir, filePath, em, include, ignore));
+            sinon.assert.calledWith(gdspy, baseDir, filePath, em, include, ignore);
             expect(emitSpy.calledOnce).to.be.true;
-            expect(emitSpy.calledWith("tentative", f)).to.be.true;
+            sinon.assert.calledWith(emitSpy, "tentative", f);
             expect(rv).to.equal(1);
         });
 
@@ -249,7 +249,7 @@ describe('TemplateRunner', () => {
             let rv = tr["handleFileInfo"](baseDir, filePath, include, ignore, em, f);
             expect(gdspy.called).to.be.false;
             expect(emitSpy.calledOnce).to.be.true;
-            expect(emitSpy.calledWith("exclude", f)).to.be.true;
+            sinon.assert.calledWith(emitSpy, "exclude", f);
             expect(rv).to.equal(0);
         });
 
@@ -265,7 +265,7 @@ describe('TemplateRunner', () => {
             let rv = tr["handleFileInfo"](baseDir, filePath, include, ignore, em, f);
             expect(gdspy.called).to.be.false;
             expect(emitSpy.calledOnce).to.be.true;
-            expect(emitSpy.calledWith("match", f)).to.be.true;
+            sinon.assert.calledWith(emitSpy, "match", f);
             expect(rv).to.equal(1);
         });
 
@@ -282,7 +282,7 @@ describe('TemplateRunner', () => {
             let rv = tr["handleFileInfo"](baseDir, filePath, include, ignore, em, f);
             expect(gdspy.called).to.be.false;
             expect(emitSpy.calledOnce).to.be.true;
-            expect(emitSpy.calledWith("match", f)).to.be.true;
+            sinon.assert.calledWith(emitSpy, "match", f);
             expect(rv).to.equal(1);
         });
 
@@ -299,7 +299,7 @@ describe('TemplateRunner', () => {
             let rv = tr["handleFileInfo"](baseDir, filePath, include, ignore, em, f);
             expect(gdspy.called).to.be.false;
             expect(emitSpy.calledOnce).to.be.true;
-            expect(emitSpy.calledWith("exclude", f)).to.be.true;
+            sinon.assert.calledWith(emitSpy, "exclude", f);
             expect(rv).to.equal(0);
         });
     });
