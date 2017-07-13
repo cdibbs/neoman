@@ -3,7 +3,8 @@ import * as fse from 'fs-extra';
 import * as minimatch from 'minimatch';
 
 import { Commands, COMMANDS } from './commands';
-import { Verbosity, VERBOSITY } from './verbosity';
+import { Verbosity, VERBOSITY } from '../types/verbosity';
+import { RunOptions } from '../models';
 import { BaseCommand } from './base-command';
 import { IPath, IUserMessager, ITemplateManager, IGlob, IFileSystem, ITemplateFile, ITemplateRunner } from '../i';
 import { IEventEmitter } from '../emitters/i';
@@ -34,7 +35,7 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
         this.msg.write(`Generating project ${name} from template ${args.template}...`);
         this.tmplMgr
             .info(args.template)
-            .then(this.trunner.run.bind(this.trunner, path, opts.verbosity[0], opts.showExcluded))
+            .then(this.trunner.run.bind(this.trunner, path, this.buildOptions(opts)))
             .then(() => {
                 this.process.exit();
             })
@@ -43,5 +44,12 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
                 this.msg.info("Aborting.");
                 this.process.exit();
             });
+    }
+
+    buildOptions(opts: INewCmdOpts): RunOptions {
+        let options = new RunOptions();
+        options.verbosity = opts.verbosity[0] || options.verbosity;
+        options.showExcluded = (typeof opts.showExcluded !== "boolean") || options.showExcluded;
+        return options;
     }
 }

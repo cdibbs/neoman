@@ -2,7 +2,9 @@ import { injectable, inject } from 'inversify';
 import * as fse from 'fs-extra';
 
 import { EventEmitter, TemplateFilesEmitterType } from './emitters';
-import { COMMANDS, Commands, VERBOSITY, Verbosity } from './commands';
+import { COMMANDS, Commands } from './commands';
+import { VERBOSITY, Verbosity } from './types/verbosity';
+import { RunOptions } from './models';
 import TYPES from './di/types';
 import KEYS from './settings-keys';
 import * as i from './i';
@@ -21,31 +23,34 @@ export class TemplateRunner implements i.ITemplateRunner {
         @inject(TYPES.InputManager) private inputManager: i.IInputManager,
         @inject(TYPES.TransformManager) private transformManager: it.ITransformManager,
         @inject(TYPES.PathTransformManager) private pathTransformManager: it.IPathTransformManager,
-        @inject(TYPES.TemplateValidator) private validator: i.ITemplateValidator,
-        @inject(TYPES.Process) private process: NodeJS.Process
+        @inject(TYPES.TemplateValidator) private validator: i.ITemplateValidator
     ) {
     }
 
-    run(path: string, verbosity: Verbosity, showExcluded: boolean, tmpl: ITemplate): Promise<number> {
+    run(path: string, options: RunOptions, tmpl: ITemplate): Promise<number> {
         let results: string[] = [];
-        let emitter = new EventEmitter<TemplateFilesEmitterType>();
         if (!this.validate(tmpl)) {
-            return;
+            return Promise.reject("Template configuration not valid.");
         }
 
         if (!this.destinationEmpty(path) /* && not force */) {
             this.msg.error(`The destination directory is not empty (${path}). Aborting.`);
-            return;
+            return Promise.reject("Destination directory not empty.");
         }
 
+        return this.getUserInputAndRun(path, options, tmpl);
+    }
+
+    protected getUserInputAndRun(path: string, options: RunOptions, tmpl: ITemplate): Promise<number> {
+        let emitter = new EventEmitter<TemplateFilesEmitterType>();
         return this.inputManager.ask(tmpl.inputConfig).then(inputs => {
             this.msg.write(`Copying and transforming files into ${path}...`);
             this.transformManager.configure(tmpl, inputs);
             this.pathTransformManager.configure(tmpl, inputs);
-            emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.pathTransform, tmpl.transform, verbosity));
-            emitter.on('tentative', this.tentativeMatchTmplFile.bind(this, path, verbosity));
+            emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.pathTransform, tmpl.transform, options.verbosity));
+            emitter.on('tentative', this.tentativeMatchTmplFile.bind(this, path, options.verbosity));
             emitter.on('error', this.templateError.bind(this))
-            if (verbosity === VERBOSITY.debug || showExcluded) {
+            if (options.verbosity === VERBOSITY.debug || options.showExcluded) {
                 emitter.on('exclude', this.tentativeMatchTmplFile.bind(this));
             }
 
@@ -57,11 +62,11 @@ export class TemplateRunner implements i.ITemplateRunner {
         });
     }
 
-    destinationEmpty(path: string): boolean {
+    protected destinationEmpty(path: string): boolean {
         return this.fs.readdirSync(path).length === 0;
     }
 
-    validate(tmpl: ITemplate): boolean {
+    protected validate(tmpl: ITemplate): boolean {
         let deps = this.validator.dependenciesInstalled(tmpl);
         let missing: boolean = false;
         for(var key in deps) {
@@ -75,7 +80,7 @@ export class TemplateRunner implements i.ITemplateRunner {
         return !missing;
     }
 
-    matchTmplFile(path: string, pathTransforms: PathTransforms, transforms: Transforms, verbosity: Verbosity, tmplFile: i.ITemplateFile): void {
+    protected matchTmplFile(path: string, pathTransforms: PathTransforms, transforms: Transforms, verbosity: Verbosity, tmplFile: i.ITemplateFile): void {
         if (verbosity === VERBOSITY.debug)
             this.msg.debug(`Include: ${tmplFile.absolutePath}`);
 
@@ -94,20 +99,20 @@ export class TemplateRunner implements i.ITemplateRunner {
     }
 
     // directories not explicitly matched or excluded.
-    tentativeMatchTmplFile(path: string, verbosity: Verbosity, tmplFile: i.ITemplateFile): void {
+    protected tentativeMatchTmplFile(path: string, verbosity: Verbosity, tmplFile: i.ITemplateFile): void {
         if (verbosity === VERBOSITY.debug)
             this.msg.debug(`Tentative: ${tmplFile.relativePath}`);
     }
 
-    excludeMatchTmplFile(tmplFile: i.ITemplateFile): void {
+    protected excludeMatchTmplFile(tmplFile: i.ITemplateFile): void {
         this.msg.debug(`Exclude: ${tmplFile}`);
     }
 
-    templateError(err: Error): void {
+    protected templateError(err: Error): void {
         this.msg.error(err.stack);
     }
 
-    getDescendents(baseDir: string, dir: string, emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>, include: string[] = [], ignore: string[] = []): Promise<number> {
+    protected getDescendents(baseDir: string, dir: string, emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>, include: string[] = [], ignore: string[] = []): Promise<number> {
         try {
             return fse.readdir(dir)
                 .then(files => {
@@ -120,7 +125,7 @@ export class TemplateRunner implements i.ITemplateRunner {
         }
     }
 
-    getFileInfo(
+    protected getFileInfo(
         baseDir: string,
         dir: string,
         include: string[],

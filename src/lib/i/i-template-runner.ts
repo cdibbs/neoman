@@ -1,6 +1,7 @@
 import { ITemplate } from './template';
-import { Verbosity } from '../commands';
+import { Verbosity } from '../types/verbosity';
+import { RunOptions } from '../models';
 
 export interface ITemplateRunner {
-    run(path: string, verbosity: Verbosity, showExcluded: boolean, tmpl: ITemplate): void;
+    run(path: string, options: RunOptions, tmpl: ITemplate): Promise<number>
 }
