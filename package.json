@@ -12,7 +12,7 @@
     "test": "mocha \"test/**/*.spec.js\"",
     "build": "npm-run-all tsc copystatic",
     "tsc": "tsc",
-    "_nyc": "nyc mocha \"test/**/*.spec.js\" --reporter=lcov | codecov",
+    "_nyc": "nyc mocha test/**/*.spec.js | codecov",
     "coverage": "npm-run-all pretest _nyc",
     "copystatic": "copyfiles -u 2 src/browser-prompt/**/* dist/browser-prompt"
   },
