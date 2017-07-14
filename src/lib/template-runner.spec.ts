@@ -229,7 +229,7 @@ describe('TemplateRunner', () => {
             tr["path"].join = (a, b) => a + b;
             tr["stat"] = (result) => { expect(result).to.equal(p + f); done(); return Promise.resolve(<Stats>{}); };
             tr["prepareFileInfo"] = (...args: any[]) => <i.ITemplateFile>{};
-            tr["handleFileInfo"] = (...args: any[]) => 1;
+            tr["handleFileInfo"] = (...args: any[]) => Promise.resolve(1);
             tr["getFileInfo"](p, p, [], [], em, f)
         });
         it('should emit error when error', (done) => {
@@ -276,7 +276,7 @@ describe('TemplateRunner', () => {
                     expect(emitter).to.equal(em);
                 } finally {
                     done();
-                    return 1;
+                    return Promise.resolve(1);
                 }
             };
             tr["stat"] = () => Promise.resolve(stats);
@@ -325,7 +325,8 @@ describe('TemplateRunner', () => {
         });
 
         it('should get descendents and emit tentative when not an excluded directory', () => {
-            let gdspy = sinon.spy(), emitSpy = sinon.spy();
+            let gdspy = sinon.stub(), emitSpy = sinon.spy();
+            gdspy.returns(Promise.resolve(1));
             tr["getDescendents"] = gdspy;
             em.emit = emitSpy;
             let f = <i.ITemplateFile>{
@@ -338,11 +339,12 @@ describe('TemplateRunner', () => {
             sinon.assert.calledWith(gdspy, baseDir, filePath, em, include, ignore);
             expect(emitSpy.calledOnce).to.be.true;
             sinon.assert.calledWith(emitSpy, "tentative", f);
-            expect(rv).to.equal(1);
+            expect(rv).to.eventually.equal(1);
         });
 
         it('should emit exclude when an excluded directory, even if include.', () => {
-            let gdspy = sinon.spy(), emitSpy = sinon.spy();
+            let gdspy = sinon.stub(), emitSpy = sinon.spy();
+            gdspy.returns(Promise.resolve(1));
             tr["getDescendents"] = gdspy;
             em.emit = emitSpy;
             let f = <i.ITemplateFile>{
@@ -354,11 +356,12 @@ describe('TemplateRunner', () => {
             expect(gdspy.called).to.be.false;
             expect(emitSpy.calledOnce).to.be.true;
             sinon.assert.calledWith(emitSpy, "exclude", f);
-            expect(rv).to.equal(0);
+            expect(rv).to.eventually.equal(0);
         });
 
         it('should emit match when included explicity and not excluded', () => {
-            let gdspy = sinon.spy(), emitSpy = sinon.spy();
+            let gdspy = sinon.stub(), emitSpy = sinon.spy();
+            gdspy.returns(Promise.resolve(1));
             tr["getDescendents"] = gdspy;
             em.emit = emitSpy;
             let f = <i.ITemplateFile>{
@@ -370,11 +373,12 @@ describe('TemplateRunner', () => {
             expect(gdspy.called).to.be.false;
             expect(emitSpy.calledOnce).to.be.true;
             sinon.assert.calledWith(emitSpy, "match", f);
-            expect(rv).to.equal(1);
+            expect(rv).to.eventually.equal(1);
         });
 
         it('should emit match when included implicitly and not excluded', () => {
-            let gdspy = sinon.spy(), emitSpy = sinon.spy();
+            let gdspy = sinon.stub(), emitSpy = sinon.spy();
+            gdspy.returns(Promise.resolve(1));
             let include: string[] = []; // no includedBy + no explicit include + no excludedBy = should include.
             tr["getDescendents"] = gdspy;
             em.emit = emitSpy;
@@ -387,11 +391,12 @@ describe('TemplateRunner', () => {
             expect(gdspy.called).to.be.false;
             expect(emitSpy.calledOnce).to.be.true;
             sinon.assert.calledWith(emitSpy, "match", f);
-            expect(rv).to.equal(1);
+            expect(rv).to.eventually.equal(1);
         });
 
         it('should emit exclude file when excluded explicitly', () => {
-            let gdspy = sinon.spy(), emitSpy = sinon.spy();
+            let gdspy = sinon.stub(), emitSpy = sinon.spy();
+            gdspy.returns(Promise.resolve(1));
             let include: string[] = []; // any excludedBy ever = should exclude.
             tr["getDescendents"] = gdspy;
             em.emit = emitSpy;
@@ -404,7 +409,7 @@ describe('TemplateRunner', () => {
             expect(gdspy.called).to.be.false;
             expect(emitSpy.calledOnce).to.be.true;
             sinon.assert.calledWith(emitSpy, "exclude", f);
-            expect(rv).to.equal(0);
+            expect(rv).to.eventually.equal(0);
         });
     });
 });

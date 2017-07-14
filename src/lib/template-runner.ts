@@ -116,7 +116,7 @@ export class TemplateRunner implements i.ITemplateRunner {
     }
 
     protected excludeMatchTmplFile(tmplFile: i.ITemplateFile): void {
-        this.msg.debug(`Exclude: ${tmplFile}`);
+        this.msg.debug(`Exclude: ${tmplFile.relativePath}`);
     }
 
     protected templateError(err: Error): void {
@@ -130,6 +130,7 @@ export class TemplateRunner implements i.ITemplateRunner {
                 .then((files) => files.length)
                 .catch(err => { emitter.emit('error', err); return 0; });
         } catch (err) {
+            emitter.emit('error', err);
             return Promise.reject(err);
         }
     }
@@ -178,23 +179,22 @@ export class TemplateRunner implements i.ITemplateRunner {
         include: string[],
         ignore: string[],
         emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>,
-        f: i.ITemplateFile): number
+        f: i.ITemplateFile): Promise<number>
     {
         if (f.isDirectory) {
             if (f.excludedBy.length === 0) {
                 emitter.emit('tentative', f);
-                this.getDescendents(baseDir, sourceFilePath, emitter, include, ignore);
-                return 1;
+                return this.getDescendents(baseDir, sourceFilePath, emitter, include, ignore);
             } else {
                 emitter.emit('exclude', f);
-                return 0;
+                return Promise.resolve(0);
             }
         } else if (f.excludedBy.length === 0 && (f.includedBy.length > 0 || include.length === 0)) {
             emitter.emit('match', f);
-            return 1;
+            return Promise.resolve(1);
         } else {
             emitter.emit('exclude', f);
-            return 0;
+            return Promise.resolve(0);
         }
     }
 
