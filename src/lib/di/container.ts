@@ -11,7 +11,7 @@ import { FilePatterns } from '../file-patterns';
 import { UserMessager } from '../user-messager';
 import { TemplateValidator } from '../template-validator';
 import { InputManager, BrowserInputManager, CustomInputManager, PromptInputManager } from '../input-managers';
-import { Globber, Kernel, SettingsProvider, TemplateManager } from "./entities";
+import { Kernel, SettingsProvider, TemplateManager } from "./entities";
 import { CommandFactory, SetDirCommand, NewCommand, ListCommand, InfoCommand } from '../commands';
 import { ICommand, ICommandFactory } from "../commands/i";
 import * as i from '../i';
@@ -20,7 +20,6 @@ import * as it from '../transformers/i';
 let json = require(path.join(path.dirname(__filename), "../../package.json"));
 
 var container = new Container();
-container.bind<i.IGlobber>(TYPES.Globber).to(Globber);
 container.bind<i.IKernel>(TYPES.Kernel).to(Kernel);
 container.bind<i.ITemplateRunner>(TYPES.TemplateRunner).to(TemplateRunner);
 container.bind<NodeJS.Process>(TYPES.Process).toDynamicValue(() => process);

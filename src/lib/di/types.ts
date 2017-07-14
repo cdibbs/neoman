@@ -1,6 +1,5 @@
 let TYPES = {
     Kernel: Symbol("Kernel"),
-    Globber: Symbol("Globber"),
     Process: Symbol("Process"),
     SettingsProvider: Symbol("SettingsProvider"),
     PackageJson: Symbol("package.json"),

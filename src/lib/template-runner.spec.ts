@@ -186,8 +186,9 @@ describe('TemplateRunner', () => {
     });
 
     describe('#getDescendents', () => {
-        tr["readdir"] = () => Promise.resolve(["one", "two", "three"]);
-        
+        it('should ', () => {
+            tr["readdir"] = () => Promise.resolve(["one", "two", "three"]);
+        });
     });
     
     describe('#run', () => {

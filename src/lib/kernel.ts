@@ -5,7 +5,7 @@ import { COMMANDS } from './commands';
 import { ICommandFactory, INewCmdOpts, INewCmdArgs, IInfoCmdArgs, IInfoCmdOpts } from './commands/i';
 import TYPES from './di/types';
 import KEYS from './settings-keys';
-import { IGlobber, ISettingsProvider, IPackage, IUserMessager } from './i';
+import { ISettingsProvider, IPackage, IUserMessager } from './i';
 
 /**
  * Contains the core code to run the application. Only DI runs before this.
@@ -15,7 +15,6 @@ export class Kernel {
     private tempDir: string;
 
     constructor(
-        //@inject(TYPES.Globber) private globber: IGlobber,
         @inject(TYPES.UserMessager) private msg: IUserMessager,
         @inject(TYPES.Process) private process: NodeJS.Process,
         @inject(TYPES.SettingsProvider) private settings: ISettingsProvider,

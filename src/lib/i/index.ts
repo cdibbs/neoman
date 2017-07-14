@@ -1,4 +1,3 @@
-export * from './i-globber';
 export * from './i-kernel';
 export * from './i-settings-provider';
 export * from './i-package';
