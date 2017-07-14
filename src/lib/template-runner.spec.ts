@@ -392,7 +392,7 @@ describe('TemplateRunner', () => {
 
         it('should emit exclude file when excluded explicitly', () => {
             let gdspy = sinon.spy(), emitSpy = sinon.spy();
-            let include: string[] = []; // no includedBy + no explicit include + no excludedBy = should include.
+            let include: string[] = []; // any excludedBy ever = should exclude.
             tr["getDescendents"] = gdspy;
             em.emit = emitSpy;
             let f = <i.ITemplateFile>{
