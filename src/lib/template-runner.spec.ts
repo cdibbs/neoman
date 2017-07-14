@@ -86,6 +86,109 @@ describe('TemplateRunner', () => {
             expect(result).to.eventually.equal(1);
         });
     });
+
+    describe("#andRun", () => {
+        let em: EventEmitter<TemplateFilesEmitterType>;
+        beforeEach(() => {
+            em = new EventEmitter<TemplateFilesEmitterType>();
+        });
+
+        it('should configure transformers, emitters and return promise.', () => {
+            let tspy = sinon.spy();
+            let ptspy = sinon.spy();
+            let onspy = sinon.spy();
+            em.on = onspy;
+            tr["transformManager"]["configure"] = tspy;
+            tr["pathTransformManager"]["configure"] = ptspy;
+            tr["getDescendents"] = () => Promise.resolve(1);
+            let inputs = {}, tmpl = <itmp.ITemplate>{};
+            let p = tr["andRun"]("", <RunOptions>{ verbosity: "debug" }, <itmp.ITemplate>{}, em, inputs);
+            sinon.assert.calledWith(tspy, tmpl, sinon.match.same(inputs));
+            sinon.assert.calledWith(ptspy, tmpl, sinon.match.same(inputs));
+            sinon.assert.calledWith(onspy, "match", sinon.match.any);
+            sinon.assert.calledWith(onspy, "tentative", sinon.match.any);
+            sinon.assert.calledWith(onspy, "error", sinon.match.any);
+            sinon.assert.calledWith(onspy, "exclude", sinon.match.any);
+            expect(p).to.eventually.equal(1);
+        });
+
+        it('should curry emitter.on callbacks with correct params', () => {
+            let tspy = sinon.spy();
+            let ptspy = sinon.spy();
+            let onspy = sinon.spy();
+            let match = sinon.stub(), tentative = sinon.spy(), error = sinon.spy(), exclude = sinon.spy();
+            //em.on = onspy;
+            tr["transformManager"]["configure"] = tspy;
+            tr["pathTransformManager"]["configure"] = ptspy;
+            tr["getDescendents"] = () => Promise.resolve(1);
+            tr["matchTmplFile"] = match;
+            tr["tentativeMatchTmplFile"] = tentative;
+            tr["templateError"] = error;
+            tr["excludeMatchTmplFile"] = exclude;
+            let inputs = {}, tmpl = <itmp.ITemplate>{ pathTransform: "whoatest", transform: "testt" };            
+            let p = tr["andRun"]("asdf", <RunOptions>{ verbosity: "debug" }, tmpl, em, inputs);
+            em.emit("match", null);
+            em.emit("tentative", null);
+            em.emit("error", null);
+            em.emit("exclude", null);
+            sinon.assert.calledWith(match, "asdf", "whoatest", "testt", "debug", null);
+            sinon.assert.calledWith(tentative, "asdf", "debug", null);
+            sinon.assert.calledWith(error, null);
+            sinon.assert.calledWith(exclude, null);
+        });
+    });
+
+    describe('#finishRun', () => {
+        it('should return count', () => {
+            let r = tr["finishRun"](314);
+            expect(r).to.equal(314);
+        });
+    });
+
+    describe('#destinationEmpty', () => {
+        it('should return true if readdir empty', () => {
+            let spy = sinon.stub();
+            spy.returns([]);
+            tr["fs"]["readdirSync"] = spy;
+            let result = tr["destinationEmpty"]("/path");
+            expect(result).to.be.true;
+        });
+        it('should return false if readdir not empty', () => {
+            let spy = sinon.stub();
+            spy.returns([1,2,3]);
+            tr["fs"]["readdirSync"] = spy;
+            let result = tr["destinationEmpty"]("/path");
+            expect(result).to.be.false;
+        });
+    });
+
+    describe('#validate', () => {
+        it('should return invalid if even one package missing', () => {
+            let installed = {
+                "a": true,
+                "b": false,
+                "c": true
+            };
+            tr["validator"]["dependenciesInstalled"] = () => installed;
+            let valid = tr["validate"](<itmp.ITemplate>{});
+            expect(valid).to.be.false;
+        });
+        it('should return valid if all packages present', () => {
+            let installed = {
+                "a": true,
+                "b": true,
+                "c": true
+            };
+            tr["validator"]["dependenciesInstalled"] = () => installed;
+            let valid = tr["validate"](<itmp.ITemplate>{});
+            expect(valid).to.be.true;
+        });
+    });
+
+    describe('#getDescendents', () => {
+        tr["readdir"] = () => Promise.resolve(["one", "two", "three"]);
+        
+    });
     
     describe('#run', () => {
         it('should ask user input when valid and dest dir empty.', () => {

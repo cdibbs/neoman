@@ -62,7 +62,7 @@ export class TemplateRunner implements i.ITemplateRunner {
         emitter.on('tentative', this.tentativeMatchTmplFile.bind(this, path, options.verbosity));
         emitter.on('error', this.templateError.bind(this))
         if (options.verbosity === VERBOSITY.debug || options.showExcluded) {
-            emitter.on('exclude', this.tentativeMatchTmplFile.bind(this));
+            emitter.on('exclude', this.excludeMatchTmplFile.bind(this));
         }
 
         return this.getDescendents(tmpl.__tmplPath, tmpl.__tmplPath, emitter, tmpl.files, tmpl.ignore);
@@ -125,15 +125,17 @@ export class TemplateRunner implements i.ITemplateRunner {
 
     protected getDescendents(baseDir: string, dir: string, emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>, include: string[] = [], ignore: string[] = []): Promise<number> {
         try {
-            return fse.readdir(dir)
-                .then(files => {
-                    return Promise.all(files.map(this.getFileInfo.bind(this, baseDir, dir, include, ignore, emitter)));
-                })
+            return this.readdir(dir)
+                .then(files => Promise.all(files.map(this.getFileInfo.bind(this, baseDir, dir, include, ignore, emitter))))
                 .then((files) => files.length)
                 .catch(err => { emitter.emit('error', err); return 0; });
         } catch (err) {
             return Promise.reject(err);
         }
+    }
+
+    protected readdir(d: string): Promise<string[]> {
+        return fse.readdir(d);
     }
 
     protected getFileInfo(
