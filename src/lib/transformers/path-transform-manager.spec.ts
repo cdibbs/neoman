@@ -2,6 +2,7 @@
 /// <reference path="../../../node_modules/@types/chai/index.d.ts" />
 import "reflect-metadata";
 import { expect } from 'chai';
+import 'mocha';
 
 import { PathTransformManager } from './path-transform-manager';
 import * as i from '../i';
