@@ -27,6 +27,7 @@
 	],
 	"exclude": [
 		"node_modules",
+		"src/e2e/resources",
 		"*.spec.ts"
 	]
 }

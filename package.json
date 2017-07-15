@@ -17,6 +17,7 @@
   },
   "nyc": {
     "include": [
+      "src/lib/*.ts",
       "src/lib/**/*.ts"
     ],
     "extension": [
@@ -24,6 +25,7 @@
     ],
     "exclude": [
       "typings",
+      "src/e2e/resources",
       "**/*.d.ts",
       "**/*.spec.ts"
     ],
