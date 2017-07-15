@@ -9,7 +9,7 @@ let expect = chai.expect, assert = chai.assert;
 
 import { EventEmitter, TemplateFilesEmitterType } from './emitters';
 import { TemplateRunner } from './template-runner';
-import { RunOptions } from './models';
+import { RunOptions, RunnerResult } from './models';
 import * as i from './i';
 import * as itmp from './i/template';
 import * as itm from './transformers/i';
@@ -70,9 +70,10 @@ describe('TemplateRunner', () => {
         it('should pass inputConfig to inputManager', () => {
             let callback = sinon.stub();
             callback.onCall(0).returns(Promise.resolve({}));
+            let expected = <RunnerResult>{};
             tr["inputManager"]["ask"] = callback;
-            tr["andRun"] = () => Promise.resolve(1);
-            tr["finishRun"] = () => 1;
+            tr["andRun"] = () => Promise.resolve(expected);
+            tr["finishRun"] = () => expected;
             let opts = new RunOptions();
             let tmpl = <itmp.ITemplate>{
                 __tmplPath: "",
@@ -83,7 +84,7 @@ describe('TemplateRunner', () => {
             let result = tr["getUserInputAndRun"]("path", opts, tmpl);
             expect(callback.called).to.be.true;
             sinon.assert.calledWith(callback, sinon.match.same(tmpl.inputConfig));
-            expect(result).to.eventually.equal(1);
+            return expect(result).to.eventually.equal(expected);
         });
     });
 
@@ -98,9 +99,10 @@ describe('TemplateRunner', () => {
             let ptspy = sinon.spy();
             let onspy = sinon.spy();
             em.on = onspy;
+            let expected = <RunnerResult>{ totalFiles: 314 };
             tr["transformManager"]["configure"] = tspy;
             tr["pathTransformManager"]["configure"] = ptspy;
-            tr["getDescendents"] = () => Promise.resolve(1);
+            tr["processDescendents"] = () => Promise.resolve(expected);
             let inputs = {}, tmpl = <itmp.ITemplate>{};
             let p = tr["andRun"]("", <RunOptions>{ verbosity: "debug" }, <itmp.ITemplate>{}, em, inputs);
             sinon.assert.calledWith(tspy, tmpl, sinon.match.same(inputs));
@@ -109,7 +111,7 @@ describe('TemplateRunner', () => {
             sinon.assert.calledWith(onspy, "tentative", sinon.match.any);
             sinon.assert.calledWith(onspy, "error", sinon.match.any);
             sinon.assert.calledWith(onspy, "exclude", sinon.match.any);
-            expect(p).to.eventually.equal(1);
+            return expect(p).to.eventually.equal(expected);
         });
 
         it('should curry emitter.on callbacks with correct params', () => {
@@ -117,10 +119,11 @@ describe('TemplateRunner', () => {
             let ptspy = sinon.spy();
             let onspy = sinon.spy();
             let match = sinon.stub(), tentative = sinon.spy(), error = sinon.spy(), exclude = sinon.spy();
+            let expected = <RunnerResult>{ totalFiles: 314 };
             //em.on = onspy;
             tr["transformManager"]["configure"] = tspy;
             tr["pathTransformManager"]["configure"] = ptspy;
-            tr["getDescendents"] = () => Promise.resolve(1);
+            tr["processDescendents"] = () => Promise.resolve(expected);
             tr["matchTmplFile"] = match;
             tr["tentativeMatchTmplFile"] = tentative;
             tr["templateError"] = error;
@@ -140,8 +143,9 @@ describe('TemplateRunner', () => {
 
     describe('#finishRun', () => {
         it('should return count', () => {
-            let r = tr["finishRun"](314);
-            expect(r).to.equal(314);
+            let expected = <RunnerResult>{totalFiles: 314};
+            let r = tr["finishRun"](expected);
+            expect(r).to.equal(expected);
         });
     });
 
@@ -185,19 +189,21 @@ describe('TemplateRunner', () => {
         });
     });
 
-    describe('#getDescendents', () => {
+    describe('#handleDescendents', () => {
         it('should ', () => {
+            // TODO finish this thought.
             tr["readdir"] = () => Promise.resolve(["one", "two", "three"]);
         });
     });
     
     describe('#run', () => {
         it('should ask user input when valid and dest dir empty.', () => {
+            let expected = <RunnerResult>{totalFiles:314};
             tr['validate'] = () => true;
             tr['destinationEmpty'] = () => true;
-            tr['getUserInputAndRun'] = () => Promise.resolve(314);
+            tr['getUserInputAndRun'] = () => Promise.resolve(expected);
             let result = tr.run("", new RunOptions(), <itmp.ITemplate>{});
-            return result.should.eventually.equal(314);
+            return result.should.eventually.equal(expected);
         });
 
         it('should return rejected promise when template config not valid.', () => {
@@ -214,7 +220,7 @@ describe('TemplateRunner', () => {
         });
     });
 
-    describe("#getFileInfo", () => {
+    describe("#processFileInfo", () => {
         let em: EventEmitter<TemplateFilesEmitterType>;
 
         beforeEach(() => {
@@ -229,8 +235,8 @@ describe('TemplateRunner', () => {
             tr["path"].join = (a, b) => a + b;
             tr["stat"] = (result) => { expect(result).to.equal(p + f); done(); return Promise.resolve(<Stats>{}); };
             tr["prepareFileInfo"] = (...args: any[]) => <i.ITemplateFile>{};
-            tr["handleFileInfo"] = (...args: any[]) => Promise.resolve(1);
-            tr["getFileInfo"](p, p, [], [], em, f)
+            tr["handleFileInfo"] = (...args: any[]) => Promise.resolve(<RunnerResult>{});
+            tr["processFileInfo"](p, p, [], [], em, f)
         });
         it('should emit error when error', (done) => {
             let em = <EventEmitter<TemplateFilesEmitterType>>{
@@ -241,7 +247,7 @@ describe('TemplateRunner', () => {
                 })
             };
             tr["stat"] = (result) => Promise.reject("bogus");
-            tr["getFileInfo"]("", "", [], [], em, "");
+            tr["processFileInfo"]("", "", [], [], em, "");
         });
         it('should properly curry prepareFileInfo', (done) => {
             let stats = <Stats>{};
@@ -260,10 +266,11 @@ describe('TemplateRunner', () => {
                 }
             };
             tr["stat"] = () => Promise.resolve(stats);
-            tr["getFileInfo"]("a", "b", ["c"], ["d"], em, "");
+            tr["processFileInfo"]("a", "b", ["c"], ["d"], em, "");
         });
         it('should properly curry handleFileInfo', (done) => {
             let stats = <Stats>{};
+            let expected = <RunnerResult>{};
             tr["prepareFileInfo"] = () => <i.ITemplateFile>{};
             tr["handleFileInfo"] = (baseDir, p, include, ignore, emitter) =>
             {
@@ -276,11 +283,11 @@ describe('TemplateRunner', () => {
                     expect(emitter).to.equal(em);
                 } finally {
                     done();
-                    return Promise.resolve(1);
+                    return Promise.resolve(expected);
                 }
             };
             tr["stat"] = () => Promise.resolve(stats);
-            tr["getFileInfo"]("a", "b", ["c"], ["d"], em, "");
+            tr["processFileInfo"]("a", "b", ["c"], ["d"], em, "");
         });
     });
 
@@ -326,8 +333,9 @@ describe('TemplateRunner', () => {
 
         it('should get descendents and emit tentative when not an excluded directory', () => {
             let gdspy = sinon.stub(), emitSpy = sinon.spy();
-            gdspy.returns(Promise.resolve(1));
-            tr["getDescendents"] = gdspy;
+            let expected = <RunnerResult>{};
+            gdspy.returns(Promise.resolve(expected));
+            tr["processDescendents"] = gdspy;
             em.emit = emitSpy;
             let f = <i.ITemplateFile>{
                 isDirectory: true,
@@ -339,13 +347,14 @@ describe('TemplateRunner', () => {
             sinon.assert.calledWith(gdspy, baseDir, filePath, em, include, ignore);
             expect(emitSpy.calledOnce).to.be.true;
             sinon.assert.calledWith(emitSpy, "tentative", f);
-            expect(rv).to.eventually.equal(1);
+            return expect(rv).to.eventually.equal(expected);
         });
 
-        it('should emit exclude when an excluded directory, even if include.', () => {
+        it('should emit exclude when an excluded directory, even if includes match; excludes override includes', () => {
             let gdspy = sinon.stub(), emitSpy = sinon.spy();
-            gdspy.returns(Promise.resolve(1));
-            tr["getDescendents"] = gdspy;
+            let expected = <RunnerResult>{ excluded: 1, processed: 1 };
+            gdspy.throws("excluded! no recursion.");
+            tr["processDescendents"] = gdspy;
             em.emit = emitSpy;
             let f = <i.ITemplateFile>{
                 isDirectory: true,
@@ -356,13 +365,14 @@ describe('TemplateRunner', () => {
             expect(gdspy.called).to.be.false;
             expect(emitSpy.calledOnce).to.be.true;
             sinon.assert.calledWith(emitSpy, "exclude", f);
-            expect(rv).to.eventually.equal(0);
+            return expect(rv).eventually.to.deep.equal(expected);
         });
 
         it('should emit match when included explicity and not excluded', () => {
             let gdspy = sinon.stub(), emitSpy = sinon.spy();
-            gdspy.returns(Promise.resolve(1));
-            tr["getDescendents"] = gdspy;
+            let expected = <RunnerResult>{ totalFiles: 1, processed: 1 };
+            gdspy.throws("not a directory! no recursion.");
+            tr["processDescendents"] = gdspy;
             em.emit = emitSpy;
             let f = <i.ITemplateFile>{
                 isDirectory: false,
@@ -373,14 +383,15 @@ describe('TemplateRunner', () => {
             expect(gdspy.called).to.be.false;
             expect(emitSpy.calledOnce).to.be.true;
             sinon.assert.calledWith(emitSpy, "match", f);
-            expect(rv).to.eventually.equal(1);
+            return expect(rv).eventually.to.deep.equal(expected);
         });
 
         it('should emit match when included implicitly and not excluded', () => {
             let gdspy = sinon.stub(), emitSpy = sinon.spy();
-            gdspy.returns(Promise.resolve(1));
+            let expected = <RunnerResult>{ processed: 1, totalFiles: 1 };
+            gdspy.returns(Promise.resolve(expected));
             let include: string[] = []; // no includedBy + no explicit include + no excludedBy = should include.
-            tr["getDescendents"] = gdspy;
+            tr["processDescendents"] = gdspy;
             em.emit = emitSpy;
             let f = <i.ITemplateFile>{
                 isDirectory: false,
@@ -391,14 +402,15 @@ describe('TemplateRunner', () => {
             expect(gdspy.called).to.be.false;
             expect(emitSpy.calledOnce).to.be.true;
             sinon.assert.calledWith(emitSpy, "match", f);
-            expect(rv).to.eventually.equal(1);
+            return expect(rv).eventually.to.deep.equal(expected);
         });
 
         it('should emit exclude file when excluded explicitly', () => {
             let gdspy = sinon.stub(), emitSpy = sinon.spy();
-            gdspy.returns(Promise.resolve(1));
+            let expected = <RunnerResult>{ excluded: 1, processed: 1 };
+            gdspy.returns(Promise.resolve(expected));
             let include: string[] = []; // any excludedBy ever = should exclude.
-            tr["getDescendents"] = gdspy;
+            tr["processDescendents"] = gdspy;
             em.emit = emitSpy;
             let f = <i.ITemplateFile>{
                 isDirectory: false,
@@ -409,7 +421,7 @@ describe('TemplateRunner', () => {
             expect(gdspy.called).to.be.false;
             expect(emitSpy.calledOnce).to.be.true;
             sinon.assert.calledWith(emitSpy, "exclude", f);
-            expect(rv).to.eventually.equal(0);
+            return expect(rv).eventually.to.deep.equal(expected);
         });
     });
 });

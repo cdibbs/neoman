@@ -4,7 +4,7 @@ import * as fse from 'fs-extra';
 import { EventEmitter, TemplateFilesEmitterType } from './emitters';
 import { COMMANDS, Commands } from './commands';
 import { VERBOSITY, Verbosity } from './types/verbosity';
-import { RunOptions } from './models';
+import { RunOptions, RunnerResult } from './models';
 import TYPES from './di/types';
 import KEYS from './settings-keys';
 import * as i from './i';
@@ -27,7 +27,7 @@ export class TemplateRunner implements i.ITemplateRunner {
     ) {
     }
 
-    run(path: string, options: RunOptions, tmpl: ITemplate): Promise<number> {
+    run(path: string, options: RunOptions, tmpl: ITemplate): Promise<RunnerResult> {
         let results: string[] = [];
         if (!this.validate(tmpl)) {
             return Promise.reject("Template configuration not valid.");
@@ -40,12 +40,12 @@ export class TemplateRunner implements i.ITemplateRunner {
         return this.getUserInputAndRun(path, options, tmpl);
     }
 
-    protected getUserInputAndRun(path: string, options: RunOptions, tmpl: ITemplate): Promise<number> {
+    protected getUserInputAndRun(path: string, options: RunOptions, tmpl: ITemplate): Promise<RunnerResult> {
         let emitter = new EventEmitter<TemplateFilesEmitterType>();
         return this.inputManager
             .ask(tmpl.inputConfig)
             .then(this.andRun.bind(this, path, options, tmpl, emitter))
-            .then<number>(this.finishRun.bind(this));
+            .then<RunnerResult>(this.finishRun.bind(this));
     }
 
     protected andRun(
@@ -53,7 +53,7 @@ export class TemplateRunner implements i.ITemplateRunner {
         options: RunOptions,
         tmpl: ITemplate,
         emitter: EventEmitter<TemplateFilesEmitterType>,
-        inputs: { [key: string]: any }): Promise<number>
+        inputs: { [key: string]: any }): Promise<RunnerResult>
     {
         this.msg.write(`Copying and transforming files into ${path}...`);
         this.transformManager.configure(tmpl, inputs);
@@ -65,12 +65,14 @@ export class TemplateRunner implements i.ITemplateRunner {
             emitter.on('exclude', this.excludeMatchTmplFile.bind(this));
         }
 
-        return this.getDescendents(tmpl.__tmplPath, tmpl.__tmplPath, emitter, tmpl.files, tmpl.ignore);
+        return this.processDescendents(tmpl.__tmplPath, tmpl.__tmplPath, emitter, tmpl.files, tmpl.ignore);
     }
 
-    protected finishRun(count: number): number {
-        this.msg.info(`${count} files processed.`);
-        return count;
+    protected finishRun(result: RunnerResult): RunnerResult {
+        this.msg.info(`${result.processed} file(s) considered.`);
+        this.msg.info(`${result.excluded} file(s) excluded.`);
+        this.msg.info(`${result.totalFiles} file(s) copied.`);
+        return result;
     }
 
     protected destinationEmpty(path: string): boolean {
@@ -123,34 +125,49 @@ export class TemplateRunner implements i.ITemplateRunner {
         this.msg.error(err.stack);
     }
 
-    protected getDescendents(baseDir: string, dir: string, emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>, include: string[] = [], ignore: string[] = []): Promise<number> {
+    protected processDescendents(
+        baseDir: string,
+        dir: string,
+        emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>,
+        include: string[] = [],
+        ignore: string[] = []): Promise<RunnerResult> {
         try {
             return this.readdir(dir)
-                .then(files => Promise.all(files.map(this.getFileInfo.bind(this, baseDir, dir, include, ignore, emitter))))
-                .then((files) => files.length)
-                .catch(err => { emitter.emit('error', err); return 0; });
+                .then<RunnerResult[]>(files => Promise.all(files.map(this.processFileInfo.bind(this, baseDir, dir, include, ignore, emitter))))
+                .then((results: RunnerResult[]) => results.reduce<RunnerResult>((p, c) => this.combineResults(p, c), new RunnerResult()))
+                .catch(err => { emitter.emit('error', err); return new RunnerResult(); });
         } catch (err) {
             emitter.emit('error', err);
             return Promise.reject(err);
         }
     }
 
+    protected combineResults(a: RunnerResult, b: RunnerResult): RunnerResult {
+        let c = new RunnerResult();
+        c.totalFiles = (a.totalFiles || 0) + (b.totalFiles || 0);
+        c.changed = (a.changed || 0) + (b.changed || 0);
+        c.excluded = (a.excluded || 0) + (b.excluded || 0);
+        c.processed = (a.processed || 0) + (b.processed || 0);
+        c.totalChanges = (a.totalChanges || 0) + (b.totalChanges || 0);
+        return c;
+    }
+
     protected readdir(d: string): Promise<string[]> {
         return fse.readdir(d);
     }
 
-    protected getFileInfo(
+    protected processFileInfo(
         baseDir: string,
         sourceDir: string,
         include: string[],
         ignore: string[],
         emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>,
-        file: string): Promise<number>
+        file: string): Promise<RunnerResult>
     {
         let p = this.path.join(sourceDir, file);
-        return <Promise<number>>this.stat(p)
+        return <Promise<RunnerResult>>this.stat(p)
             .then(this.prepareFileInfo.bind(this, baseDir, p, include, ignore, emitter))
-            .then<number>(this.handleFileInfo.bind(this, baseDir, p, include, ignore, emitter))
+            .then<RunnerResult>(this.handleFileInfo.bind(this, baseDir, p, include, ignore, emitter))
             .catch(err => emitter.emit('error', err));
     }
 
@@ -179,22 +196,23 @@ export class TemplateRunner implements i.ITemplateRunner {
         include: string[],
         ignore: string[],
         emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>,
-        f: i.ITemplateFile): Promise<number>
+        f: i.ITemplateFile): Promise<RunnerResult>
     {
         if (f.isDirectory) {
             if (f.excludedBy.length === 0) {
                 emitter.emit('tentative', f);
-                return this.getDescendents(baseDir, sourceFilePath, emitter, include, ignore);
+                return this.processDescendents(baseDir, sourceFilePath, emitter, include, ignore);
+                
             } else {
                 emitter.emit('exclude', f);
-                return Promise.resolve(0);
+                return Promise.resolve(<RunnerResult>{ excluded: 1, processed: 1 });
             }
         } else if (f.excludedBy.length === 0 && (f.includedBy.length > 0 || include.length === 0)) {
             emitter.emit('match', f);
-            return Promise.resolve(1);
+            return Promise.resolve(<RunnerResult>{ totalFiles: 1, processed: 1 });
         } else {
             emitter.emit('exclude', f);
-            return Promise.resolve(0);
+            return Promise.resolve(<RunnerResult>{ excluded: 1, processed: 1 });
         }
     }
 
