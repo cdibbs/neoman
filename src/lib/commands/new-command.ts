@@ -27,29 +27,33 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
 
     run(opts: INewCmdOpts, args: INewCmdArgs): Promise<any> {
         super.run(opts, args);
-
-        let cwd = this.process.cwd(), cdname = cwd.split(this.path.sep).pop();
-        let optsName = opts.name.join(' ').trim();
-        let name = optsName || cdname;
-        let path = opts.path[0] || cwd;        
-        this.msg.write(`Generating project ${name} from template ${args.template}...`);
+        let options = this.buildOptions(opts);
+        this.msg.write(`Generating project ${options.name} from template ${args.template}...`);
         return this.tmplMgr
             .info(args.template)
-            .then(this.trunner.run.bind(this.trunner, path, this.buildOptions(opts)))
-            .then(() => {
-                this.process.exit();
-            })
-            .catch(err => {
-                this.msg.error(err.stack || err);
-                this.msg.info("Aborting.");
-                this.process.exit();
-            });
+            .then(this.trunner.run.bind(this.trunner, options.path, options))
+            .then(this.exit.bind(this))
+            .catch(this.handleTmplRunnerError.bind(this));
     }
 
     buildOptions(opts: INewCmdOpts): RunOptions {
+        let cwd = this.process.cwd(), cdname = cwd.split(this.path.sep).pop();
+        let optsName = (opts.name || []).join(' ').trim();   
         let options = new RunOptions();
-        options.verbosity = <Verbosity>opts.verbosity[0] || options.verbosity;
+        options.name = optsName || cdname;
+        options.path = (opts.path || [])[0] || cwd;
+        options.verbosity = <Verbosity>(opts.verbosity || [])[0] || options.verbosity;
         options.showExcluded = (typeof opts.showExcluded !== "boolean") || options.showExcluded;
         return options;
+    }
+
+    protected handleTmplRunnerError(err: Error) {
+        this.msg.error(err.stack || err);
+        this.msg.info("Aborting.");
+        this.exit();
+    }
+
+    protected exit() {
+        this.process.exit();
     }
 }

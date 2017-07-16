@@ -17,7 +17,7 @@ export class BaseCommand<TOpts, TArgs> implements ICommand<TOpts, TArgs> {
 
     public run(opts: TOpts, args: TArgs): void {
         if (! this.tempDir || ! this.tempDir.trim()) {
-            console.log("You have not set a template directory. Please run setdir, first.");
+            this.msg.error("You have not set a template directory. Please run setdir, first.");
             this.process.exit(1);
         }
     }

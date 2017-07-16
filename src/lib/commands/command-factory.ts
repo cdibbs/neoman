@@ -20,6 +20,6 @@ export class CommandFactory implements ICommandFactory {
             return c;
         }
 
-        throw new Error(`Command not implemented: ${type}`);
+        throw new Error(`Command not implemented: ${type}.`);
     }
 }
