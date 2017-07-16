@@ -46,13 +46,31 @@ A minimal `template.json` would look like this:
 }
 ```
 
+Once your project is ready, setup a folder to store your templates, and copy the project folder there. Then, just point Neoman to it:
+
+```
+neoman setdir ./my-templates-folder
+```
+
+Now, you should be ready to start using it:
+
+```
+mkdir new-folder
+cd new-folder
+neoman new myprojtmp
+```
+
+Type `neoman help` for command help. If you run into any problems, please refer to the [the wiki](https://github.com/cdibbs/neoman/wiki), first, and if worst comes to worse, [file an issue](https://github.com/cdibbs/neoman/issues).
+
+Happy templating!
+
 ## Documentation
 
 For documentation, please refer to [the wiki](https://github.com/cdibbs/neoman/wiki).
 
 ## Building
 
-To build and run Neoman from source, clone the repository and, from its directory, run:
+To build and run Neoman from source, clone the repository and, from the root of the cloned repository, run:
 
 ```
 npm install
