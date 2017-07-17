@@ -27,12 +27,12 @@ export class SetDirCommand extends BaseCommand<any, any> {
             stats = this.fs.statSync(args.directory);
         } catch(ex) {
             this.msg.warn(ex);
-            this.msg.warn(`Warning: directory '${args.directory}' does not exist`);
+            this.msg.warn(`Error accessing '${args.directory}'.`);
             return;
         }
 
         if (! stats.isDirectory()) {
-            this.msg.warn(`Warning: Not a directory: '${args.directory}.`);
+            this.msg.warn(`Warning: Not a directory: '${args.directory}'.`);
         }
         
         this.settings.set(KEYS.tempDirKey, this.path.resolve(args.directory));
