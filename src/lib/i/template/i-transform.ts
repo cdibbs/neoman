@@ -5,7 +5,6 @@ export interface ITransform extends ITransformFilter {
     section?: ITransformFilter;
     subject: string;
     with: string | IWithDefinition;
-    simple?: boolean;
     regexFlags?: string;
     params?: any;
 }

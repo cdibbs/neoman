@@ -1,7 +1,7 @@
 /// <reference path="../../../node_modules/@types/mocha/index.d.ts" />
 /// <reference path="../../../node_modules/@types/chai/index.d.ts" />
 import "reflect-metadata";
-import { expect } from 'chai';
+import { expect, assert } from 'chai';
 import 'mocha';
 
 import { BaseTransformManager } from './base-transform-manager';
@@ -59,6 +59,37 @@ describe('BaseTransformManager', () => {
             tm['inputs'] = { "hello": "world", "another": "also" };
             let result = tm.preprocess("I just wanted to say {{{{}}hello}} {{another}}.");
             expect(result).to.equal("I just wanted to say {{hello}} also.");
+        });
+    });
+
+    describe('#chooseReplaceEngine', () => {
+        // Rationale: configuration should be able to override built-ins.
+        it('should allow overriding simple replacer', () => {
+            tm["configs"] = { "simple": <any>{} };
+            let result = tm.chooseReplaceEngine(<any>{ configuration: "simple" });
+            expect(result).to.equal("plugin");
+        });
+        it('should use default simple replacer when no user-provided plugin', () => {
+            tm["configs"] = { };
+            let result = tm.chooseReplaceEngine(<any>{ configuration: "simple" });
+            expect(result).to.equal("simple");
+        });
+        it('should allow overriding regex replacer', () => {
+            tm["configs"] = { "regex": <any>{} };
+            let result = tm.chooseReplaceEngine(<any>{ configuration: "regex" });
+            expect(result).to.equal("plugin");
+        });
+        it('should use default regexp replacer when no user-provided plugin', () => {
+            tm["configs"] = { };
+            let result = tm.chooseReplaceEngine(<any>{ configuration: "regex" });
+            expect(result).to.equal("regex");
+        });
+        it('should default to plugin when not an internal name', () => {
+            let result = tm.chooseReplaceEngine(<any>{ configuration: "coconuts" });
+            expect(result).to.equal("plugin");
+        });
+        it('should throw a meaningful error on a malformed transform definition', () => {
+            assert.throws(() => tm.chooseReplaceEngine(<any>null), "Malformed transform definition.");
         });
     });
 });

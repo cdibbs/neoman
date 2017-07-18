@@ -6,5 +6,4 @@ export interface IPathTransform extends ITransformFilter {
     with: string | IWithDefinition;
     regexFlags?: string;
     params?: any;
-    simple?: boolean;
 }

@@ -78,6 +78,9 @@ export class BaseTransformManager {
     }
 
     chooseReplaceEngine(tdef: ir.ITransform | ir.IPathTransform) {
+        if (! tdef)
+            throw new Error("Malformed transform definition.");
+        
         if (! tdef.configuration || tdef.configuration === "regex") {
             if (this.configs.hasOwnProperty("regex")) // Then, the user wants to override the default.
                 return "plugin";
