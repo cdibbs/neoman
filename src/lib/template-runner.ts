@@ -102,14 +102,22 @@ export class TemplateRunner implements i.ITemplateRunner {
         let destRelPath = this.pathTransformManager.applyTransforms(tmplFile.relativePath, pathTransforms);
         let destFile = this.path.join(path, destRelPath);
         let destPath = this.path.dirname(destFile);
-        let content = fse.readFileSync(tmplFile.absolutePath).toString("utf8");
+        let content = this.readFileSync(tmplFile.absolutePath).toString("utf8");
         this.msg.debug(`Applying transforms...`, 1);
         content = this.transformManager.applyTransforms(tmplFile.relativePath, content, transforms);
         this.msg.debug(`Writing to destination: ${destFile}`, 1);
-        fse.ensureDirSync(destPath);
-        fse.writeFileSync(destFile, content);
+        this.ensureDirSync(destPath);
+        this.writeFileSync(destFile, content);
         this.msg.debug('Done.');
     }
+
+    // Testability FTW!
+    protected readdir = fse.readdir;
+    protected ensureDirSync = fse.ensureDirSync;
+    protected stat = fse.stat;
+    protected readFileSync(path: string): Buffer { return fse.readFileSync(path); }
+    protected writeFileSync(dest: string, content: any): void { return fse.writeFileSync(dest, content); }
+
 
     // directories not explicitly matched or excluded.
     protected tentativeMatchTmplFile(path: string, verbosity: Verbosity, tmplFile: i.ITemplateFile): void {
@@ -130,16 +138,12 @@ export class TemplateRunner implements i.ITemplateRunner {
         dir: string,
         emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>,
         include: string[] = [],
-        ignore: string[] = []): Promise<RunnerResult> {
-        try {
-            return this.readdir(dir)
-                .then<RunnerResult[]>(files => Promise.all(files.map(this.processFileInfo.bind(this, baseDir, dir, include, ignore, emitter))))
-                .then((results: RunnerResult[]) => results.reduce<RunnerResult>((p, c) => this.combineResults(p, c), new RunnerResult()))
-                .catch(err => { emitter.emit('error', err); return new RunnerResult(); });
-        } catch (err) {
-            emitter.emit('error', err);
-            return Promise.reject(err);
-        }
+        ignore: string[] = []): Promise<RunnerResult>
+    {
+        return this.readdir(dir)
+            .then<RunnerResult[]>(files => Promise.all(files.map(this.processFileInfo.bind(this, baseDir, dir, include, ignore, emitter))))
+            .then((results: RunnerResult[]) => results.reduce<RunnerResult>((p, c) => this.combineResults(p, c), new RunnerResult()))
+            .catch(err => { emitter.emit('error', err); return new RunnerResult(); });
     }
 
     protected combineResults(a: RunnerResult, b: RunnerResult): RunnerResult {
@@ -150,10 +154,6 @@ export class TemplateRunner implements i.ITemplateRunner {
         c.processed = (a.processed || 0) + (b.processed || 0);
         c.totalChanges = (a.totalChanges || 0) + (b.totalChanges || 0);
         return c;
-    }
-
-    protected readdir(d: string): Promise<string[]> {
-        return fse.readdir(d);
     }
 
     protected processFileInfo(
@@ -214,9 +214,5 @@ export class TemplateRunner implements i.ITemplateRunner {
             emitter.emit('exclude', f);
             return Promise.resolve(<RunnerResult>{ excluded: 1, processed: 1 });
         }
-    }
-
-    protected stat(p: string): Promise<fse.Stats> {
-        return fse.stat(p);
     }
 }
