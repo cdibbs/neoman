@@ -9,8 +9,10 @@ import * as sinon from 'sinon';
 let expect = chai.expect, assert = chai.assert;
 
 import { EventEmitter, TemplateFilesEmitterType } from './emitters';
+import * as iemitters from './emitters/i';
 import { TemplateRunner } from './template-runner';
 import { RunOptions, RunnerResult } from './models';
+import { VERBOSITY, Verbosity } from './types/verbosity';
 import * as i from './i';
 import * as itmp from './i/template';
 import * as itm from './transformers/i';
@@ -43,7 +45,7 @@ describe('TemplateRunner', () => {
         };
         let path: i.IPath = {
             sep: "/",
-            join: (...args: any[]) => args.join(this.sep),
+            join: (...args: any[]) => args.join(path.sep),
             dirname: (...args: any[]) => "",
             resolve: () => ""
         };
@@ -230,14 +232,18 @@ describe('TemplateRunner', () => {
             };
         });
 
-        it('should stat the joined file + base path', (done) => {
+        it('should stat the joined file + base path', () => {
+            let statStub = sinon.stub();
+            statStub.returns(Promise.resolve(<Stats>{}))
             let f = "one";
             let p = "two/";
             tr["path"].join = (a, b) => a + b;
-            tr["stat"] = (result) => { expect(result).to.equal(p + f); done(); return Promise.resolve(<Stats>{}); };
+            tr["stat"] = statStub;
             tr["prepareFileInfo"] = (...args: any[]) => <i.ITemplateFile>{};
             tr["handleFileInfo"] = (...args: any[]) => Promise.resolve(<RunnerResult>{});
-            tr["processFileInfo"](p, p, [], [], em, f)
+            return tr["processFileInfo"](p, p, [], [], em, f).then(() => {
+                sinon.assert.calledWith(statStub, p + f);
+            });
         });
         it('should emit error when error', (done) => {
             let em = <EventEmitter<TemplateFilesEmitterType>>{
@@ -247,7 +253,9 @@ describe('TemplateRunner', () => {
                     done();
                 })
             };
-            tr["stat"] = (result) => Promise.reject("bogus");
+            let statStub = sinon.stub();
+            statStub.returns(Promise.reject("bogus"))
+            tr["stat"] = statStub;
             tr["processFileInfo"]("", "", [], [], em, "");
         });
         it('should properly curry prepareFileInfo', (done) => {
@@ -423,6 +431,161 @@ describe('TemplateRunner', () => {
             expect(emitSpy.calledOnce).to.be.true;
             sinon.assert.calledWith(emitSpy, "exclude", f);
             return expect(rv).eventually.to.deep.equal(expected);
+        });
+    });
+
+    describe('#matchTmplFile', () => {
+        let path: string, pathTrans: itmp.PathTransforms, trans: itmp.Transforms, verb: Verbosity, tmpl: i.ITemplateFile;
+        let resultPath: string, content: string;
+        let ensureDirStub: sinon.SinonStub, dirnameStub: sinon.SinonStub, pathTransStub: sinon.SinonStub;
+        let writeFileStub: sinon.SinonStub, readFileStub: sinon.SinonStub;
+
+        beforeEach(() => {
+            path = "/tmp/", pathTrans = [], trans = [], verb = VERBOSITY.debug;
+            tmpl = <any>{
+                absolutePath: "/tmp/templates/mypath/myfile.txt",
+                relativePath: "mypath/myfile.txt"
+            };
+            resultPath = "/tmp/myresult/file.txt";
+            content = "input content";
+            writeFileStub = sinon.stub(), dirnameStub = sinon.stub();
+            ensureDirStub = sinon.stub(), pathTransStub = sinon.stub();
+            readFileStub = sinon.stub();
+            readFileStub.returns(content);
+            pathTransStub.returns(resultPath);
+            tr["readFileSync"] = readFileStub;
+            tr["writeFileSync"] = writeFileStub;
+            tr["pathTransformManager"].applyTransforms = pathTransStub;
+            tr["ensureDirSync"] = ensureDirStub;
+            tr["path"].dirname = dirnameStub;
+        });
+
+        it('should apply path and content transforms, and use the results when writing', () => {
+            let transStub = sinon.stub();
+            let resultContent = "blah blah";
+            transStub.returns(resultContent);
+            tr["transformManager"].applyTransforms = transStub;
+            tr["matchTmplFile"](path, pathTrans, trans, verb, tmpl);
+            sinon.assert.calledWith(pathTransStub, tmpl.relativePath, pathTrans);
+            sinon.assert.calledWith(transStub, tmpl.relativePath, content, trans);
+            sinon.assert.calledWith(writeFileStub, "/tmp//" + resultPath, resultContent);
+        });
+
+        it('should ensure the path exists before writing', () => {
+            dirnameStub.returns("/tmp/test");
+            tr["matchTmplFile"](path, pathTrans, trans, verb, tmpl);
+            sinon.assert.calledWith(dirnameStub, "/tmp///tmp/myresult/file.txt");
+            sinon.assert.calledWith(ensureDirStub, "/tmp/test");
+            ensureDirStub.calledBefore(writeFileStub);
+        });
+    });
+
+    describe('#tentativeMatchTmplFile', () => {
+        let debugSpy: sinon.SinonSpy;
+        beforeEach(() => {
+            debugSpy = sinon.spy();
+            tr["msg"].debug = debugSpy;
+        });
+        it('should write when verbosity debug', () => {
+            tr["tentativeMatchTmplFile"]("path", VERBOSITY.debug, <i.ITemplateFile>{ relativePath: "relpath" });
+            expect(debugSpy.called).to.be.true;
+        });
+        it('should write when verbosity debug', () => {
+            tr["tentativeMatchTmplFile"]("path", VERBOSITY.normal, <i.ITemplateFile>{ relativePath: "relpath" });
+            expect(debugSpy.called).to.be.false;
+        });
+    });
+
+    describe('#excludeMatchTmplFile', () => {
+        let debugSpy: sinon.SinonSpy;
+        beforeEach(() => {
+            debugSpy = sinon.spy();
+            tr["msg"].debug = debugSpy;
+        });
+
+        it('should inform the user of an exclude', () => {
+            tr["excludeMatchTmplFile"](<i.ITemplateFile>{ relativePath: "relpath" });
+            expect(debugSpy.called).to.be.true;
+        });
+    });
+
+    describe('#templateError', () => {
+        let errorSpy: sinon.SinonSpy;
+        beforeEach(() => {
+            errorSpy = sinon.spy();
+            tr["msg"].error = errorSpy;
+        });
+
+        it('should report an error', () => {
+            tr["templateError"](new Error());
+            expect(errorSpy.called).to.be.true;
+        });
+    });
+
+    describe('#processDescendents', () => {
+        let fileInfoStub: sinon.SinonStub, combineStub: sinon.SinonStub, emitStub: sinon.SinonStub;
+        let onStub: sinon.SinonStub, readdirStub: sinon.SinonStub;
+        let emitter: iemitters.IEventEmitter<TemplateFilesEmitterType>;
+
+        beforeEach(() => {
+            fileInfoStub = sinon.stub(), combineStub = sinon.stub();
+            emitStub = sinon.stub(), onStub = sinon.stub();
+            readdirStub = sinon.stub();
+            emitter = <any>{
+                emit: emitStub,
+                on: onStub
+            };
+            tr["processFileInfo"] = fileInfoStub;
+            tr["combineResults"] = combineStub;
+            tr["readdir"] = readdirStub;
+        });
+        it('should process all files', () => {
+            readdirStub.returns(Promise.resolve(["one", "two", "three"]));
+            return tr["processDescendents"]("/tmp/basedir", "/tmp/dir", emitter, ["a"], ["b"])
+                .then(() => {
+                    expect(fileInfoStub.calledThrice).to.be.true;
+                    expect(combineStub.calledThrice).to.be.true;
+                });
+        });
+        it('should pass right values to processFileInfo', () => {
+            readdirStub.returns(Promise.resolve(["one"]));
+            return tr["processDescendents"]("/tmp/basedir", "/tmp/dir", emitter, ["a"], ["b"])
+                .then(() => {
+                    expect(fileInfoStub.calledOnce).to.be.true;
+                    sinon.assert.calledWith(fileInfoStub, "/tmp/basedir", "/tmp/dir", ["a"], ["b"], emitter, "one");
+                    expect(combineStub.calledOnce).to.be.true;
+                });
+        });
+        it('should emit any errors', () => {
+            let bogus = new Error("bogus");
+            readdirStub.returns(Promise.reject(bogus));
+            return tr["processDescendents"]("/tmp/basedir", "/tmp/dir", emitter, ["a"], ["b"])
+                .then(() => {
+                    expect(fileInfoStub.called).to.be.false;
+                    expect(combineStub.calledThrice).to.be.false;
+                    expect(emitStub.called).to.be.true;
+                    sinon.assert.calledWith(emitStub, "error", bogus);
+                });
+        });
+    });
+
+    describe('#combineResults', () => {
+        it('should add null properties (treating them as zero)', () => {
+            let r = tr["combineResults"](<any>{}, <any>{});
+            expect(Object.keys(r).length).to.be.greaterThan(0);
+            Object.keys(r).map(k => expect(r[k]).to.equal(0));
+        });
+        it('should add properties', () => {
+            let o = {
+                totalFiles: 1,
+                excluded: 1,
+                processed: 1,
+                changed: 1,
+                totalChanges: 1
+            };
+            let r = tr["combineResults"](o, o);
+            expect(Object.keys(r).length).to.equal(5);
+            Object.keys(r).map(k => expect(r[k]).to.equal(2));
         });
     });
 });
