@@ -17,8 +17,8 @@
     "shortName": "hp", "#": "You can create the project using this short name instead of the one above.",
 
     "#": "Provides a way of interacting with the user.",
-    "inputConfig": {
-        "defaultInterface": "prompt",
+    "input": {
+        "use": "prompt",
         "define": {
             "title": "What will be the title of your website?",
             "subtitle": "What subtitle?"
@@ -31,11 +31,11 @@
     "transform": [
         "# Strings like this are comments, in this section.",
         { "subject": "text", "with": "content: {{subtitle}}", "files": ["**/*.html"] },
-        { "subject": "$.name", "with": "test2", "configuration": "json", "params": { "action": "set", "type": "string" } },
-        { "subject": "$.tags[2]", "with": "super", "configuration": "json", "params": { "action": "set", "type": "string" } },
-        { "subject": "$.tags[3]", "with": "314", "configuration": "json", "params": { "action": "set", "type": "number" } },
-        { "subject": "$.tags[3]", "with": "653", "configuration": "json", "params": { "action": "append", "type": "number" } },
-        { "subject": "html>body>h1:first-child", "with": "My new title: {{title}}", "configuration": "html", "params": { "type": "text" } }
+        { "subject": "$.name", "with": "{{title}}", "using": "json", "params": { "action": "set", "type": "string" } },
+        { "subject": "$.tags[2]", "with": "super", "using": "json", "params": { "action": "set", "type": "string" } },
+        { "subject": "$.tags[3]", "with": "314", "using": "json", "params": { "action": "set", "type": "number" } },
+        { "subject": "$.tags[3]", "with": "653", "using": "json", "params": { "action": "append", "type": "number" } },
+        { "subject": "html>body>h1:first-child", "with": "My new title: {{title}}", "using": "html", "params": { "type": "text" } }
     ],
 
     "#": [

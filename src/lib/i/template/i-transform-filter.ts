@@ -1,5 +1,5 @@
 export interface ITransformFilter {
-    configuration?: string;
+    using?: string;
     files?: string[];
     ignore?: string[];
 }

@@ -14,24 +14,24 @@ export class InputManager implements i.IInputManager {
 
     ask(config: it.IInputConfig): Promise<{ [key: string]: any }> {
         try {
-            if (typeof config.defaultInterface === "undefined") {
+            if (typeof config.use === "undefined") {
                 // assume prompt
                 return this.promptMgr.ask(config);
-            } else if (typeof config.defaultInterface === "string") {
-                switch(config.defaultInterface) {
+            } else if (typeof config.use === "string") {
+                switch(config.use) {
                     case "browser": return this.browserMgr.ask(config);
                     case "prompt": return this.promptMgr.ask(config);
                     default: return this.customMgr.ask(config);
                 }
-            } else if (typeof config.defaultInterface === "object") {
-                switch(config.defaultInterface.type) {
+            } else if (typeof config.use === "object") {
+                switch(config.use.type) {
                     case "browser": return this.browserMgr.ask(config);
                     case "prompt": return this.promptMgr.ask(config);
                     default: return this.customMgr.ask(config);
                 }
             }
 
-            return new Promise((_, reject) => reject("Unrecognized inputConfig format."));
+            return new Promise((_, reject) => reject("Unrecognized input section format."));
         } catch(err) {
             return new Promise((_, reject) => reject(err));
         }
@@ -42,6 +42,6 @@ export class InputManager implements i.IInputManager {
             return Object.keys(inputs).length;
         }
 
-        throw new Error("Unrecognized inputConfig format.");
+        throw new Error("Unrecognized input section format.");
     }
 }

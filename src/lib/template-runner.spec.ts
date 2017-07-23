@@ -68,7 +68,7 @@ describe('TemplateRunner', () => {
     })
 
     describe("#getUserInputAndRun", () => {
-        it('should pass inputConfig to inputManager', () => {
+        it('should pass input config to inputManager', () => {
             let callback = sinon.stub();
             callback.onCall(0).returns(Promise.resolve({}));
             let expected = <RunnerResult>{};
@@ -80,11 +80,11 @@ describe('TemplateRunner', () => {
                 __tmplPath: "",
                 identity: "",
                 name: "",
-                inputConfig: { }
+                input: { }
             };
             let result = tr["getUserInputAndRun"]("path", opts, tmpl);
             expect(callback.called).to.be.true;
-            sinon.assert.calledWith(callback, sinon.match.same(tmpl.inputConfig));
+            sinon.assert.calledWith(callback, sinon.match.same(tmpl.input));
             return expect(result).to.eventually.equal(expected);
         });
     });

@@ -64,13 +64,13 @@ export class TransformManager extends BaseTransformManager implements i.ITransfo
             }
             
             if (typeof rdef === "object") {
-                if (this.replaceDoesApply(path, rdef.files, rdef.ignore, rdef.configuration)) {
-                    this.msg.debug(`Applying transform definition for "${rdef.subject}"${rdef.configuration ? ' (config: ' + rdef.configuration + ')' : ""}.`, 2)
+                if (this.replaceDoesApply(path, rdef.files, rdef.ignore, rdef.using)) {
+                    this.msg.debug(`Applying transform definition for "${rdef.subject}"${rdef.using ? ' (config: ' + rdef.using + ')' : ""}.`, 2)
                     count ++;
                     //this.msg.debug(`Applying replace definition for ${rdef.replace}...`);
                     content = this.applyReplace(content, rdef, path);
                 } else {
-                    this.msg.debug(`Skipping transform definition for "${rdef.subject}"${rdef.configuration ? ' (config: ' + rdef.configuration + ')' : ""}.`, 2);
+                    this.msg.debug(`Skipping transform definition for "${rdef.subject}"${rdef.using ? ' (config: ' + rdef.using + ')' : ""}.`, 2);
                 }
             } else {
                 throw new Error(`Unrecognized replacement definition ${i}, type: ${typeof rdef}.`);

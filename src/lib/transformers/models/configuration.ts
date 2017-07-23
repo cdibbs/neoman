@@ -7,5 +7,5 @@ export class TemplateConfiguration implements IConfiguration {
     files: string[];
     ignore: string[];
     plugin: string;
-    parserOptions: any;
+    pluginOptions: any;
 }

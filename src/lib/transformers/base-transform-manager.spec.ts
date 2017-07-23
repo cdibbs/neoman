@@ -55,7 +55,7 @@ describe('BaseTransformManager', () => {
 
         it('should ignore escaped curly brackets.', () => {
             // Wrapping the starting {{ in "{{" and "}}" is a special case which will result in escaping the input reference.
-            // An alternative is to put { "hello" : "{{hello}}" } in your inputConfig.baseInputs.
+            // An alternative is to put { "hello" : "{{hello}}" } in your input.baseInputs.
             tm['inputs'] = { "hello": "world", "another": "also" };
             let result = tm.preprocess("I just wanted to say {{{{}}hello}} {{another}}.");
             expect(result).to.equal("I just wanted to say {{hello}} also.");
@@ -66,26 +66,26 @@ describe('BaseTransformManager', () => {
         // Rationale: configuration should be able to override built-ins.
         it('should allow overriding simple replacer', () => {
             tm["configs"] = { "simple": <any>{} };
-            let result = tm.chooseReplaceEngine(<any>{ configuration: "simple" });
+            let result = tm.chooseReplaceEngine(<any>{ using: "simple" });
             expect(result).to.equal("plugin");
         });
         it('should use default simple replacer when no user-provided plugin', () => {
             tm["configs"] = { };
-            let result = tm.chooseReplaceEngine(<any>{ configuration: "simple" });
+            let result = tm.chooseReplaceEngine(<any>{ using: "simple" });
             expect(result).to.equal("simple");
         });
         it('should allow overriding regex replacer', () => {
             tm["configs"] = { "regex": <any>{} };
-            let result = tm.chooseReplaceEngine(<any>{ configuration: "regex" });
+            let result = tm.chooseReplaceEngine(<any>{ using: "regex" });
             expect(result).to.equal("plugin");
         });
         it('should use default regexp replacer when no user-provided plugin', () => {
             tm["configs"] = { };
-            let result = tm.chooseReplaceEngine(<any>{ configuration: "regex" });
+            let result = tm.chooseReplaceEngine(<any>{ using: "regex" });
             expect(result).to.equal("regex");
         });
         it('should default to plugin when not an internal name', () => {
-            let result = tm.chooseReplaceEngine(<any>{ configuration: "coconuts" });
+            let result = tm.chooseReplaceEngine(<any>{ using: "coconuts" });
             expect(result).to.equal("plugin");
         });
         it('should throw a meaningful error on a malformed transform definition', () => {

@@ -27,7 +27,7 @@ export interface ICustomInputInterface {
 }
 
 export interface IInputConfig {
-    defaultInterface?: "prompt" | "browser" | ICustomInputInterface;
+    use?: "prompt" | "browser" | ICustomInputInterface;
 
     /**
      * Specifies a .js file in the .neoman.config/handlers/ directory.

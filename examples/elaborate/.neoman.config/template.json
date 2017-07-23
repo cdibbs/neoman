@@ -14,8 +14,8 @@
     },
 
     "#": "Provides a way of interacting with the user.",
-    "inputConfig": {
-        "defaultInterface": "prompt", "#": "possible values: 'browser', 'prompt', or 'custom'.",
+    "input": {
+        "use": "prompt", "#": "possible values: 'browser', 'prompt', or 'custom'.",
         "interfaceOptions": {},
         "handler": "",
         "preface": "",
@@ -47,12 +47,12 @@
         { "subject": "what", "with": { "handler": "myaction" } },
 
         "# Perform filetype-specific replacements with a plugin configured for that filetype.",
-        { "subject": "mynamespace", "with": "yournamespace", "configuration": "typescript" },
-        { "subject": "(\\w+)namespace", "with": "something else", "configuration": "typescript", "params": { "type": "namespace", "regex": true } },
-        { "subject": "(\\w+)varname", "with": "othervarname", "configuration": "typescript", "params": { "type": "variable", "regex": true } },
+        { "subject": "mynamespace", "with": "yournamespace", "using": "typescript" },
+        { "subject": "(\\w+)namespace", "with": "something else", "using": "typescript", "params": { "type": "namespace", "regex": true } },
+        { "subject": "(\\w+)varname", "with": "othervarname", "using": "typescript", "params": { "type": "variable", "regex": true } },
 
-        { "subject": "html>body>h1:first-child", "with": { "handler" : "myhandler" }, "configuration": "html" },
-        { "subject": "html>body>h1:first-child", "with": "something simple", "configuration": "html", "params": { "type": "attr", "attr": "title" } }
+        { "subject": "html>body>h1:first-child", "with": { "handler" : "myhandler" }, "using": "html" },
+        { "subject": "html>body>h1:first-child", "with": "something simple", "using": "html", "params": { "type": "attr", "attr": "title" } }
     ],
 
     "pathTransform": [
@@ -88,7 +88,7 @@
         "typescript": {
             "files": ["*.ts"],
             "ignore": [],
-            "parserPlugin": "typescript",
+            "plugin": "typescript",
             "pluginConfig": {},
             "baseParams": { "#" : "to be extended/overridden by individual replace definitions." },
             "#": "Will try to find the plugin in ./plugins, first, then node_modules? Let's see."

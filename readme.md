@@ -30,8 +30,8 @@ A minimal `template.json` would look like this:
     "url": "https://en.wikipedia.org/wiki/Outis",
     "identity": "myprojtmp",
 
-    "inputConfig": {
-        "defaultInterface": "prompt",
+    "input": {
+        "use": "prompt",
         "define": {
             "namespace": "What will the root namespace of your project be?"
         }

@@ -31,10 +31,10 @@ export class BaseTransformManager {
             config.files = tconfig.files;
             config.ignore = tconfig.ignore;
             config.plugin = tconfig.plugin;
-            config.parserOptions = tconfig.parserOptions;
+            config.pluginOptions = tconfig.pluginOptions;
             let PluginClass = requireg(`neoman-plugin-${config.plugin}`);
             config.pluginInstance = new PluginClass();
-            config.pluginInstance.configure(config.parserOptions);
+            config.pluginInstance.configure(config.pluginOptions);
             this.configs[key] = config;
         }
     }
@@ -61,14 +61,14 @@ export class BaseTransformManager {
                     return original.split(<string>tdef.subject).join(this.buildReplacer(tdef)(<string>tdef.subject));
             case "plugin":
                 try {
-                    let config = this.configs[tdef.configuration];
+                    let config = this.configs[tdef.using];
                     if (typeof tdef.with === "string") {
-                        return config.pluginInstance.transform(path, original, tdef.subject, this.preprocess(tdef.with), _.extend({}, config.parserOptions, tdef.params));
+                        return config.pluginInstance.transform(path, original, tdef.subject, this.preprocess(tdef.with), _.extend({}, config.pluginOptions, tdef.params));
                     } else {
-                        return config.pluginInstance.transform(path, original, tdef.subject, this.buildReplacer(tdef), _.extend({}, config.parserOptions, tdef.params));
+                        return config.pluginInstance.transform(path, original, tdef.subject, this.buildReplacer(tdef), _.extend({}, config.pluginOptions, tdef.params));
                     }
                 } catch (err) {
-                    this.msg.error(`Error running plugin from "${tdef.configuration}" configuration:`, 3);
+                    this.msg.error(`Error running plugin from "${tdef.using}" configuration:`, 3);
                     this.msg.error(err.toString(), 3);
                     return original;
                 }
@@ -81,12 +81,12 @@ export class BaseTransformManager {
         if (! tdef)
             throw new Error("Malformed transform definition.");
         
-        if (! tdef.configuration || tdef.configuration === "regex") {
+        if (! tdef.using || tdef.using === "regex") {
             if (this.configs.hasOwnProperty("regex")) // Then, the user wants to override the default.
                 return "plugin";
             
             return "regex";
-        } else if (tdef.configuration === "simple") {
+        } else if (tdef.using === "simple") {
             if (this.configs.hasOwnProperty("simple"))
                 return "plugin";
 

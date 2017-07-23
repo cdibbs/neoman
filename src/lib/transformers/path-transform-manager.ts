@@ -56,7 +56,7 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
             }
 
             if (typeof t === "object") {
-                if (this.replaceDoesApply(processing, t.files, t.ignore, t.configuration)) {
+                if (this.replaceDoesApply(processing, t.files, t.ignore, t.using)) {
                     processing = this.applyIfMatch(t, processing);
                 } else {
                     this.msg.debug(`Skipping path transform def #${i}, "${t.subject}" (no match: config or globs).`, 2);

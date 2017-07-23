@@ -50,6 +50,6 @@ export class PromptInputManager implements i.IInputManager {
             return Object.keys(inputs).length;
         }
 
-        throw new Error("Unrecognized inputConfig format.");
+        throw new Error("Unrecognized input section format.");
     }
 }
