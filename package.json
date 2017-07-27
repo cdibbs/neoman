@@ -68,6 +68,7 @@
     "launchpad": "^0.7.0",
     "minimatch": "^3.0.4",
     "mocha": "^3.4.2",
+    "nested-error-stacks": "^2.0.0",
     "npm-run-all": "^4.0.2",
     "nyc": "^11.0.3",
     "optimist": "^0.6.1",

@@ -1,16 +1,20 @@
 import { injectable, inject } from 'inversify';
-import TYPES from '../di/types';
+var NestedError = require('nested-error');
 
+import { BaseInputManager } from './base-input-manager';
+import TYPES from '../di/types';
 import * as i from '../i';
 import * as it from '../i/template';
 
 @injectable()
-export class InputManager implements i.IInputManager {
+export class InputManager extends BaseInputManager {
     constructor(
         @inject(TYPES.PromptInputManager) private promptMgr: i.IInputManager,
         @inject(TYPES.BrowserInputManager) private browserMgr: i.IInputManager,
         @inject(TYPES.CustomInputManager) private customMgr: i.IInputManager
-    ) {}
+    ) {
+        super();
+    }
 
     ask(config: it.IInputConfig): Promise<{ [key: string]: any }> {
         try {
@@ -21,27 +25,23 @@ export class InputManager implements i.IInputManager {
                 switch(config.use) {
                     case "browser": return this.browserMgr.ask(config);
                     case "prompt": return this.promptMgr.ask(config);
-                    default: return this.customMgr.ask(config);
+                    default:
+                        this.customMgr.configure(this.tmplRootPath);
+                        return this.customMgr.ask(config);
                 }
             } else if (typeof config.use === "object") {
                 switch(config.use.type) {
                     case "browser": return this.browserMgr.ask(config);
                     case "prompt": return this.promptMgr.ask(config);
-                    default: return this.customMgr.ask(config);
+                    default:
+                        this.customMgr.configure(this.tmplRootPath);
+                        return this.customMgr.ask(config);
                 }
             }
 
-            return new Promise((_, reject) => reject("Unrecognized input section format."));
+            return Promise.reject(`Unrecognized input section format: ${config.use}.`);
         } catch(err) {
-            return new Promise((_, reject) => reject(err));
+            return Promise.reject(new NestedError(`Unexpected error asking for ${(config || {}).use} input`, err));
         }
-    }
-
-    protected countQuestions(inputs: it.ITemplateInputs): number {
-        if (typeof inputs === "object") {
-            return Object.keys(inputs).length;
-        }
-
-        throw new Error("Unrecognized input section format.");
     }
 }

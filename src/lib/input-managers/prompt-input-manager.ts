@@ -1,14 +1,17 @@
 import { injectable, inject } from 'inversify';
 import TYPES from '../di/types';
 
+import { BaseInputManager } from './base-input-manager';
 import * as i from '../i';
 import * as it from '../i/template';
 
 @injectable()
-export class PromptInputManager implements i.IInputManager {
+export class PromptInputManager extends BaseInputManager {
     constructor(
         @inject(TYPES.Process) private process: NodeJS.Process
-    ) {}
+    ) {
+        super();
+    }
 
     ask(config: it.IInputConfig): Promise<{ [key: string]: any }> {
         let promise: Promise<{ [key: string]: any }> = null;

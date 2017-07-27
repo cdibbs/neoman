@@ -53,6 +53,7 @@ describe('TemplateRunner', () => {
             match: (path: string, patterns: string[]) => []
         };
         let im: i.IInputManager = {
+            configure: () => null,
             ask: (inputs: itmp.IInputConfig) => new Promise((resolve) => resolve(<{[k: string]: any}>{}))
         };
         let tm: itm.ITransformManager = {

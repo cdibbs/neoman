@@ -11,3 +11,4 @@ export * from './i-template-runner';
 export * from './i-input-manager';
 export * from './i-file-patterns';
 export * from './i-template-validator';
+export * from './i-handler-service';

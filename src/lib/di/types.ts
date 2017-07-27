@@ -18,7 +18,8 @@ let TYPES = {
     InputManager: Symbol("InputManager"),
     BrowserInputManager: Symbol("BrowserInputManager"),
     CustomInputManager: Symbol("CustomInputManager"),
-    PromptInputManager: Symbol("PromptInputManager")
+    PromptInputManager: Symbol("PromptInputManager"),
+    HandlerService: Symbol("HandlerService")
 }
 
 export default TYPES;

@@ -1,26 +1,26 @@
 import { injectable, inject } from 'inversify';
-import TYPES from '../di/types';
+var NestedError = require('nested-error-stacks');
 
+import { BaseInputManager } from './base-input-manager';
+import TYPES from '../di/types';
 import * as i from '../i';
 import * as it from '../i/template';
 
 @injectable()
-export class CustomInputManager implements i.IInputManager {
+export class CustomInputManager extends BaseInputManager {
     constructor(
-    ) {}
-
-    ask(config: it.IInputConfig): Promise<{ [key: string]: any }> {
-        let answers = {};
-        let promise = null;
-
-        return promise || new Promise(resolve => resolve({}));
+        @inject(TYPES.HandlerService) private handlerService: i.IHandlerService
+    ) {
+        super();
     }
 
-    protected countQuestions(inputs: it.ITemplateInputs): number {
-        if (typeof inputs === "object") {
-            return Object.keys(inputs).length;
+    ask(config: it.IInputConfig): Promise<{ [key: string]: any }> {
+        try {
+            return this.handlerService
+                .resolveAndLoad(this.tmplRootPath, config.handler)
+                .then(handler => handler(config));
+        } catch (ex) {
+            return Promise.reject(new NestedError("Error running handler for input configuration", ex));
         }
-
-        throw new Error("Unrecognized input section format.");
     }
 }
