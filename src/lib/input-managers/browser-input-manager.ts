@@ -18,6 +18,7 @@ export class BrowserInputManager extends BaseInputManager {
     express: typeof express = express;
     webSocket: typeof WebSocket = WebSocket;
     launch: typeof launch = launch;
+    bodyParser: typeof bodyParser = bodyParser;
 
     constructor(
         @inject(TYPES.UserMessager) protected msg: i.IUserMessager,
@@ -42,7 +43,7 @@ export class BrowserInputManager extends BaseInputManager {
         let wss: WebSocket.Server;
 
         var app = this.express(); 
-        app.use(bodyParser.json());
+        app.use(this.bodyParser.json());
         app.use('/', this.express.static(this.path.join(__dirname, '..', 'browser-prompt')));
         app.get('/questions', (req, res) => res.json(config));
         app.post('/', curry.twoOf4(this.handleUserInput, this, resolve, reject));
@@ -55,7 +56,7 @@ export class BrowserInputManager extends BaseInputManager {
         resolve: (value?: {} | PromiseLike<{}>) => void,
         reject: (reason?: any) => void,
         req: express.Request,
-        res: express.Response)
+        res: express.Response): void
     {
         try {
             resolve(req.body);

@@ -16,6 +16,7 @@ import { VERBOSITY, Verbosity } from './types/verbosity';
 import * as i from './i';
 import * as itmp from './i/template';
 import * as itm from './transformers/i';
+import { mockMessagerFactory, mockPathFactory } from '../spec-lib';
 
 describe('TemplateRunner', () => {
     var tr: TemplateRunner;
@@ -31,23 +32,10 @@ describe('TemplateRunner', () => {
                 return [];
             }
         };
-        let userMessager: i.IUserMessager = {
-            info: (message: any, indent?: number): void => {},
-            debug: (message: any, indent?: number): void => {},
-            warn: (message: any, indent?: number): void => {},
-            error: (message: any, indent?: number): void => {},
-            write: (message: string, indent: number = 0, level: i.Levels = i.LEVELS.Debug): void => {}
-        };
         let fs: i.IFileSystem = {
             readdirSync: (...args: any[]) => [],
             statSync: (...args: any[]) => <Stats>{},
             readFileSync: (...args: any[]) => ""
-        };
-        let path: i.IPath = {
-            sep: "/",
-            join: (...args: any[]) => args.join(path.sep),
-            dirname: (...args: any[]) => "",
-            resolve: () => ""
         };
         let patterns: i.IFilePatterns = {
             match: (path: string, patterns: string[]) => []
@@ -67,7 +55,7 @@ describe('TemplateRunner', () => {
         let v: i.ITemplateValidator = {
             dependenciesInstalled: (tmpl: itmp.ITemplate) => { return {}; }
         };
-        tr = new TemplateRunner(userMessager, fs, path, patterns, im, tm, ptm, v);
+        tr = new TemplateRunner(mockMessagerFactory(), fs, mockPathFactory(), patterns, im, tm, ptm, v);
     })
 
     describe("#getUserInputAndRun", () => {
