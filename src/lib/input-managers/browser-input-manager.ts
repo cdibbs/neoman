@@ -68,23 +68,28 @@ export class BrowserInputManager extends BaseInputManager {
         }
     }
 
-    launchBrowser(reject: (error?: any) => void): void {
-        let self = this;
-        this.launch.local(function(error, launcher) {
-            if (error) {
-                reject(error);
-            } else {
-                launcher("http://localhost:3638",
-                    <launch.LaunchOptions>{ browser: "chrome", args: "--new-window" },
-                    function(error, inst) {
-                        if (error) {
-                            reject(error);
-                        } else {
-                            self.browserInstance = inst;
-                        }
-                    });
-            }
-        });
+    protected launchBrowser(reject: (error?: any) => void): void {
+        this.launch.local(curry.oneOf3(this.launchBrowserLocal, this, reject));
+    }
+
+    protected launchBrowserLocal(reject: (error?: any) => void, error: any, launcher: launch.Launcher): void {
+        if (error) {
+            reject(error);
+        } else {
+            launcher(
+                "http://localhost:3638",
+                <launch.LaunchOptions>{ browser: "chrome", args: "--new-window" },
+                curry.oneOf3(this.handleLaunchResult, this, reject)
+            );
+        }
+    }
+
+    protected handleLaunchResult(reject: (error?: any) => void, error: any, inst: launch.Instance): void {
+        if (error) {
+            reject(error);
+        } else {
+            this.browserInstance = inst;
+        }
     }
 
     wssConnection(

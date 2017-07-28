@@ -165,8 +165,82 @@ describe(BrowserInputManager.name, () => {
         });
     });
 
+    describe('#launchBrowser', () => {
+        let rejStub: sinon.SinonStub, localStub: sinon.SinonStub;
+        beforeEach(() => {
+            rejStub = sinon.stub();
+            localStub = sinon.stub();
+            cim["launch"].local = <any>localStub;
+        });
+
+        it('should curry callback to launchBrowserLocal', () => {
+            let lbl = sinon.stub();
+            cim["launchBrowserLocal"] = lbl;
+
+            cim["launchBrowser"](rejStub);
+
+            sinon.assert.calledWith(localStub, sinon.match.func);
+            let fn = localStub.args[0][0];
+            fn(null);
+            sinon.assert.calledWith(lbl, rejStub, null);
+        });
+    });
+
+    describe('#launchBrowserLocal',() => {
+        let rejStub: sinon.SinonStub, hlrStub: sinon.SinonStub;
+        let launcherStub: sinon.SinonStub;
+        beforeEach(() => {
+            rejStub = sinon.stub();
+            hlrStub = sinon.stub();
+            launcherStub = sinon.stub();
+            cim["handleLaunchResult"] = <any>hlrStub;
+        });
+
+        it('should reject on local launch error', () => {
+            cim["launchBrowserLocal"](rejStub, "my error", <any>launcherStub);
+
+            expect(launcherStub.called).to.be.false;
+            sinon.assert.calledWith(rejStub, "my error");
+        });
+
+        it('should call received launcher with neoman url and not reject', () => {
+            cim["launchBrowserLocal"](rejStub, null, <any>launcherStub);
+
+            expect(rejStub.called).to.be.false;
+            sinon.assert.calledWith(launcherStub, "http://localhost:3638", sinon.match.object, sinon.match.func);
+        });
+
+        it('should pass properly-curried handleLaunchResult to launch result handling', () => {
+            cim["launchBrowserLocal"](rejStub, null, <any>launcherStub);
+
+            let fn = launcherStub.args[0][2];
+            fn(null);
+            sinon.assert.calledWith(hlrStub, rejStub, null);
+        });
+    });
+
+    describe('#handleLaunchResult', () => {
+        let rejStub: sinon.SinonStub;
+        beforeEach(() => {
+            rejStub = sinon.stub();
+        });
+        it('should reject on error', () => {
+            cim["handleLaunchResult"](rejStub, "error", null);
+
+            sinon.assert.calledWith(rejStub, "error");
+        });
+        it('should set browser instance on success', () => {
+            let bi = { "bi": "yup" };
+
+            cim["handleLaunchResult"](rejStub, null, <any>bi);
+
+            expect(rejStub.called).to.be.false;
+            expect(cim.browserInstance).to.deep.equal(bi);
+        });
+    });
+
     describe('#wssConnection', () => {
-        it('binds message events to curried wssMessage()', () => {
+        it('should bind message events to curried wssMessage()', () => {
             let wssmStub = sinon.stub(), onStub = sinon.stub();
             let ws = { on: onStub };
             let rejStub = sinon.stub(), resStub = sinon.stub();
@@ -184,7 +258,7 @@ describe(BrowserInputManager.name, () => {
     });
 
     describe('#wssMessage', () => {
-        it("bad message format shouldn't cause reject or throw; could be plugin mistake, so be versatile", () => {
+        it("shouldn't reject or throw on bad message format; could be plugin mistake, so be versatile", () => {
             let rejStub = sinon.stub();
             let message = "{ invalid json }";
 
@@ -208,6 +282,25 @@ describe(BrowserInputManager.name, () => {
 
             cim["wssMessage"](rejStub, message);
 
+            expect(rejStub.called).to.be.false;
+        });
+
+        it("should inform of loaded page", () => {
+            let rejStub = sinon.stub(), debugStub = sinon.stub();
+            let message = `{ "eventType": "load" }`;
+
+            cim["msg"].debug = debugStub;
+            cim["wssMessage"](rejStub, message);
+
+            expect(rejStub.called).to.be.false;
+            sinon.assert.calledWith(debugStub, "WebSocket established.");
+        });
+
+        it("should not throw or reject on valid json, invalid message", () => {
+            let rejStub = sinon.stub();
+            let message = `{ "otherMsg": "blah" }`;
+
+            cim["wssMessage"](rejStub, message);
             expect(rejStub.called).to.be.false;
         });
     });    
