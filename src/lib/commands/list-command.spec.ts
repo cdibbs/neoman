@@ -77,4 +77,12 @@ describe('ListCommand', () => {
             assert.doesNotThrow(() => c.end(null));
         });
     });
+
+    describe('#bind', () => {
+        it('should bind', () => {
+            let fn = function() { return this; };
+            let bfn = c.bind(fn);
+            expect(bfn()).to.equal(c);
+        });
+    });
 });

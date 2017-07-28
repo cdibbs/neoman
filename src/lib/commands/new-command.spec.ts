@@ -88,4 +88,15 @@ describe('NewCommand', () => {
             let result = nc.buildOptions(<any>{});
         });
     });
+
+    describe('#exit', () => {
+        it('should call process.exit', () => {
+            let exitStub = sinon.stub();
+            nc["process"].exit = <any>exitStub;
+
+            nc["exit"]();
+
+            expect(exitStub.called).to.be.true;            
+        });
+    });
 });
