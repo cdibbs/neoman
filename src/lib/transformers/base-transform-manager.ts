@@ -1,5 +1,6 @@
 import { injectable, inject } from 'inversify';
 import * as _ from 'underscore';
+let NestedError = require('nested-error-stacks');
 let requireg = require('requireg');
 
 import TYPES from '../di/types';
@@ -22,6 +23,7 @@ export class BaseTransformManager {
         
     }
 
+    //FIXME Need to cover plugin loading with better tests
     preparePlugins(tconfigs: ir.IConfigurations): void {
         this.configs = {};
         for (let key in tconfigs) {
@@ -32,12 +34,34 @@ export class BaseTransformManager {
             config.ignore = tconfig.ignore;
             config.plugin = tconfig.plugin;
             config.pluginOptions = tconfig.pluginOptions;
-            let PluginClass = requireg(`neoman-plugin-${config.plugin}`);
-            config.pluginInstance = new PluginClass();
-            config.pluginInstance.configure(config.pluginOptions);
+
+            let pluginName = `neoman-plugin-${config.plugin}`;
+            let PluginClass: { new(): any };
+            try {
+                PluginClass = this.requireg(pluginName);
+            } catch(ex) {
+                throw new NestedError(this.msg.__mf("Error loading plugin '{pluginName}'.", { pluginName }), ex);
+            }
+
+            try {
+                console.log(PluginClass);
+                config.pluginInstance = new PluginClass();
+            } catch(ex) {
+                console.log(ex);
+                throw new NestedError(this.msg.__mf("Error instantiating plugin '{pluginName}'.", { pluginName }), ex);
+            }
+
+            try {
+                config.pluginInstance.configure(config.pluginOptions);
+            } catch(ex) {
+                throw new NestedError(this.msg.__mf("Error when calling .configure(pluginOptions) on '{pluginName}' instance.", { pluginName }), ex);
+            }
+
             this.configs[key] = config;
         }
     }
+
+    requireg = requireg;
 
     isComment(s: string): boolean {
         return s && s[0] === '#';

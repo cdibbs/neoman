@@ -20,6 +20,26 @@ describe('BaseTransformManager', () => {
         tm = new BaseTransformManager(filePatterns, mockMessagerFactory());
     })
 
+    describe('#preparePlugins', () => {
+        it('should yield empty plugins from empty configs def', () => {
+            tm['preparePlugins'](undefined);
+
+            expect(tm["configs"]).to.deep.equal({});
+        });
+
+        it('should add key as entry and load plugin', () => {
+            tm["requireg"] = () => {
+                return function() {
+                    this.configure = () => {
+
+                    }
+                }
+            };
+            tm['preparePlugins'](<any>{ one: { plugin: "myplug" } });
+            expect(tm["configs"]).to.have.property("one");
+        });
+    });
+
     describe('#preprocess', () => {
         it('should substitute an unescaped variable', () => {
             tm['inputs'] = { "hello": "world" };
