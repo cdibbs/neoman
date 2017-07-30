@@ -2,6 +2,7 @@ import { injectable, inject } from 'inversify';
 
 import { EventEmitter, TemplateSearchEmitterType } from './emitters';
 import { COMMANDS, Commands } from './commands';
+import { curry } from './util/curry';
 import TYPES from './di/types';
 import KEYS from './settings-keys';
 import { IFileSystem, IGlob, IPath, IUserMessager, ITemplateManager, ISettingsProvider } from './i';
@@ -21,25 +22,47 @@ export class TemplateManager implements ITemplateManager {
         this.tmplDir = this.settings.get(KEYS.tempDirKey);
     }
 
+
+    // Essentially, this maps a glob-match emitter to an ITemplate emitter
     list(): EventEmitter<TemplateSearchEmitterType> {
         let templates: ITemplate[] = [];
         let emitter = new EventEmitter<TemplateSearchEmitterType>();
-        emitter.on("match", (tmpl: ITemplate) => { templates.push(tmpl); });
-        let g = new this.glob.Glob("*/.neoman.config/template.json", { cwd: this.tmplDir });
-        g.on("match", (() => { return (file: string) => this.templateMatch.bind(this)(file, emitter); })());
-        g.on("end", () => emitter.emit('end', templates));
+        // on glob match, the following adds an ITemplate to templates for later return at "end" event:
+        emitter.on("match", curry.oneOf2(this.listMatch, this, templates));
+
+        let search = new this.glob.Glob("*/.neoman.config/template.json", { cwd: this.tmplDir });
+        search.on("match", curry.oneOf2(this.templateMatch, this, emitter))
+        search.on("end", curry.twoOf3(this.endList, this, templates, emitter));
+
         return emitter;
-        //this.msg.log("Listing templates in your template directory.");
-        //this.msg.log(`Using: ${this.tmplDir}\n`);
     }
 
     info(tmplId: string): Promise<ITemplate> {
         return new Promise((resolve, reject) => {
-            this.list().on('end', (list: ITemplate[]) => {
-                resolve(this.mapToViewModel(list.find(tmpl => tmpl.identity === tmplId)));
-            });
-            this.list().on('error', (ex: Error) => reject(ex));
+            let emitter = this.list();
+            emitter.on('end', curry.twoOf3(this.infoFound, this, resolve, tmplId));
+            emitter.on('error', curry.oneOf2(this.infoError, this, reject));
         });
+    }
+
+    private infoError(reject: (reason?: any) => void, error: any): void {
+        reject(error);
+    }
+
+    private infoFound(
+        resolve: (value?: ITemplate | PromiseLike<ITemplate>) => void,
+        tmplId: string,
+        list: ITemplate[]): void
+    {
+        resolve(this.mapToViewModel(list.find(tmpl => tmpl.identity === tmplId)));
+    }
+
+    private listMatch(templatesRef: ITemplate[], tmpl: ITemplate): void {
+        templatesRef.push(tmpl);
+    }
+
+    private endList(templatesRef: ITemplate[], emitter: EventEmitter<TemplateSearchEmitterType>): void {
+        emitter.emit('end', templatesRef);
     }
 
     // For the moment, this exists only to eliminate comments from the JSON.
@@ -76,17 +99,14 @@ export class TemplateManager implements ITemplateManager {
         return obj;
     }
 
-    private templateMatch(file: string, emitter: EventEmitter<TemplateSearchEmitterType>): any {
+    private templateMatch(emitter: EventEmitter<TemplateSearchEmitterType>, file: string): any {
             let fullPath = this.path.join(this.tmplDir, file);
             try {
                 let tmpl = JSON.parse(this.fs.readFileSync(fullPath, 'utf8'));
                 tmpl.__tmplPath = this.path.join(this.path.dirname(fullPath), '..');
                 emitter.emit("match", tmpl);
-                //this.msg.log(`\t${tmpl.identity} - ${tmpl.name}`);
             } catch (ex) {
                 emitter.emit("error", ex);
-                //this.msg.error(`Error reading template definition file: ${file}.`);
-                //throw ex;
             }
     }
 }
