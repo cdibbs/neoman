@@ -34,7 +34,7 @@ export class TemplateRunner implements i.ITemplateRunner {
         }
 
         if (!this.destinationEmpty(path) /* && not force */) {
-            return Promise.reject(`The destination directory is not empty (${path}).`);
+            return Promise.reject(this.msg.__mf('The destination directory is not empty ({path}).', { path: path }));
         }
 
         return this.getUserInputAndRun(path, options, tmpl);
@@ -55,7 +55,7 @@ export class TemplateRunner implements i.ITemplateRunner {
         emitter: EventEmitter<TemplateFilesEmitterType>,
         inputs: { [key: string]: any }): Promise<RunnerResult>
     {
-        this.msg.write(`Copying and transforming files into ${path}...`);
+        this.msg.i18n({path: path}).write('Copying and transforming files into {path}...');
         this.transformManager.configure(tmpl, inputs);
         this.pathTransformManager.configure(tmpl, inputs);
         emitter.on('match', this.matchTmplFile.bind(this, path, tmpl.pathTransform, tmpl.transform, options.verbosity));
@@ -69,9 +69,10 @@ export class TemplateRunner implements i.ITemplateRunner {
     }
 
     protected finishRun(result: RunnerResult): RunnerResult {
-        this.msg.info(`${result.processed} file(s) considered.`);
-        this.msg.info(`${result.excluded} file(s) excluded.`);
-        this.msg.info(`${result.totalFiles} file(s) copied.`);
+        this.msg.i18n(result)
+            .info('{processed} file(s) considered.')
+            .info('{excluded} file(s) excluded.')
+            .info('{totalFiles} file(s) copied.');
         return result;
     }
 
@@ -85,7 +86,9 @@ export class TemplateRunner implements i.ITemplateRunner {
         for(var key in deps) {
             let depInstalled = deps[key];
             if (!depInstalled) {
-                this.msg.write(`Template '${tmpl.name}' requires npm package '${key}', which is not installed.`);
+                this.msg
+                    .i18n({ name: tmpl.name, key })
+                    .write("Template '{name}' requires npm package '{key}', which is not installed.");
                 missing = true;
             }
         }
@@ -95,20 +98,21 @@ export class TemplateRunner implements i.ITemplateRunner {
 
     protected matchTmplFile(path: string, pathTransforms: PathTransforms, transforms: Transforms, verbosity: Verbosity, tmplFile: i.ITemplateFile): void {
         if (verbosity === VERBOSITY.debug)
-            this.msg.debug(`Include: ${tmplFile.absolutePath}`);
+            this.msg.i18n({absPath: tmplFile.absolutePath}).debug("Include: {absPath}");
 
-        this.msg.info(`Processing ${tmplFile.absolutePath}...`);
-        this.msg.debug(`Applying path transforms...`, 1);
+        this.msg.i18n({absPath: tmplFile.absolutePath})
+            .info('Processing {absPath}...')
+            .debug(`Applying path transforms...`, 1);
         let destRelPath = this.pathTransformManager.applyTransforms(tmplFile.relativePath, pathTransforms);
         let destFile = this.path.join(path, destRelPath);
         let destPath = this.path.dirname(destFile);
         let content = this.readFileSync(tmplFile.absolutePath).toString("utf8");
-        this.msg.debug(`Applying transforms...`, 1);
+        this.msg.i18n().debug(`Applying transforms...`, 1);
         content = this.transformManager.applyTransforms(tmplFile.relativePath, content, transforms);
-        this.msg.debug(`Writing to destination: ${destFile}`, 1);
+        this.msg.i18n({destFile}).debug('Writing to destination: {destFile}', 1);
         this.ensureDirSync(destPath);
         this.writeFileSync(destFile, content);
-        this.msg.debug('Done.');
+        this.msg.i18n().debug('Done.');
     }
 
     // Testability FTW!
@@ -122,11 +126,13 @@ export class TemplateRunner implements i.ITemplateRunner {
     // directories not explicitly matched or excluded.
     protected tentativeMatchTmplFile(path: string, verbosity: Verbosity, tmplFile: i.ITemplateFile): void {
         if (verbosity === VERBOSITY.debug)
-            this.msg.debug(`Tentative: ${tmplFile.relativePath}`);
+            this.msg.i18n({relPath: tmplFile.relativePath})
+                .debug('Tentative: {relPath}');
     }
 
     protected excludeMatchTmplFile(tmplFile: i.ITemplateFile): void {
-        this.msg.debug(`Exclude: ${tmplFile.relativePath}`);
+        this.msg.i18n({relPath: tmplFile.relativePath})
+            .debug('Exclude: {relPath}');
     }
 
     protected templateError(err: Error): void {

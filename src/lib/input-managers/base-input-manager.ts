@@ -4,6 +4,7 @@ import TYPES from '../di/types';
 import * as i from '../i';
 import * as it from '../i/template';
 
+@injectable()
 export abstract class BaseInputManager implements i.IInputManager {
     protected tmplRootPath: string;
 

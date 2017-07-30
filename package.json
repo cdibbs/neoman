@@ -10,10 +10,11 @@
   "scripts": {
     "test": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\",\\\"project\\\":\\\"tsconfig-mocha.json\\\"} mocha --recursive --compilers ts:ts-node/register --compilerOptions --bail src/lib/*.spec.ts src/lib/**/*.spec.ts",
     "cover": "nyc npm test",
-    "build": "npm-run-all tsc copystatic",
+    "build": "npm-run-all tsc copystatic copylocales",
     "tsc": "tsc",
     "report_coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
-    "copystatic": "copyfiles -u 2 src/browser-prompt/**/* dist/browser-prompt"
+    "copystatic": "copyfiles -u 2 src/browser-prompt/**/* dist/browser-prompt",
+    "copylocales": "copyfiles locales dist/locales"
   },
   "nyc": {
     "include": [
@@ -48,6 +49,7 @@
     "@types/express": "^4.0.36",
     "@types/fs-extra": "^3.0.3",
     "@types/glob": "^5.0.30",
+    "@types/i18n": "^0.8.0",
     "@types/launchpad": "^0.6.0",
     "@types/mocha": "^2.2.41",
     "@types/node": "^7.0.28",
@@ -64,6 +66,7 @@
     "express": "^4.15.3",
     "fs-extra": "^3.0.1",
     "glob": "^7.1.2",
+    "i18n": "^0.8.3",
     "inversify": "^4.1.1",
     "launchpad": "^0.7.0",
     "minimatch": "^3.0.4",

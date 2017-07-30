@@ -1,5 +1,5 @@
 import { injectable, inject } from 'inversify';
-var NestedError = require('nested-error');
+var NestedError = require('nested-error-stacks');
 
 import { BaseInputManager } from './base-input-manager';
 import TYPES from '../di/types';

@@ -79,10 +79,16 @@ npm link
 neoman
 ```
 
+## Help Wanted
 
-## Authors
+### Internationalization (i18n)
 
-1. [Chris Dibbern](://github.com/cdibbs)
+Fluent in another language? Please consider helping with translations.
+
+### Plugins
+
+Familiar with parsers? Want to see Neoman transforms for your favorite programming language? Please
+review existing plugins and see if this might fit in with your hobby time.
 
 [license-badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [LICENSE]: https://github.com/cdibbs/neoman/blob/master/LICENSE

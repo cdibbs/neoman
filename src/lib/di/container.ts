@@ -3,6 +3,7 @@ import 'reflect-metadata';
 import * as glob from 'glob';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as i18n from 'i18n';
 
 import TYPES from "./types";
 import { TransformManager, PathTransformManager } from '../transformers';
@@ -37,6 +38,11 @@ container.bind<i.IInputManager>(TYPES.InputManager).to(InputManager);
 container.bind<i.IInputManager>(TYPES.BrowserInputManager).to(BrowserInputManager);
 container.bind<i.IInputManager>(TYPES.CustomInputManager).to(CustomInputManager);
 container.bind<i.IInputManager>(TYPES.PromptInputManager).to(PromptInputManager);
+
+i18n.configure({
+    directory: path.join(__dirname, '..', "/locales")
+});    
+container.bind<i.Ii18nFunction>(TYPES.i18n).toConstantValue(i18n.__mf);
 
 container.bind<ICommand<any, any>>(TYPES.Commands).to(SetDirCommand);
 container.bind<ICommand<any, any>>(TYPES.Commands).to(NewCommand);
