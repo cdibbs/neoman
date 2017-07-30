@@ -4,6 +4,7 @@ import "reflect-metadata";
 import { expect } from 'chai';
 import 'mocha';
 
+import { mockMessagerFactory } from '../../spec-lib'
 import { PathTransformManager } from './path-transform-manager';
 import * as i from '../i';
 
@@ -16,14 +17,7 @@ describe('PathTransformManager', () => {
                 return [];
             }
         };
-        let userMessager: i.IUserMessager = {
-            info: (message: any, indent?: number): void => {},
-            debug: (message: any, indent?: number): void => {},
-            warn: (message: any, indent?: number): void => {},
-            error: (message: any, indent?: number): void => {},
-            write: (message: string, indent: number = 0, level: i.Levels = i.LEVELS.Debug): void => {}
-        };
-        tm = new PathTransformManager(filePatterns, userMessager);
+        tm = new PathTransformManager(filePatterns, mockMessagerFactory());
     })
 
 });

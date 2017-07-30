@@ -4,6 +4,7 @@ import "reflect-metadata";
 import { expect, assert } from 'chai';
 import 'mocha';
 
+import { mockMessagerFactory } from '../../spec-lib'
 import { BaseTransformManager } from './base-transform-manager';
 import * as i from '../i';
 
@@ -16,14 +17,7 @@ describe('BaseTransformManager', () => {
                 return [];
             }
         };
-        let userMessager: i.IUserMessager = {
-            info: (message: any, indent?: number): void => {},
-            debug: (message: any, indent?: number): void => {},
-            warn: (message: any, indent?: number): void => {},
-            error: (message: any, indent?: number): void => {},
-            write: (message: string, indent: number = 0, level: i.Levels = i.LEVELS.Debug): void => {}
-        };
-        tm = new BaseTransformManager(filePatterns, userMessager);
+        tm = new BaseTransformManager(filePatterns, mockMessagerFactory());
     })
 
     describe('#preprocess', () => {

@@ -8,20 +8,14 @@ let expect = chai.expect, assert = chai.assert;
 import * as i from '../i';
 import * as nci from './i';
 import { ITemplate } from '../i/template';
+import { mockMessagerFactory } from '../../spec-lib'
 
 import { InfoCommand } from './info-command';
 
 describe('InfoCommand', () => {
     let ic: InfoCommand;
     beforeEach(() => {
-        let userMessager: i.IUserMessager = {
-            info: (message: any, indent?: number): void => {},
-            debug: (message: any, indent?: number): void => {},
-            warn: (message: any, indent?: number): void => {},
-            error: (message: any, indent?: number): void => {},
-            write: (message: string, indent: number = 0, level: i.Levels = i.LEVELS.Debug): void => {}
-        };
-        ic = new InfoCommand(<i.ITemplateManager>{}, <i.ITemplateValidator>{ }, userMessager, <NodeJS.Process>{}, <i.IPath>{});
+        ic = new InfoCommand(<i.ITemplateManager>{}, <i.ITemplateValidator>{ }, mockMessagerFactory(), <NodeJS.Process>{}, <i.IPath>{});
         let vstub = sinon.stub();
         vstub.returns([]);
         ic["validator"].dependenciesInstalled = vstub;

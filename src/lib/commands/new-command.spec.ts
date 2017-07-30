@@ -7,20 +7,14 @@ import * as sinon from 'sinon';
 let expect = chai.expect, assert = chai.assert;
 import * as i from '../i';
 import * as nci from './i';
+import { mockMessagerFactory } from '../../spec-lib'
 
 import { NewCommand } from './new-command';
 
 describe('NewCommand', () => {
     let nc: NewCommand;
     beforeEach(() => {
-        let userMessager: i.IUserMessager = {
-            info: (message: any, indent?: number): void => {},
-            debug: (message: any, indent?: number): void => {},
-            warn: (message: any, indent?: number): void => {},
-            error: (message: any, indent?: number): void => {},
-            write: (message: string, indent: number = 0, level: i.Levels = i.LEVELS.Debug): void => {}
-        };
-        nc = new NewCommand(userMessager, <i.ITemplateManager>{}, <i.IPath>{ sep: "/" }, <i.ITemplateRunner>{});
+        nc = new NewCommand(mockMessagerFactory(), <i.ITemplateManager>{}, <i.IPath>{ sep: "/" }, <i.ITemplateRunner>{});
     });
 
     describe('#run', () => {

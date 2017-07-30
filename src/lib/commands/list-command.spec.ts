@@ -8,20 +8,14 @@ let expect = chai.expect, assert = chai.assert;
 import * as i from '../i';
 import * as nci from './i';
 import { ITemplate } from '../i/template';
+import { mockMessagerFactory } from '../../spec-lib'
 
 import { ListCommand } from './list-command';
 
 describe('ListCommand', () => {
     let c: ListCommand;
     beforeEach(() => {
-        let userMessager: i.IUserMessager = {
-            info: (message: any, indent?: number): void => {},
-            debug: (message: any, indent?: number): void => {},
-            warn: (message: any, indent?: number): void => {},
-            error: (message: any, indent?: number): void => {},
-            write: (message: string, indent: number = 0, level: i.Levels = i.LEVELS.Debug): void => {}
-        };
-        c = new ListCommand(userMessager, <NodeJS.Process>{}, <i.IFileSystem>{ }, <i.IPath>{}, <i.IGlob>{});
+        c = new ListCommand(mockMessagerFactory(), <NodeJS.Process>{}, <i.IFileSystem>{ }, <i.IPath>{}, <i.IGlob>{});
         c.tempDir = "/tmp/mytemplates";
     });
 
