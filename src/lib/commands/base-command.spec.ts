@@ -9,18 +9,12 @@ import * as i from '../i';
 import * as nci from './i';
 
 import { BaseCommand } from './base-command';
+import { mockMessagerFactory } from '../../spec-lib'
 
 describe('BaseCommand', () => {
     let nc: BaseCommand<any, any>;
     beforeEach(() => {
-        let userMessager: i.IUserMessager = {
-            info: (message: any, indent?: number): void => {},
-            debug: (message: any, indent?: number): void => {},
-            warn: (message: any, indent?: number): void => {},
-            error: (message: any, indent?: number): void => {},
-            write: (message: string, indent: number = 0, level: i.Levels = i.LEVELS.Debug): void => {}
-        };
-        nc = new BaseCommand(userMessager, <any>{});
+        nc = new BaseCommand(mockMessagerFactory(), <any>{});
     });
 
     describe('#run', () => {
