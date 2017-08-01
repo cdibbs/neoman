@@ -44,10 +44,8 @@ export class BaseTransformManager {
             }
 
             try {
-                console.log(PluginClass);
                 config.pluginInstance = new PluginClass();
             } catch(ex) {
-                console.log(ex);
                 throw new NestedError(this.msg.__mf("Error instantiating plugin '{pluginName}'.", { pluginName }), ex);
             }
 

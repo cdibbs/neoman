@@ -2,7 +2,7 @@ import * as i from '../lib/i';
 
 export let mockMessagerFactory = () => {
     let m: i.IUserMessager = <any>{
-        __mf: () => {},
+        __mf: (a: string, b: any) => a,
         info: (message: any, indent?: number): i.IUserMessager => m,
         debug: (message: any, indent?: number): i.IUserMessager => m,
         warn: (message: any, indent?: number): i.IUserMessager => m,

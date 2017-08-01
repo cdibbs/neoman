@@ -1,8 +1,10 @@
 /// <reference path="../../../node_modules/@types/mocha/index.d.ts" />
 /// <reference path="../../../node_modules/@types/chai/index.d.ts" />
 import "reflect-metadata";
+import * as sinon from 'sinon';
 import { expect, assert } from 'chai';
 import 'mocha';
+let NestedError = require('nested-error-stacks');
 
 import { mockMessagerFactory } from '../../spec-lib'
 import { BaseTransformManager } from './base-transform-manager';
@@ -21,6 +23,15 @@ describe('BaseTransformManager', () => {
     })
 
     describe('#preparePlugins', () => {
+        let configStub: sinon.SinonStub, requiregStub: sinon.SinonStub;
+        beforeEach(() => {
+            configStub = sinon.stub();
+            requiregStub = sinon.stub();
+            let plugMock = function() {};
+            plugMock.prototype.configure = configStub;
+            requiregStub.returns(plugMock);
+            tm["requireg"] = requiregStub;
+        });
         it('should yield empty plugins from empty configs def', () => {
             tm['preparePlugins'](undefined);
 
@@ -28,15 +39,29 @@ describe('BaseTransformManager', () => {
         });
 
         it('should add key as entry and load plugin', () => {
-            tm["requireg"] = () => {
-                return function() {
-                    this.configure = () => {
-
-                    }
-                }
-            };
+            tm["requireg"] = requiregStub;
             tm['preparePlugins'](<any>{ one: { plugin: "myplug" } });
             expect(tm["configs"]).to.have.property("one");
+        });
+        it('should rethrow nested plugin requireg error', () => {
+            tm["requireg"] = () => { throw new Error("whoa") };
+            expect(() => {
+                tm['preparePlugins'](<any>{ one: { plugin: "myplug" } });
+            }).to.throw().with.property('message').that.contains("Error loading plugin");
+        });
+        it('should rethrow nested plugin instantiation error', () => {
+            tm["requireg"] = () => function() { throw new Error("instantiation error"); };
+            expect(() => {
+                tm['preparePlugins'](<any>{ one: { plugin: "myplug" } });
+            }).to.throw().with.property("message").that.contains("Error instantiating plugin");
+        });
+        it('should rethrow nested plugin configuration error', () => {
+            let throwFn = sinon.stub();
+            throwFn.throws(new Error("config error"));
+            tm["requireg"] = () => function() { this.configure = throwFn };
+            expect(() => {
+                tm['preparePlugins'](<any>{ one: { plugin: "myplug" } });
+            }).to.throw().with.property("message").that.contains("calling .configure");
         });
     });
 
