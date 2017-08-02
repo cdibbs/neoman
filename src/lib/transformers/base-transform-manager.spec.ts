@@ -7,7 +7,7 @@ import 'mocha';
 let NestedError = require('nested-error-stacks');
 
 import { mockMessagerFactory } from '../../spec-lib'
-import { BaseTransformManager } from './base-transform-manager';
+import { BaseTransformManager } from './index';
 import * as i from '../i';
 
 describe('BaseTransformManager', () => {
@@ -21,6 +21,20 @@ describe('BaseTransformManager', () => {
         };
         tm = new BaseTransformManager(filePatterns, mockMessagerFactory());
     })
+
+    describe('#configure', () => {
+        it('should setup needed state', () => {
+            let tp = { configurations: {} };
+            let inputs = { "myvar": true };
+            let ppStub = sinon.stub();
+            tm["preparePlugins"] = ppStub;
+
+            tm["configure"](<any>tp, inputs);
+
+            expect(tm["inputs"]).to.deep.equal(inputs);
+            sinon.assert.calledWith(ppStub, sinon.match.same(tp.configurations));
+        });
+    });
 
     describe('#preparePlugins', () => {
         let configStub: sinon.SinonStub, requiregStub: sinon.SinonStub;
@@ -411,6 +425,21 @@ describe('BaseTransformManager', () => {
             
             expect(result).to.be.true;
             expect(cdaStub.called).to.be.false;
+        });
+    });
+
+    describe('#regexToTransform', () => {
+        it('should throw on invalid regex', () => {
+            expect(() => {
+                tm["regexToTransform"]("/not/quite-there");
+            }).to.throw().with.property("message").contains("valid").contains("regular expression");
+        });
+
+        it('should create a valid ITransform from a valid regexp', () => {
+            let result = tm["regexToTransform"]("/subject/replacement/gi");
+            expect(result.subject).to.equal("subject");
+            expect(result.with).to.equal("replacement");
+            expect(result.regexFlags).to.equal("gi");
         });
     });
 

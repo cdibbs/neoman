@@ -21,16 +21,11 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
         super(filePatterns, msg);
     }
 
-    configure(tmpl: ir.ITemplate, inputs: { [key: string]: any }) {
-        this.inputs = inputs;
-        this.preparePlugins(tmpl.configurations);
-    }
-
     applyTransforms(path: string, tdef: ir.PathTransforms): string {
         if (tdef instanceof Array) {
             return this.transformAll(path, <ir.IPathTransform[]>tdef);
         } else if (typeof tdef === "string") { // simple regexp?
-            return this.transformAll(path, [this.regexToTransform(tdef)]);
+            return this.transformAll(path, [this.regexToTransform<ir.IPathTransform>(tdef)]);
         } else if (typeof tdef === "object") { // single replacement? treat as rdef
             return this.transformAll(path, [tdef]);
         }
@@ -44,18 +39,24 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
         for (let i in transforms) {
             let t = transforms[i];
             if (typeof t === "string") {              
-                t = this.regexToTransform(t);
+                t = this.regexToTransform<ir.IPathTransform>(t);
             }
 
             if (typeof t === "object") {
-                if (this.replaceDoesApply(processing, t.files, t.ignore, t.using)) {
-                    processing = this.applyIfMatch(t, processing);
-                } else {
-                    this.msg.debug(`Skipping path transform def #${i}, "${t.subject}" (no match: config or globs).`, 2);
-                }
+                processing = this.transformOne(processing, t);
             } else {
                 throw new Error(`I do not understand format of path transform #${i + 1}, type ${typeof t}.`);
             }
+        }
+
+        return processing;
+    }
+
+    transformOne(processing: string, t: ir.IPathTransform): string {
+        if (this.replaceDoesApply(processing, t.files, t.ignore, t.using)) {
+            processing = this.applyIfMatch(t, processing);
+        } else {
+            this.msg.debug(`Skipping path transform def #${i}, "${t.subject}" (no match: config or globs).`, 2);
         }
 
         return processing;
@@ -71,17 +72,5 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
         }
 
         return path;
-    }
-
-    regexToTransform(regexStr: string): ir.IPathTransform {
-        let components: string[] = regexStr.match(this.splitter);
-        let searchComponent: string = components[1];
-        let replaceComponent: string = components[2];
-        let flagsComponent: string = components[3];
-        return <ir.IPathTransform>{
-            "subject": searchComponent,
-            "with": replaceComponent,
-            "regexFlags": flagsComponent
-        };
     }
 }

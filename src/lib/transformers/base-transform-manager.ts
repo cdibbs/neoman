@@ -23,6 +23,11 @@ export class BaseTransformManager {
         
     }
 
+    configure(tmpl: ir.ITemplate, inputs: { [key: string]: any }) {
+        this.inputs = inputs;
+        this.preparePlugins(tmpl.configurations);
+    }
+
     //FIXME Need to cover plugin loading with better tests
     preparePlugins(tconfigs: ir.IConfigurations): void {
         this.configs = {};
@@ -143,6 +148,22 @@ export class BaseTransformManager {
                 || (match === "{{{{}}" ? "{{" /* is an escape */ : match /* nope, return same */)
         });
         return result;
+    }
+
+    regexToTransform<T extends ir.ITransform | ir.IPathTransform>(def: string): T {
+        let components: string[] = def.match(this.splitter);
+        if (!components || components.length < 4) {
+            throw new Error("Must be a valid javascript replace regular expression: /pattern/replace/[opts]");
+        }
+
+        let searchComponent: string = components[1];
+        let replaceComponent: string = components[2];
+        let flagsComponent: string = components[3];
+        return <T>{
+            "subject": searchComponent,
+            "with": replaceComponent,
+            "regexFlags": flagsComponent
+        };
     }
 
     /**
