@@ -10,6 +10,8 @@ let requireg = require('requireg');
 
 @injectable()
 export class TemplateValidator implements i.ITemplateValidator {
+    requireg = requireg;
+
     dependenciesInstalled(tmpl: it.ITemplate): { [key: string]: boolean } {
         let configs: it.IConfigurations = tmpl.configurations;
         let installed: { [key: string]: boolean } = {};
@@ -17,10 +19,9 @@ export class TemplateValidator implements i.ITemplateValidator {
             let config: it.IConfiguration = configs[key];
             let fullname: string = PLUGIN_PREFIX + config.plugin;
             try {
-                requireg.resolve(PLUGIN_PREFIX + config.plugin);
+                this.requireg.resolve(PLUGIN_PREFIX + config.plugin);
                 installed[fullname] = true;
             } catch (err) {
-                console.log(err);
                 installed[fullname] = false;
             }
         }

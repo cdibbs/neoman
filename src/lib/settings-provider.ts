@@ -10,8 +10,10 @@ export class SettingsProvider implements ISettingsProvider {
     private filename: string = ".neoman-settings";
     private settings: any;
 
+    static userSettings = userSettings;
+
     constructor() {
-        this.settings = userSettings.file(this.filename);
+        this.settings = SettingsProvider.userSettings.file(this.filename);
     }
 
     get(key: string): string {
