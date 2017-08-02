@@ -27,11 +27,7 @@ export class TransformManager extends BaseTransformManager implements i.ITransfo
         if (rdef instanceof Array) {
             return this.replaceInFile(path, content, <ir.ITransform[]>rdef);
         } else if (typeof rdef === "string") { // simple regexp
-            if (! this.isComment(rdef)) {
-                return this.replaceInFile(path, content, [this.buildSingleRegexDef(rdef)]);
-            } else {
-                return content;
-            }
+            return this.replaceInFile(path, content, [this.buildSingleRegexDef(rdef)]);
         } else if (typeof rdef === "object") { // single replacement? treat as rdef
             return this.replaceInFile(path, content, [rdef]);
         }
@@ -55,11 +51,7 @@ export class TransformManager extends BaseTransformManager implements i.ITransfo
         let count = 0;
         for (let i=0; i<rdefs.length; i++) {
             let rdef = rdefs[i];
-            if (typeof rdef === "string") {
-                if (this.isComment(rdef)) {
-                    continue;
-                }
-                
+            if (typeof rdef === "string") {              
                 rdef = this.buildSingleRegexDef(rdef);
             }
             

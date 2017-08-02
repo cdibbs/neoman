@@ -60,10 +60,6 @@ export class BaseTransformManager {
     }
 
     requireg = requireg;
-
-    isComment(s: string): boolean {
-        return s && s[0] === '#';
-    }
     
     applyReplace(original: string, tdef: ir.ITransform | ir.IPathTransform, path: string):  string {
         // Minimally, we want fast, internal regex replacement. It should be overridable within the configurations section of a template.json.
@@ -71,31 +67,43 @@ export class BaseTransformManager {
 
         // Be wary when trying to reduce the redundant rdef.with checks; it's been tried! Type soup.
         switch(engine) {
-            case "regex":
-                if (typeof tdef.with === "string")
-                    return original.replace(new RegExp(<string>tdef.subject, tdef.regexFlags || ""), this.preprocess(tdef.with));
-                else
-                    return original.replace(new RegExp(<string>tdef.subject, tdef.regexFlags || ""), this.buildReplacer(tdef));
-            case "simple":
-                if (typeof tdef.with === "string")
-                    return original.split(<string>tdef.subject).join(this.preprocess(tdef.with));
-                else
-                    return original.split(<string>tdef.subject).join(this.buildReplacer(tdef)(<string>tdef.subject));
-            case "plugin":
-                try {
-                    let config = this.configs[tdef.using];
-                    if (typeof tdef.with === "string") {
-                        return config.pluginInstance.transform(path, original, tdef.subject, this.preprocess(tdef.with), _.extend({}, config.pluginOptions, tdef.params));
-                    } else {
-                        return config.pluginInstance.transform(path, original, tdef.subject, this.buildReplacer(tdef), _.extend({}, config.pluginOptions, tdef.params));
-                    }
-                } catch (err) {
-                    this.msg.error(`Error running plugin from "${tdef.using}" configuration:`, 3);
-                    this.msg.error(err.toString(), 3);
-                    return original;
-                }
+            case "regex": return this.applyReplaceRegex(original, tdef, path);
+            case "simple": return this.applyReplaceSimple(original, tdef, path);
+            case "plugin": return this.applyReplacePlugin(original, tdef, path);
             default:
                 throw new Error(`Unimplemented transform engine ${engine}.`);
+        }
+    }
+
+    applyReplaceRegex(original: string, tdef: ir.ITransform | ir.IPathTransform, path: string): string
+    {
+        if (typeof tdef.with === "string")
+            return original.replace(new RegExp(<string>tdef.subject, tdef.regexFlags || ""), this.preprocess(tdef.with));
+        else
+            return original.replace(new RegExp(<string>tdef.subject, tdef.regexFlags || ""), this.buildReplacer(tdef));
+    }
+
+    applyReplaceSimple(original: string, tdef: ir.ITransform | ir.IPathTransform, path: string): string
+    {
+        if (typeof tdef.with === "string")
+            return original.split(<string>tdef.subject).join(this.preprocess(tdef.with));
+        else
+            return original.split(<string>tdef.subject).join(this.buildReplacer(tdef)(<string>tdef.subject));
+    }
+
+    applyReplacePlugin(original: string, tdef: ir.ITransform | ir.IPathTransform, path: string): string
+    {
+        try {
+            let config = this.configs[tdef.using];
+            if (typeof tdef.with === "string") {
+                return config.pluginInstance.transform(path, original, tdef.subject, this.preprocess(tdef.with), _.extend({}, config.pluginOptions, tdef.params));
+            } else {
+                return config.pluginInstance.transform(path, original, tdef.subject, this.buildReplacer(tdef), _.extend({}, config.pluginOptions, tdef.params));
+            }
+        } catch (err) {
+            this.msg.error(`Error running plugin from "${tdef.using}" configuration:`, 3);
+            this.msg.error(err.toString(), 3);
+            return original;
         }
     }
 
@@ -149,15 +157,17 @@ export class BaseTransformManager {
         if (typeof files === "undefined" && typeof ignore === "undefined" && typeof configKey === "undefined")
             return true; // No explicit inclusions or exclusions --> Global replace.
         
-        let configMatches = configKey ? this.configDoesApply(path, configKey) : true;
-        let filesMatch = (files && (files instanceof Array) && files.length) ? this.filePatterns.match(path, files) : [];
         let ignoresMatch = (ignore && (ignore instanceof Array) && ignore.length) ? this.filePatterns.match(path, ignore) : [];
-        //console.log(configMatches, filesMatch, ignoresMatch);
-        //console.log(configMatches, files, path, filesMatch, ignoresMatch);
-        if (typeof files === "undefined" && (typeof ignore !== "undefined" && ! ignoresMatch.length))
-            return configMatches; // Files undefined, ignores defined, but no ignore matches. Global replace if config matches.
+        if (ignoresMatch.length) { // explicit exclusion overrides explicit inclusion
+            return false;
+        }
 
-        return (configMatches && (!files || !files.length || filesMatch.length) && !ignoresMatch.length);
+        if (configKey && this.configDoesApply(path, configKey))
+            return true; // either-or with files match
+
+        // if files weren't defined, implicit inclusion. Otherwise, inclusion only if match.
+        let filesMatch = (files && (files instanceof Array) && files.length) ? this.filePatterns.match(path, files) : [];
+        return !!(!files || !files.length || filesMatch.length);
     }
 
     /**

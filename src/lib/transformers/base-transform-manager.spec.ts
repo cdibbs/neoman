@@ -101,6 +101,164 @@ describe('BaseTransformManager', () => {
         });
     });
 
+    describe('#applyReplace', () => {
+        let creStub: sinon.SinonStub;
+        beforeEach(() => {
+            creStub = sinon.stub();
+            tm["chooseReplaceEngine"] = creStub;
+        });
+        it('should throw when engine unrecognized', () => {
+            creStub.returns("alienz!");
+            expect(() => {
+                tm["applyReplace"]("my string", null, "/tmp/mypath");
+            }).to.throw().property("message").contains("Unimplemented").contains("alienz!");
+        });
+
+        it('should apply regex when regex', () => {
+            let arrStub = sinon.stub();
+            tm["applyReplaceRegex"] = arrStub;
+            creStub.returns("regex");
+            let tdef = {};
+
+            tm["applyReplace"]("mycontent", <any>tdef, "mypath");
+
+            sinon.assert.calledWith(creStub, sinon.match.same(tdef));
+            sinon.assert.calledWith(arrStub, "mycontent", sinon.match.same(tdef), "mypath");
+        });
+
+        it('should apply simple when simple', () => {
+            let stub = sinon.stub();
+            tm["applyReplaceSimple"] = stub;
+            creStub.returns("simple");
+            let tdef = {};
+
+            tm["applyReplace"]("mycontent", <any>tdef, "mypath");
+
+            sinon.assert.calledWith(creStub, sinon.match.same(tdef));
+            sinon.assert.calledWith(stub, "mycontent", sinon.match.same(tdef), "mypath");
+        });
+        it('should apply plugin when plugin', () => {
+            let stub = sinon.stub();
+            tm["applyReplacePlugin"] = stub;
+            creStub.returns("plugin");
+            let tdef = {};
+
+            tm["applyReplace"]("mycontent", <any>tdef, "mypath");
+
+            sinon.assert.calledWith(creStub, sinon.match.same(tdef));
+            sinon.assert.calledWith(stub, "mycontent", sinon.match.same(tdef), "mypath");
+        });
+    });
+
+    describe('#applyReplaceRegex', () => {
+        let prepStub: sinon.SinonStub, brStub: sinon.SinonStub;
+        beforeEach(() => {
+            prepStub = sinon.stub(), brStub = sinon.stub();
+            tm["preprocess"] = prepStub;
+            tm["buildReplacer"] = brStub;
+        });
+
+        it('should dispatch to preprocess, if replacement is a string', () => {
+            let tdef = { subject: "cool", with: "something" };
+            prepStub.returns(tdef.with);
+
+            let result = tm["applyReplaceRegex"]("my cool string", tdef, "");
+
+            sinon.assert.calledWith(prepStub, tdef.with);
+            expect(result).to.equal("my something string");
+        });
+
+        it('should dispatch to buildReplacer, if replacement is not a string', () => {
+            let tdef = { subject: "cool", with: { handler: "myhandlerref" } };
+            brStub.returns(() => "handlerreturnedthing");
+
+            let result = tm["applyReplaceRegex"]("my cool string", tdef, "");
+
+            sinon.assert.calledWith(brStub, tdef);
+            expect(result).to.equal("my handlerreturnedthing string");
+        });
+    });
+
+    describe('#applyReplaceSimple', () => {
+        let prepStub: sinon.SinonStub, brStub: sinon.SinonStub;
+        beforeEach(() => {
+            prepStub = sinon.stub(), brStub = sinon.stub();
+            tm["preprocess"] = prepStub;
+            tm["buildReplacer"] = brStub;
+        });
+
+        it('should dispatch to preprocess, if replacement is a string', () => {
+            let tdef = { subject: "cool", with: "something" };
+            prepStub.returns(tdef.with);
+
+            let result = tm["applyReplaceSimple"]("my cool string", tdef, "");
+
+            sinon.assert.calledWith(prepStub, tdef.with);
+            expect(result).to.equal("my something string");
+        });
+
+        it('should dispatch to buildReplacer, if replacement is not a string', () => {
+            let tdef = { subject: "cool", with: { handler: "myhandlerref" } };
+            brStub.returns((subj: string) => "my " + subj);
+
+            let result = tm["applyReplaceSimple"]("my cool string", tdef, "");
+
+            sinon.assert.calledWith(brStub, tdef);
+            expect(result).to.equal("my my cool string");
+        });
+    });
+
+    describe('#applyReplacePlugin', () => {
+        let prepStub: sinon.SinonStub, brStub: sinon.SinonStub, pluginStub: sinon.SinonStub;
+        let errStub: sinon.SinonStub;
+        beforeEach(() => {
+            prepStub = sinon.stub(), brStub = sinon.stub();
+            pluginStub = sinon.stub(), errStub = sinon.stub();
+            tm["configs"] = {};
+            tm["configs"]["aplugin"] = <any>{ pluginInstance: { transform: pluginStub } };
+            tm["preprocess"] = prepStub;
+            tm["buildReplacer"] = brStub;
+            tm["msg"].error = errStub;
+        });
+
+        it('should dispatch to preprocess, if replacement is a string', () => {
+            let tdef = { subject: "cool", with: "something", using: "aplugin" };
+            prepStub.returns(tdef.with);
+            pluginStub.returns("happy");
+
+            let result = tm["applyReplacePlugin"]("my cool string", tdef, "");
+
+            expect(errStub.called && errStub.args[0][0] || undefined).to.be.undefined;
+            sinon.assert.calledWith(prepStub, tdef.with);
+            sinon.assert.calledWith(pluginStub, "", "my cool string", "cool", tdef.with, sinon.match.any);
+            expect(result).to.equal("happy");
+        });
+
+        it('should dispatch to buildReplacer, if replacement is not a string', () => {
+            let tdef = { subject: "cool", with: { handler: "myhandlerref" }, using: "aplugin" };
+            brStub.returns((subj: string) => "my " + subj);
+            pluginStub.returns("happy");
+
+            let result = tm["applyReplacePlugin"]("my cool string", tdef, "");
+
+            expect(errStub.called && errStub.args[0][0] || undefined).to.be.undefined;
+            sinon.assert.calledWith(brStub, tdef);
+            sinon.assert.calledWith(pluginStub, "", "my cool string", "cool", sinon.match.func, sinon.match.any);
+            expect(result).to.equal("happy");
+        });
+
+        it('should report plugin error but recover by returning untransformed content', () => {
+            let tdef = { subject: "cool", with: { handler: "myhandlerref" }, using: "aplugin" };
+            brStub.returns((subj: string) => "my " + subj);
+            pluginStub.throws(new Error("bad bad"));
+
+            let result = tm["applyReplacePlugin"]("my cool string", tdef, "");
+
+            sinon.assert.calledWith(pluginStub, "", "my cool string", "cool", sinon.match.func, sinon.match.any);
+            expect(result).to.equal("my cool string");
+        });
+    });
+
     describe('#chooseReplaceEngine', () => {
         // Rationale: configuration should be able to override built-ins.
         it('should allow overriding simple replacer', () => {
@@ -129,6 +287,156 @@ describe('BaseTransformManager', () => {
         });
         it('should throw a meaningful error on a malformed transform definition', () => {
             assert.throws(() => tm.chooseReplaceEngine(<any>null), "Malformed transform definition.");
+        });
+    });
+
+    describe('#replaceDoesApply', () => {
+        let path: string, fileGlobs: string[], ignoreGlobs: string[];
+        let fpMatchStub: sinon.SinonStub, cdaStub: sinon.SinonStub;
+        beforeEach(() => {
+            path = "/tmp/path";
+            fileGlobs = ["nonempty"], ignoreGlobs = ["**glob"];
+            fpMatchStub = sinon.stub();
+            cdaStub = sinon.stub();
+            tm["configDoesApply"] = cdaStub;
+            tm["filePatterns"].match = fpMatchStub;
+        });
+
+        // undefined
+        it('should return true when there are no filters', () => {
+            let result = tm["replaceDoesApply"]("/tmp/path", undefined, undefined, undefined);
+
+            expect(result).to.be.true;
+            expect(cdaStub.called).to.be.false;
+        });
+        
+        // 000 = 0
+        it('should return false when files do not match, ignores do not match, config does not match', () => {
+            cdaStub.returns(false);
+            fpMatchStub.withArgs(path, fileGlobs).returns([]);
+            fpMatchStub.withArgs(path, ignoreGlobs).returns([]);
+
+            let result = tm["replaceDoesApply"](path, fileGlobs, ignoreGlobs, "aConfigKey");
+            
+            expect(result).to.be.false;
+            expect(cdaStub.called).to.be.true;
+        });
+
+        // 001 = 1
+        it('should return true when files do not match, ignores do not match, config matches', () => {
+            cdaStub.returns(true);
+            fpMatchStub.withArgs(path, fileGlobs).returns([]);
+            fpMatchStub.withArgs(path, ignoreGlobs).returns([]);
+
+            let result = tm["replaceDoesApply"](path, fileGlobs, ignoreGlobs, "aConfigKey");
+            
+            expect(result).to.be.true;
+            expect(cdaStub.called).to.be.true;
+        });
+
+        // 010 = 0
+        it('should return false when files do not match, ignore matches, config does not match', () => {
+            cdaStub.returns(false);
+            fpMatchStub.withArgs(path, fileGlobs).returns([]);
+            fpMatchStub.withArgs(path, ignoreGlobs).returns(["somematch"]);
+
+            let result = tm["replaceDoesApply"](path, fileGlobs, ignoreGlobs, "aConfigKey");
+            
+            expect(result).to.be.false;
+            expect(cdaStub.called).to.be.false;
+        });
+        
+        // 011 = 0, ignore overrides config match
+        it('should return false when files do not match, ignores match, config matches', () => {
+            cdaStub.returns(true);
+            fpMatchStub.withArgs(path, fileGlobs).returns([]);
+            fpMatchStub.withArgs(path, ignoreGlobs).returns(["somematch"]);
+
+            let result = tm["replaceDoesApply"](path, fileGlobs, ignoreGlobs, "aConfigKey");
+            
+            expect(result).to.be.false;
+            expect(cdaStub.called).to.be.false;
+        });
+
+        // 100 = 1, 
+        it('should return true when files match, ignores do not match, config does not match', () => {
+            cdaStub.returns(false);
+            fpMatchStub.withArgs(path, fileGlobs).returns(["somematch"]);
+            fpMatchStub.withArgs(path, ignoreGlobs).returns([]);
+
+            let result = tm["replaceDoesApply"](path, fileGlobs, ignoreGlobs, "aConfigKey");
+            
+            expect(result).to.be.true;
+            expect(cdaStub.called).to.be.true;
+        });
+
+        // 101 = 1
+        it('should return true when files match, ignores do not match, config matches', () => {
+            cdaStub.returns(true);
+            fpMatchStub.withArgs(path, fileGlobs).returns(["somematch"]);
+            fpMatchStub.withArgs(path, ignoreGlobs).returns([]);
+
+            let result = tm["replaceDoesApply"](path, fileGlobs, ignoreGlobs, "aConfigKey");
+            
+            expect(result).to.be.true;
+            expect(cdaStub.called).to.be.true;
+        });
+
+        // 110 = 0, ignore overrides files match
+        it('should return false when files match, ignores match, config does not match', () => {
+            cdaStub.returns(false);
+            fpMatchStub.returns(["somematch"]);
+
+            let result = tm["replaceDoesApply"]("/tmp/path", ["nonempty"], [ "**glob" ], "aConfigKey");
+            
+            expect(result).to.be.false;
+            expect(cdaStub.called).to.be.false;
+        });
+
+        // 111 = 0, ignore overrides both config and files match
+        it('should return false when files match, ignores match, config matches', () => {
+            cdaStub.returns(true);
+            fpMatchStub.returns(["somematch"]);
+
+            let result = tm["replaceDoesApply"]("/tmp/path", ["nonempty"], [ "**glob" ], "aConfigKey");
+            
+            expect(result).to.be.false;
+            expect(cdaStub.called).to.be.false;
+        });    
+
+        it('should not call configDoesApply and instead default to true when config undefined', () => {
+            fpMatchStub.returns([]);
+
+            let result = tm["replaceDoesApply"]("/tmp/path", undefined, [ "**glob" ], undefined);
+            
+            expect(result).to.be.true;
+            expect(cdaStub.called).to.be.false;
+        });
+    });
+
+    describe('#configDoesApply', () => {
+        let rstub: sinon.SinonStub;
+        beforeEach(() => {
+            tm["configs"] = <any>{};
+            rstub = sinon.stub();
+            tm["replaceDoesApply"] = rstub;
+        });
+        it('should throw error when configuration does not exist', () => {
+            expect(() => {
+                tm["configDoesApply"]("/tmp/path", "key");
+            }).to.throw().property("message").contains("does not exist");
+        });
+
+        it('should return result of replaceDoesApply', () => {
+            rstub.returns(true);
+            let path = "/tmp/path";
+            let mockConfig = { files: new Array<string>(), ignore: new Array<string>() };
+            tm["configs"].akey = <any>mockConfig;
+
+            let result = tm["configDoesApply"](path, "akey");
+
+            sinon.assert.calledWith(rstub, path, sinon.match.same(mockConfig.files), sinon.match.same(mockConfig.ignore), undefined);
+            expect(result).to.be.true;
         });
     });
 });

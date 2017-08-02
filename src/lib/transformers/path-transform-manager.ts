@@ -30,11 +30,7 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
         if (tdef instanceof Array) {
             return this.transformAll(path, <ir.IPathTransform[]>tdef);
         } else if (typeof tdef === "string") { // simple regexp?
-            if (! this.isComment(tdef)) {
-                return this.transformAll(path, [this.regexToTransform(tdef)]);
-            } else {
-                return path;
-            }
+            return this.transformAll(path, [this.regexToTransform(tdef)]);
         } else if (typeof tdef === "object") { // single replacement? treat as rdef
             return this.transformAll(path, [tdef]);
         }
@@ -47,11 +43,7 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
 
         for (let i in transforms) {
             let t = transforms[i];
-            if (typeof t === "string") {
-                if (this.isComment(t)) {
-                    continue;
-                }
-                
+            if (typeof t === "string") {              
                 t = this.regexToTransform(t);
             }
 
