@@ -18,19 +18,17 @@ export class InputManager extends BaseInputManager {
 
     ask(config: it.IInputConfig): Promise<{ [key: string]: any }> {
         try {
+            let use: it.ICustomInputInterface | string = config.use;
+
             if (typeof config.use === "undefined") {
                 // assume prompt
                 return this.promptMgr.ask(config);
             } else if (typeof config.use === "string") {
-                switch(config.use) {
-                    case "browser": return this.browserMgr.ask(config);
-                    case "prompt": return this.promptMgr.ask(config);
-                    default:
-                        this.customMgr.configure(this.tmplRootPath);
-                        return this.customMgr.ask(config);
-                }
-            } else if (typeof config.use === "object") {
-                switch(config.use.type) {
+                use = this.generateDefaults(config.use);
+            }
+            
+            if (typeof use === "object") {
+                switch(use.type) {
                     case "browser": return this.browserMgr.ask(config);
                     case "prompt": return this.promptMgr.ask(config);
                     default:
@@ -39,9 +37,17 @@ export class InputManager extends BaseInputManager {
                 }
             }
 
-            return Promise.reject(`Unrecognized input section format: ${config.use}.`);
+            return Promise.reject(`Unrecognized input section format: ${use}.`);
         } catch(err) {
             return Promise.reject(new NestedError(`Unexpected error asking for ${(config || {}).use} input`, err));
         }
+    }
+
+    generateDefaults(use: string): it.ICustomInputInterface {
+        return <it.ICustomInputInterface>{
+            type: use,
+            handler: null,
+            handlerConfig: null
+        };
     }
 }
