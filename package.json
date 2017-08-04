@@ -7,6 +7,8 @@
   "bin": {
     "neoman": "./bin/neoman"
   },
+  "author": "Chris Dibbern",
+  "license": "ISC",
   "scripts": {
     "test": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\",\\\"project\\\":\\\"tsconfig-mocha.json\\\"} TS_NODE_CACHE=false mocha --recursive --compilers ts:ts-node/register --compilerOptions --bail src/lib/*.spec.ts src/lib/**/*.spec.ts",
     "cover": "nyc npm test",
@@ -40,8 +42,6 @@
     ],
     "all": true
   },
-  "author": "Chris Dibbern",
-  "license": "ISC",
   "devDependencies": {
     "@types/body-parser": "^1.16.4",
     "@types/chai": "^4.0.1",
