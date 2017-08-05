@@ -1,8 +1,8 @@
 [![npm version](https://badge.fury.io/js/neoman.svg)](https://badge.fury.io/js/neoman)
-[![Build Status](https://travis-ci.org/cdibbs/neoman.svg?branch=master)](https://travis-ci.org/cdibbs/neoman)
-[![dependencies Status](https://david-dm.org/cdibbs/neoman/status.svg)](https://david-dm.org/cdibbs/neoman)
-[![devDependencies Status](https://david-dm.org/cdibbs/neoman/dev-status.svg)](https://david-dm.org/cdibbs/neoman?type=dev)
-[![codecov](https://codecov.io/gh/cdibbs/neoman/branch/master/graph/badge.svg)](https://codecov.io/gh/cdibbs/neoman)
+[![Build Status](https://travis-ci.org/yosplz/neoman.svg?branch=master)](https://travis-ci.org/yosplz/neoman)
+[![dependencies Status](https://david-dm.org/yosplz/neoman/status.svg)](https://david-dm.org/yosplz/neoman)
+[![devDependencies Status](https://david-dm.org/yosplz/neoman/dev-status.svg)](https://david-dm.org/yosplz/neoman?type=dev)
+[![codecov](https://codecov.io/gh/yosplz/neoman/branch/master/graph/badge.svg)](https://codecov.io/gh/yosplz/neoman)
 
 [![MIT License][license-badge]][LICENSE]
 [![PRs Welcome][prs-badge]][prs]
@@ -91,8 +91,8 @@ Familiar with parsers? Want to see Neoman transforms for your favorite programmi
 review existing plugins and see if this might fit in with your hobby time.
 
 [license-badge]: https://img.shields.io/badge/license-MIT-blue.svg
-[LICENSE]: https://github.com/cdibbs/neoman/blob/master/LICENSE
+[LICENSE]: https://github.com/yosplz/neoman/blob/master/LICENSE
 [prs-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
 [prs]: http://makeapullrequest.com
 [coc-badge]: https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
-[coc]: https://github.com/cdibbs/neoman/blob/master/other/code_of_conduct.md
+[coc]: https://github.com/yosplz/neoman/blob/master/other/code_of_conduct.md
