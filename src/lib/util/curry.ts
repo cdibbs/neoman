@@ -7,6 +7,15 @@ export namespace curry {
         return fn.bind(self);
     }
 
+    export function oneOf1<TThis, T1, T2, T3>(
+        fn: (a: T1, b: T2) => T3,
+        self: TThis,
+        a: T1
+    ): () => T3
+    {
+        return fn.bind(self, a);
+    }
+
     export function oneOf2<TThis, T1, T2, T3>(
         fn: (a: T1, b: T2) => T3,
         self: TThis,
