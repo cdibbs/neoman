@@ -1,8 +1,10 @@
 import { injectable, inject } from 'inversify';
 import * as commandpost from 'commandpost';
 import * as i18n from 'i18n';
+let NestedError = require('nested-error-stacks');
 
 import { COMMANDS } from './commands';
+import { curry } from './util/curry';
 import { ICommandFactory, INewCmdOpts, INewCmdArgs, IInfoCmdArgs, IInfoCmdOpts } from './commands/i';
 import TYPES from './di/types';
 import KEYS from './settings-keys';
@@ -14,6 +16,7 @@ import { ISettingsProvider, IPackage, IUserMessager, Ii18nFunction } from './i';
 @injectable()
 export class Kernel {
     private tempDir: string;
+    private commandpost = commandpost;
 
     constructor(
         @inject(TYPES.UserMessager) private msg: IUserMessager,
@@ -67,19 +70,16 @@ export class Kernel {
                 .description(this.__mf("Get detailed information for a given template identifier."))
                 .action(infoCmd.run.bind(infoCmd));
 
-            commandpost
+            this.commandpost
                 .exec(root, this.process.argv)
-                .catch(err => {
-                    if (err instanceof Error) {
-                        this.msg.error(err.stack);
-                    } else {
-                        this.msg.error(err.message);
-                    }
-                    this.process.exit(1);
-                });
+                .catch(curry.bindOnly(this.handleError, this));
         } catch (ex) {
-            this.msg.error("There was an error.");
-            this.msg.error(ex);
+            this.handleError(ex);
         }
+    }
+
+    handleError(err: Error): void {
+        this.msg.error(new NestedError("There was an unexpected error.", err));
+        this.process.exit(1);
     }
 }
