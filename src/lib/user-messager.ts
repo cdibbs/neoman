@@ -5,6 +5,7 @@ import TYPES from './di/types';
 
 @injectable()
 export class UserMessager implements IUserMessager {
+    private console = console;
     constructor(
         @inject(TYPES.i18n) public __mf: Ii18nFunction,
         private mfDict: any = null,
@@ -38,10 +39,10 @@ export class UserMessager implements IUserMessager {
             msg = this.__mf(msg, this.mfDict);
         }
         switch (level) {
-            case LEVELS.Debug: console.log(msg); break;
-            case LEVELS.Info: console.log(msg); break;
-            case LEVELS.Warn: console.warn(msg); break;
-            case LEVELS.Error: console.error(msg); break;
+            case LEVELS.Debug: this.console.log(msg); break;
+            case LEVELS.Info: this.console.log(msg); break;
+            case LEVELS.Warn: this.console.warn(msg); break;
+            case LEVELS.Error: this.console.error(msg); break;
             default:
                 throw new Error(this.__mf('Write not implemented for level {level}.', { level: level }));
         }
