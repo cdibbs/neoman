@@ -19,39 +19,40 @@ import { ICommand, ICommandFactory } from "../commands/i";
 import * as i from '../i';
 import * as it from '../transformers/i';
 
-let json = require(path.join(path.dirname(__filename), "../../package.json"));
+export let containerBuilder = (packageJson: any = null, localesPath?: string): Container => {
+    let json = packageJson || require(path.join(path.dirname(__filename), "../../package.json"));
 
-var container = new Container();
-container.bind<i.IKernel>(TYPES.Kernel).to(Kernel);
-container.bind<i.ITemplateRunner>(TYPES.TemplateRunner).to(TemplateRunner);
-container.bind<NodeJS.Process>(TYPES.Process).toDynamicValue(() => process);
-container.bind<i.IPackage>(TYPES.PackageJson).toConstantValue(json);
-container.bind<i.ISettingsProvider>(TYPES.SettingsProvider).to(SettingsProvider);
-container.bind<i.IHandlerService>(TYPES.HandlerService).to(HandlerService);
-container.bind<i.IUserMessager>(TYPES.UserMessager).to(UserMessager);
-container.bind<i.ITemplateManager>(TYPES.TemplateManager).to(TemplateManager);
-container.bind<it.ITransformManager>(TYPES.TransformManager).to(TransformManager);
-container.bind<it.IPathTransformManager>(TYPES.PathTransformManager).to(PathTransformManager);
-container.bind<i.ITemplateValidator>(TYPES.TemplateValidator).to(TemplateValidator);
-container.bind<i.IFilePatterns>(TYPES.FilePatterns).to(FilePatterns);
-container.bind<i.IInputManager>(TYPES.InputManager).to(InputManager);
-container.bind<i.IInputManager>(TYPES.BrowserInputManager).to(BrowserInputManager);
-container.bind<i.IInputManager>(TYPES.CustomInputManager).to(CustomInputManager);
-container.bind<i.IInputManager>(TYPES.PromptInputManager).to(PromptInputManager);
+    var container = new Container();
+    container.bind<i.IKernel>(TYPES.Kernel).to(Kernel);
+    container.bind<i.ITemplateRunner>(TYPES.TemplateRunner).to(TemplateRunner);
+    container.bind<NodeJS.Process>(TYPES.Process).toDynamicValue(() => process);
+    container.bind<i.IPackage>(TYPES.PackageJson).toConstantValue(json);
+    container.bind<i.ISettingsProvider>(TYPES.SettingsProvider).to(SettingsProvider);
+    container.bind<i.IHandlerService>(TYPES.HandlerService).to(HandlerService);
+    container.bind<i.IUserMessager>(TYPES.UserMessager).to(UserMessager);
+    container.bind<i.ITemplateManager>(TYPES.TemplateManager).to(TemplateManager);
+    container.bind<it.ITransformManager>(TYPES.TransformManager).to(TransformManager);
+    container.bind<it.IPathTransformManager>(TYPES.PathTransformManager).to(PathTransformManager);
+    container.bind<i.ITemplateValidator>(TYPES.TemplateValidator).to(TemplateValidator);
+    container.bind<i.IFilePatterns>(TYPES.FilePatterns).to(FilePatterns);
+    container.bind<i.IInputManager>(TYPES.InputManager).to(InputManager);
+    container.bind<i.IInputManager>(TYPES.BrowserInputManager).to(BrowserInputManager);
+    container.bind<i.IInputManager>(TYPES.CustomInputManager).to(CustomInputManager);
+    container.bind<i.IInputManager>(TYPES.PromptInputManager).to(PromptInputManager);
 
-i18n.configure({
-    directory: path.join(__dirname, '..', "/locales")
-});    
-container.bind<i.Ii18nFunction>(TYPES.i18n).toConstantValue(i18n.__mf);
+    i18n.configure({
+        directory: localesPath || path.join(__dirname, '..', "/locales")
+    });    
+    container.bind<i.Ii18nFunction>(TYPES.i18n).toConstantValue(i18n.__mf);
 
-container.bind<ICommand<any, any>>(TYPES.Commands).to(SetDirCommand);
-container.bind<ICommand<any, any>>(TYPES.Commands).to(NewCommand);
-container.bind<ICommand<any, any>>(TYPES.Commands).to(ListCommand);
-container.bind<ICommand<any, any>>(TYPES.Commands).to(InfoCommand);
-container.bind<ICommandFactory>(TYPES.CommandFactory).to(CommandFactory)
+    container.bind<ICommand<any, any>>(TYPES.Commands).to(SetDirCommand);
+    container.bind<ICommand<any, any>>(TYPES.Commands).to(NewCommand);
+    container.bind<ICommand<any, any>>(TYPES.Commands).to(ListCommand);
+    container.bind<ICommand<any, any>>(TYPES.Commands).to(InfoCommand);
+    container.bind<ICommandFactory>(TYPES.CommandFactory).to(CommandFactory)
 
-container.bind<i.IPath>(TYPES.Path).toConstantValue(path);
-container.bind<i.IFileSystem>(TYPES.FS).toConstantValue(fs);
-container.bind<i.IGlob>(TYPES.Glob).toConstantValue(glob);
-
-export default container;
+    container.bind<i.IPath>(TYPES.Path).toConstantValue(path);
+    container.bind<i.IFileSystem>(TYPES.FS).toConstantValue(fs);
+    container.bind<i.IGlob>(TYPES.Glob).toConstantValue(glob);
+    return container;
+};

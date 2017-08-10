@@ -10,13 +10,14 @@
   "author": "Chris Dibbern",
   "license": "ISC",
   "scripts": {
-    "test": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\",\\\"project\\\":\\\"tsconfig-mocha.json\\\"} TS_NODE_CACHE=false mocha --recursive --compilers ts:ts-node/register --compilerOptions --bail src/lib/*.spec.ts src/lib/**/*.spec.ts",
+    "test": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\",\\\"project\\\":\\\"tsconfig-mocha.json\\\"} TS_NODE_CACHE=false mocha --recursive --compilers ts:ts-node/register --compilerOptions --bail src/lib/*.spec.ts src/lib/**/*.spec.ts src/e2e/*.e2e.ts",
     "cover": "nyc npm test",
+    "e2e": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\",\\\"project\\\":\\\"tsconfig-mocha.json\\\"} TS_NODE_CACHE=false mocha --recursive --compilers ts:ts-node/register --compilerOptions --bail src/e2e/*.e2e.ts",
     "build": "npm-run-all tsc copystatic copylocales",
     "tsc": "tsc",
     "report_coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "copystatic": "copyfiles -u 2 src/browser-prompt/**/* dist/browser-prompt",
-    "copylocales": "copyfiles locales dist/locales"
+    "copylocales": "copyfiles locales/**/* dist/locales"
   },
   "nyc": {
     "include": [
@@ -52,6 +53,7 @@
     "@types/i18n": "^0.8.0",
     "@types/launchpad": "^0.6.0",
     "@types/mocha": "^2.2.41",
+    "@types/mock-fs": "^3.6.30",
     "@types/node": "^7.0.28",
     "@types/sinon": "^2.3.2",
     "@types/underscore": "^1.8.1",
@@ -64,6 +66,7 @@
     "copyfiles": "^1.2.0",
     "cross-env": "^5.0.1",
     "express": "^4.15.3",
+    "fe.js": "^0.1.4",
     "fs-extra": "^3.0.1",
     "glob": "^7.1.2",
     "i18n": "^0.8.3",
@@ -71,6 +74,10 @@
     "launchpad": "^0.7.0",
     "minimatch": "^3.0.4",
     "mocha": "^3.4.2",
+    "mock-fs": "^4.4.1",
+    "mock-fs-require-fix": "^1.0.1",
+    "mockfs": "^0.1.5",
+    "mountfs": "^0.5.0",
     "nested-error-stacks": "^2.0.0",
     "npm-run-all": "^4.0.2",
     "nyc": "^11.0.3",

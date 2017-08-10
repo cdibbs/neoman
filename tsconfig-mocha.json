@@ -24,7 +24,8 @@
 		]
 	},
 	"include": [
-		"src/lib/**/*.spec.ts"
+		"src/lib/**/*.spec.ts",
+		"src/e2e/**/*.e2e.ts"
 	],
 	"exclude": [
 		"src/e2e/resources",

@@ -1,3 +1,3 @@
 export interface IKernel {
-    Go(): void;
+    Go(argv?: string[]): void;
 }

@@ -29,7 +29,7 @@ export class Kernel {
         this.tempDir = this.settings.get(KEYS.tempDirKey);
     }
 
-    Go(): void {
+    Go(argv: string[] = process.argv): void {
         try {
             let root = commandpost
                 .create<any, any>("")
@@ -71,7 +71,7 @@ export class Kernel {
                 .action(infoCmd.run.bind(infoCmd));
 
             this.commandpost
-                .exec(root, this.process.argv)
+                .exec(root, argv)
                 .catch(curry.bindOnly(this.handleError, this));
         } catch (ex) {
             this.handleError(ex);
@@ -79,7 +79,8 @@ export class Kernel {
     }
 
     handleError(err: Error): void {
-        this.msg.error(new NestedError("There was an unexpected error.", err));
+        this.msg.error(new NestedError("There was an unexpected error."));
+        this.msg.error(err.stack);
         this.process.exit(1);
     }
 }

@@ -55,7 +55,7 @@ describe(Kernel.name, () => {
             let hstub = sinon.stub(), cpstub = sinon.stub();
             let merr = new Error("membrain");
             cpstub.throws(merr);
-            k["commandpost"].exec = cpstub;
+            k["commandpost"] = <any>{ exec: cpstub };
             k["handleError"] = hstub;
             k.Go();
             sinon.assert.calledWith(hstub, merr);
