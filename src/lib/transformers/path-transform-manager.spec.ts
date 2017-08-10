@@ -11,14 +11,16 @@ import * as i from '../i';
 
 describe('PathTransformManager', () => {
     var tm: PathTransformManager;
+    var hnd: i.IHandlerService;
 
     beforeEach(() => {
+        hnd = <any>{ resolveAndLoadSync: sinon.stub() };
         let filePatterns: i.IFilePatterns = {
             match(path: string, patterns: string[]): string[] {
                 return [];
             }
         };
-        tm = new PathTransformManager(filePatterns, mockMessagerFactory());
+        tm = new PathTransformManager(filePatterns, mockMessagerFactory(), hnd);
     })
     describe('#applyTransforms', () => {
         let taStub: sinon.SinonStub;

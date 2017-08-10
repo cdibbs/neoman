@@ -1,3 +1,4 @@
 export interface IWithDefinition {
-    handler: string
+    handler: string,
+    value?: string
 }

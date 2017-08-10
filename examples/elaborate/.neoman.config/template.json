@@ -6,6 +6,7 @@
         "P.S. Everything in a # block is ignored as a comment."
     ],
     "name": "Template Project Two",
+    "identity": "elaborate",
     "description": "A demo template project for testing the Neoman templating engine.",
     "author": "Chris Dibbern",
     "tags": {

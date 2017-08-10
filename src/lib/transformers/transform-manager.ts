@@ -13,9 +13,10 @@ export class TransformManager extends BaseTransformManager implements i.ITransfo
 
     constructor(
         @inject(TYPES.FilePatterns) filePatterns: bi.IFilePatterns,
-        @inject(TYPES.UserMessager) msg: bi.IUserMessager
+        @inject(TYPES.UserMessager) msg: bi.IUserMessager,
+        @inject(TYPES.HandlerService) hnd: bi.IHandlerService
     ) {
-        super(filePatterns, msg);
+        super(filePatterns, msg, hnd);
     }
 
     applyTransforms(path: string, content: string, rdef: ir.Transforms): string {
@@ -48,13 +49,22 @@ export class TransformManager extends BaseTransformManager implements i.ITransfo
     }
 
     replaceOne(path: string, content: string, rdef: ir.ITransform): string {
-        let msgCtxt = this.msg.i18n({subject: rdef.subject, using: rdef.using ? ' (config: ' + rdef.using + ')' : ""});
+        let using: string;
+        if (rdef.using) {
+            using = ` (config: ${rdef.using})`;
+        } else if (rdef.with && rdef.with["handler"]) {
+            using = ` (handler: ${rdef.with['handler']})`;
+        } else {
+            using = "";
+        }
+
+        let msgCtxt = this.msg.i18n({subject: rdef.subject, using });
 
         if (this.replaceDoesApply(path, rdef.files, rdef.ignore, rdef.using)) {
-            msgCtxt.debug('Applying transform definition for "{subject}" {using}.', 2)
+            msgCtxt.debug('Applying transform definition for "{subject}"{using}', 2)
             content = this.applyReplace(content, rdef, path);
         } else {
-            msgCtxt.debug('Skipping transform definition for "{subject}" {using}.', 2);
+            msgCtxt.debug('Skipping transform definition for "{subject}"{using}', 2);
         }
 
         return content;

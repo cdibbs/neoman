@@ -11,14 +11,16 @@ import * as i from '../i';
 
 describe('TransformManager', () => {
     var tm: TransformManager;
+    var hnd: i.IHandlerService;
 
     beforeEach(() => {
+        hnd = <any>{ resolveAndLoadSync: sinon.stub() };
         let filePatterns: i.IFilePatterns = {
             match(path: string, patterns: string[]): string[] {
                 return [];
             }
         };
-        tm = new TransformManager(filePatterns, mockMessagerFactory());
+        tm = new TransformManager(filePatterns, mockMessagerFactory(), hnd);
     })
 
     describe('#applyTransforms', () => {

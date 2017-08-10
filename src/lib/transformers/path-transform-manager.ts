@@ -16,9 +16,10 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
 
     constructor(
         @inject(TYPES.FilePatterns) filePatterns: bi.IFilePatterns,
-        @inject(TYPES.UserMessager) msg: bi.IUserMessager
+        @inject(TYPES.UserMessager) msg: bi.IUserMessager,
+        @inject(TYPES.HandlerService) hnd: bi.IHandlerService
     ) {
-        super(filePatterns, msg);
+        super(filePatterns, msg, hnd);
     }
 
     applyTransforms(path: string, tdef: ir.PathTransforms): string {

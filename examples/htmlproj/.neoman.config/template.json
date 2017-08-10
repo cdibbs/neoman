@@ -32,6 +32,7 @@
         "# Strings like this are comments, in this section.",
         { "subject": "text", "with": "content: {{subtitle}}", "files": ["**/*.html"] },
         { "subject": "$.name", "with": "{{title}}", "using": "json", "params": { "action": "set", "type": "string" } },
+        { "subject": "$.description", "with": { "handler": "uppercase" }, "using": "json", "params": { "action": "set", "type": "string" } },
         { "subject": "$.tags[2]", "with": "super", "using": "json", "params": { "action": "set", "type": "string" } },
         { "subject": "$.tags[3]", "with": "314", "using": "json", "params": { "action": "set", "type": "number" } },
         { "subject": "$.tags[3]", "with": "653", "using": "json", "params": { "action": "append", "type": "number" } },

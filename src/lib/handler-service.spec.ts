@@ -40,7 +40,7 @@ describe('HandlerService', () => {
         it('should load from the handlers folder, if exists', () => {
             return hs.resolveAndLoad('/tmp/base/path', 'handlerid')
                 .then(() => {
-                    sinon.assert.calledWith(crequireStub, '/tmp/base/path/handlers/handlerid');
+                    sinon.assert.calledWith(crequireStub, '/tmp/base/path/.neoman.config/handlers/handlerid.js');
                 });
         });
         it('should delegate validation to validateHandler', () => {
@@ -50,7 +50,7 @@ describe('HandlerService', () => {
             crequireStub.returns(Promise.resolve(hnd));
             hs.resolveAndLoad('a', 'b')
                 .then(() => {
-                    sinon.assert.calledWith(stub, 'a/handlers/b', hnd);
+                    sinon.assert.calledWith(stub, 'a/.neoman.config/handlers/b.js', hnd);
                 });
         });
     });

@@ -15,10 +15,12 @@ export class BaseTransformManager {
 
     protected configs: { [key: string]: TemplateConfiguration };
     protected inputs: { [key: string]: any };
+    protected tconfigBasePath: string;
 
     constructor(
         @inject(TYPES.FilePatterns) protected filePatterns: bi.IFilePatterns,
-        @inject(TYPES.UserMessager) protected msg: bi.IUserMessager
+        @inject(TYPES.UserMessager) protected msg: bi.IUserMessager,
+        @inject(TYPES.HandlerService) protected hnd: bi.IHandlerService
     ) {
         
     }
@@ -26,6 +28,7 @@ export class BaseTransformManager {
     configure(tmpl: ir.ITemplate, inputs: { [key: string]: any }) {
         this.inputs = inputs;
         this.preparePlugins(tmpl.configurations);
+        this.tconfigBasePath = tmpl.__tmplPath;
     }
 
     //FIXME Need to cover plugin loading with better tests
@@ -135,7 +138,16 @@ export class BaseTransformManager {
         //TODO FIXME not truly implemented
         if (typeof tdef.with === 'object' && tdef.with.handler)
         {
-            return (substr: string) => substr;
+            let handler = this.hnd.resolveAndLoadSync(this.tconfigBasePath, tdef.with.handler);
+            return (original) => {
+                try {
+                    let replacement = tdef.with["value"]; // if any...
+                    return handler(original, replacement, tdef);
+                } catch (ex) {
+                    let errorMsg = this.msg.__mf("Error while running user handler '{handler}'", ex);
+                    throw new NestedError(errorMsg);
+                }
+            };
         }
 
         throw new Error(`Handler definition missing for transform.`);

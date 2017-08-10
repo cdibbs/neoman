@@ -23,7 +23,7 @@ describe(CustomInputManager.name, () => {
             mytmp = "/my/tmp";
             handlerStub = sinon.stub();
             resolveAndLoadStub = sinon.stub();
-            hs = {
+            hs = <any>{
                 resolveAndLoad: resolveAndLoadStub
             };
             resolveAndLoadStub.returns(Promise.resolve(handlerStub));
