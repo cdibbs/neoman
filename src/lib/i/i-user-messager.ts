@@ -17,7 +17,7 @@ export const LEVELS: UnionKeyToValue<Levels> = {
 }
 
 export interface IUserMessager {
-    __mf: Ii18nFunction;
+    mf(message: any): string;
 
     debug(message: any, indent?: number): IUserMessager
     info(message: any, indent?: number): IUserMessager

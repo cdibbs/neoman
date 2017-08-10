@@ -94,7 +94,7 @@ describe(UserMessager.name, () => {
         it('returns new instance of self with i18n enabled', () => {
             let dict = {};
             let result = t.i18n(dict);
-            expect(result.__mf).to.equal(mf);
+            expect(result["__mf"]).to.equal(mf);
             expect(result["usei18n"]).to.be.true;
             expect(result["mfDict"] === dict).to.be.true;
         });

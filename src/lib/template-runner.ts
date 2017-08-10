@@ -34,7 +34,7 @@ export class TemplateRunner implements i.ITemplateRunner {
         }
 
         if (!this.destinationEmpty(path) /* && not force */) {
-            return Promise.reject(this.msg.__mf('The destination directory is not empty ({path}).', { path: path }));
+            return Promise.reject(this.msg.i18n({path}).mf('The destination directory is not empty ({path}).',));
         }
 
         return this.getUserInputAndRun(path, options, tmpl);

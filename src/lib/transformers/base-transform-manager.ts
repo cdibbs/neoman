@@ -3,6 +3,7 @@ import * as _ from 'underscore';
 let NestedError = require('nested-error-stacks');
 let requireg = require('requireg');
 
+import { curry } from '../util/curry';
 import TYPES from '../di/types';
 import * as i from './i';
 import * as ir from '../i/template';
@@ -48,19 +49,19 @@ export class BaseTransformManager {
             try {
                 PluginClass = this.requireg(pluginName);
             } catch(ex) {
-                throw new NestedError(this.msg.__mf("Error loading plugin '{pluginName}'.", { pluginName }), ex);
+                throw new NestedError(this.msg.i18n({pluginName}).mf("Error loading plugin '{pluginName}'."), ex);
             }
 
             try {
                 config.pluginInstance = new PluginClass();
             } catch(ex) {
-                throw new NestedError(this.msg.__mf("Error instantiating plugin '{pluginName}'.", { pluginName }), ex);
+                throw new NestedError(this.msg.i18n({pluginName}).mf("Error instantiating plugin '{pluginName}'."), ex);
             }
 
             try {
                 config.pluginInstance.configure(config.pluginOptions);
             } catch(ex) {
-                throw new NestedError(this.msg.__mf("Error when calling .configure(pluginOptions) on '{pluginName}' instance.", { pluginName }), ex);
+                throw new NestedError(this.msg.i18n({pluginName}).mf("Error when calling .configure(pluginOptions) on '{pluginName}' instance."), ex);
             }
 
             this.configs[key] = config;
@@ -110,7 +111,8 @@ export class BaseTransformManager {
             }
         } catch (err) {
             this.msg.error(`Error running plugin from "${tdef.using}" configuration:`, 3);
-            this.msg.error(err.toString(), 3);
+            this.msg.error(err.message, 3);
+            this.msg.error(err.stack, 4);
             return original;
         }
     }
@@ -138,16 +140,17 @@ export class BaseTransformManager {
         //TODO FIXME not truly implemented
         if (typeof tdef.with === 'object' && tdef.with.handler)
         {
-            let handler = this.hnd.resolveAndLoadSync(this.tconfigBasePath, tdef.with.handler);
-            return (original) => {
+            let hndName = tdef.with.handler;
+            let handler = this.hnd.resolveAndLoadSync(this.tconfigBasePath, hndName);
+            return curry.twoOf3((tdef, hndName, original) => {
                 try {
                     let replacement = tdef.with["value"]; // if any...
                     return handler(original, replacement, tdef);
                 } catch (ex) {
-                    let errorMsg = this.msg.__mf("Error while running user handler '{handler}'", ex);
-                    throw new NestedError(errorMsg);
+                    let errorMsg = this.msg.i18n({hndName}).mf("Error while running user handler '{hndName}'");
+                    throw new NestedError(errorMsg, ex);
                 }
-            };
+            }, this, tdef, hndName);
         }
 
         throw new Error(`Handler definition missing for transform.`);

@@ -21,12 +21,12 @@ export class HandlerService implements i.IHandlerService {
             this.accessSync(handlerPath, fse.constants.R_OK);
             let hnd = this.requireNative(handlerPath);
             if (typeof hnd !== 'function') {
-                let errorMessage = this.msg.i18n({handlerPath}).__mf('Handler definition at {handlerPath} was not a function.');
+                let errorMessage = this.msg.i18n({handlerPath}).mf('Handler definition at {handlerPath} was not a function.');
                 throw new Error(errorMessage);
             }
             return hnd;
         } catch(ex) {
-            let errorMessage = this.msg.i18n({handlerPath}).__mf('Could not access user-defined handler at {handlerPath}.');
+            let errorMessage = this.msg.i18n({handlerPath}).mf('Could not access user-defined handler at {handlerPath}.');
             throw new NestedError(errorMessage, ex);
         }
     }
@@ -59,13 +59,13 @@ export class HandlerService implements i.IHandlerService {
     private accessSync = fse.accessSync;
     private access = fse.access;
     protected noAccess(handlerPath: string, ex: Error): Promise<Function> {
-        let errorMessage = this.msg.i18n({handlerPath}).__mf('Could not access user-defined handler at {handlerPath}.');
+        let errorMessage = this.msg.i18n({handlerPath}).mf('Could not access user-defined handler at {handlerPath}.');
         return Promise.reject<Function>(new NestedError(errorMessage, ex));
     }
 
     protected validateHandler(handlerPath: string, handler: Function): Promise<Function> {
         if (typeof handler !== 'function') {
-            let errorMessage = this.msg.i18n({handlerPath}).__mf('Handler definition at {handlerPath} was not a function.');
+            let errorMessage = this.msg.i18n({handlerPath}).mf('Handler definition at {handlerPath} was not a function.');
             return Promise.reject(new Error(errorMessage));
         }
 

@@ -31,6 +31,7 @@
     "transform": [
         "# Strings like this are comments, in this section.",
         { "subject": "text", "with": "content: {{subtitle}}", "files": ["**/*.html"] },
+        { "subject": "content", "with": { "handler": "uppercase" }, "files": ["**/*.html"] },
         { "subject": "$.name", "with": "{{title}}", "using": "json", "params": { "action": "set", "type": "string" } },
         { "subject": "$.description", "with": { "handler": "uppercase" }, "using": "json", "params": { "action": "set", "type": "string" } },
         { "subject": "$.tags[2]", "with": "super", "using": "json", "params": { "action": "set", "type": "string" } },
