@@ -304,6 +304,30 @@ describe('BaseTransformManager', () => {
         });
     });
 
+    describe('#replaceDoesApply integration', () => {
+        let path: string, fileGlobs: string[], ignoreGlobs: string[];
+        let fpMatchStub: sinon.SinonStub, cdaStub: sinon.SinonStub;
+        beforeEach(() => {
+            path = "/tmp/path";
+            fileGlobs = ["nonempty"], ignoreGlobs = ["**glob"];
+            tm["configs"] = <any>{
+                json : {
+                    files: ["**/*.json"]
+                }
+            };
+        });
+
+        it('should not match when files do not', () => {
+            let result = tm["replaceDoesApply"]("/tmp/path/something.txt", [ "**/*.json" ], undefined, undefined);
+            expect(result).to.be.false;
+        });
+
+        it('should not match when config files does not', () => {
+            let result = tm["replaceDoesApply"]("/tmp/path/something.txt", undefined, undefined, "json");
+            expect(result).to.be.false;
+        });
+    });
+
     describe('#replaceDoesApply', () => {
         let path: string, fileGlobs: string[], ignoreGlobs: string[];
         let fpMatchStub: sinon.SinonStub, cdaStub: sinon.SinonStub;
@@ -313,7 +337,7 @@ describe('BaseTransformManager', () => {
             fpMatchStub = sinon.stub();
             cdaStub = sinon.stub();
             tm["configDoesApply"] = cdaStub;
-            tm["filePatterns"].match = fpMatchStub;
+            tm["filePatterns"] = { match: fpMatchStub };
         });
 
         // undefined
@@ -323,6 +347,16 @@ describe('BaseTransformManager', () => {
             expect(result).to.be.true;
             expect(cdaStub.called).to.be.false;
         });
+
+        it('should not match when files undefined and config is non-match (files will not override config when undefined)', () => {
+            cdaStub.returns(false);
+
+            let result = tm["replaceDoesApply"](path, undefined, undefined, "aConfigKey");
+            
+            expect(result).to.be.false;
+            expect(cdaStub.called).to.be.true;
+        });
+
         
         // 000 = 0
         it('should return false when files do not match, ignores do not match, config does not match', () => {

@@ -177,14 +177,19 @@ export class BaseTransformManager {
     replaceDoesApply(path: string, files: string[], ignore: string[], configKey: string): boolean {
         if (typeof files === "undefined" && typeof ignore === "undefined" && typeof configKey === "undefined")
             return true; // No explicit inclusions or exclusions --> Global replace.
-        
+
         let ignoresMatch = (ignore && (ignore instanceof Array) && ignore.length) ? this.filePatterns.match(path, ignore) : [];
         if (ignoresMatch.length) { // explicit exclusion overrides explicit inclusion
             return false;
         }
 
-        if (configKey && this.configDoesApply(path, configKey))
-            return true; // either-or with files match
+        if (configKey) {
+            if (this.configDoesApply(path, configKey)) {
+                return true; // either-or with files match
+            } else if (! files) { // not defined = nothing overriding config non-match
+                return false;
+            }
+        }
 
         // if files weren't defined, implicit inclusion. Otherwise, inclusion only if match.
         let filesMatch = (files && (files instanceof Array) && files.length) ? this.filePatterns.match(path, files) : [];
@@ -200,7 +205,8 @@ export class BaseTransformManager {
     configDoesApply(path: string, configKey: string): boolean {
         if (this.configs.hasOwnProperty(configKey)) {
             let c = this.configs[configKey];
-            return this.replaceDoesApply(path, c.files, c.ignore, undefined);
+            let result = this.replaceDoesApply(path, c.files, c.ignore, undefined);
+            return result;
         } else {
             throw new Error(`Configuration key "${configKey}" does not exist.`);
         }
