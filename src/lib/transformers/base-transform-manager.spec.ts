@@ -321,12 +321,12 @@ describe('BaseTransformManager', () => {
 
         it('should not match when files do not', () => {
             let result = tm["replaceDoesApply"]("/tmp/path/something.txt", [ "**/*.json" ], undefined, undefined);
-            expect(result).to.be.false;
+            expect(result.matches).to.be.false;
         });
 
         it('should not match when config files does not', () => {
             let result = tm["replaceDoesApply"]("/tmp/path/something.txt", undefined, undefined, "json");
-            expect(result).to.be.false;
+            expect(result.matches).to.be.false;
         });
     });
 
@@ -346,111 +346,111 @@ describe('BaseTransformManager', () => {
         it('should return true when there are no filters', () => {
             let result = tm["replaceDoesApply"]("/tmp/path", undefined, undefined, undefined);
 
-            expect(result).to.be.true;
+            expect(result.matches).to.be.true;
             expect(cdaStub.called).to.be.false;
         });
 
         it('should not match when files undefined and config is non-match (files will not override config when undefined)', () => {
-            cdaStub.returns(false);
+            cdaStub.returns({matches: false});
 
             let result = tm["replaceDoesApply"](path, undefined, undefined, "aConfigKey");
             
-            expect(result).to.be.false;
+            expect(result.matches).to.be.false;
             expect(cdaStub.called).to.be.true;
         });
 
         
         // 000 = 0
         it('should return false when files do not match, ignores do not match, config does not match', () => {
-            cdaStub.returns(false);
+            cdaStub.returns({matches: false});
             fpMatchStub.withArgs(path, fileGlobs).returns([]);
             fpMatchStub.withArgs(path, ignoreGlobs).returns([]);
 
             let result = tm["replaceDoesApply"](path, fileGlobs, ignoreGlobs, "aConfigKey");
             
-            expect(result).to.be.false;
+            expect(result.matches).to.be.false;
             expect(cdaStub.called).to.be.true;
         });
 
         // 001 = 1
         it('should return true when files do not match, ignores do not match, config matches', () => {
-            cdaStub.returns(true);
+            cdaStub.returns({matches: true});
             fpMatchStub.withArgs(path, fileGlobs).returns([]);
             fpMatchStub.withArgs(path, ignoreGlobs).returns([]);
 
             let result = tm["replaceDoesApply"](path, fileGlobs, ignoreGlobs, "aConfigKey");
             
-            expect(result).to.be.true;
+            expect(result.matches).to.be.true;
             expect(cdaStub.called).to.be.true;
         });
 
         // 010 = 0
         it('should return false when files do not match, ignore matches, config does not match', () => {
-            cdaStub.returns(false);
+            cdaStub.returns({matches: false});
             fpMatchStub.withArgs(path, fileGlobs).returns([]);
             fpMatchStub.withArgs(path, ignoreGlobs).returns(["somematch"]);
 
             let result = tm["replaceDoesApply"](path, fileGlobs, ignoreGlobs, "aConfigKey");
             
-            expect(result).to.be.false;
+            expect(result.matches).to.be.false;
             expect(cdaStub.called).to.be.false;
         });
         
         // 011 = 0, ignore overrides config match
         it('should return false when files do not match, ignores match, config matches', () => {
-            cdaStub.returns(true);
+            cdaStub.returns({matches: true});
             fpMatchStub.withArgs(path, fileGlobs).returns([]);
             fpMatchStub.withArgs(path, ignoreGlobs).returns(["somematch"]);
 
             let result = tm["replaceDoesApply"](path, fileGlobs, ignoreGlobs, "aConfigKey");
             
-            expect(result).to.be.false;
+            expect(result.matches).to.be.false;
             expect(cdaStub.called).to.be.false;
         });
 
         // 100 = 1, 
         it('should return true when files match, ignores do not match, config does not match', () => {
-            cdaStub.returns(false);
+            cdaStub.returns({matches: false});
             fpMatchStub.withArgs(path, fileGlobs).returns(["somematch"]);
             fpMatchStub.withArgs(path, ignoreGlobs).returns([]);
 
             let result = tm["replaceDoesApply"](path, fileGlobs, ignoreGlobs, "aConfigKey");
             
-            expect(result).to.be.true;
+            expect(result.matches).to.be.true;
             expect(cdaStub.called).to.be.true;
         });
 
         // 101 = 1
         it('should return true when files match, ignores do not match, config matches', () => {
-            cdaStub.returns(true);
+            cdaStub.returns({matches: true});
             fpMatchStub.withArgs(path, fileGlobs).returns(["somematch"]);
             fpMatchStub.withArgs(path, ignoreGlobs).returns([]);
 
             let result = tm["replaceDoesApply"](path, fileGlobs, ignoreGlobs, "aConfigKey");
             
-            expect(result).to.be.true;
+            expect(result.matches).to.be.true;
             expect(cdaStub.called).to.be.true;
         });
 
         // 110 = 0, ignore overrides files match
         it('should return false when files match, ignores match, config does not match', () => {
-            cdaStub.returns(false);
+            cdaStub.returns({matches: false});
             fpMatchStub.returns(["somematch"]);
 
             let result = tm["replaceDoesApply"]("/tmp/path", ["nonempty"], [ "**glob" ], "aConfigKey");
             
-            expect(result).to.be.false;
+            expect(result.matches).to.be.false;
             expect(cdaStub.called).to.be.false;
         });
 
         // 111 = 0, ignore overrides both config and files match
         it('should return false when files match, ignores match, config matches', () => {
-            cdaStub.returns(true);
+            cdaStub.returns({matches: true});
             fpMatchStub.returns(["somematch"]);
 
             let result = tm["replaceDoesApply"]("/tmp/path", ["nonempty"], [ "**glob" ], "aConfigKey");
             
-            expect(result).to.be.false;
+            expect(result.matches).to.be.false;
             expect(cdaStub.called).to.be.false;
         });    
 
@@ -459,7 +459,7 @@ describe('BaseTransformManager', () => {
 
             let result = tm["replaceDoesApply"]("/tmp/path", undefined, [ "**glob" ], undefined);
             
-            expect(result).to.be.true;
+            expect(result.matches).to.be.true;
             expect(cdaStub.called).to.be.false;
         });
     });

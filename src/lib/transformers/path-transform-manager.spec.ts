@@ -144,7 +144,7 @@ describe('PathTransformManager', () => {
         it('should apply replacement if replace applies', () => {
             rda.returns(true);
 
-            tm["transformOne"](path, def);
+            tm["transformOne"](path, def, 0);
 
             sinon.assert.calledWith(rda, path, sinon.match.same(def.files), sinon.match.same(def.ignore), def.using);
             sinon.assert.calledWith(aim, def, path);
@@ -153,7 +153,7 @@ describe('PathTransformManager', () => {
         it('should not apply replacement if replace does not apply', () => {
             rda.returns(false);
 
-            tm["transformOne"](path, def);
+            tm["transformOne"](path, def, 0);
 
             sinon.assert.calledWith(rda, path, sinon.match.same(def.files), sinon.match.same(def.ignore), def.using);
             expect(aim.called).to.be.false;
@@ -163,7 +163,7 @@ describe('PathTransformManager', () => {
             rda.returns(true);
             aim.returns("replaced");
 
-            let result = tm["transformOne"](path, def);
+            let result = tm["transformOne"](path, def, 0);
 
             expect(result).to.equal("replaced");
         });
@@ -180,7 +180,7 @@ describe('PathTransformManager', () => {
         it('should apply transform if match', () => {
             let t = { subject: "a+" };
 
-            let result = tm["applyIfMatch"](<any>t, "aaaa");
+            let result = tm["applyIfMatch"](<any>t, "aaaa", 0);
 
             sinon.assert.calledWith(ar, "aaaa", t, "aaaa");
             expect(result).to.equal("result!");
@@ -189,7 +189,7 @@ describe('PathTransformManager', () => {
         it('should not apply transform if not match', () => {
             let t = { subject: "b+" };
 
-            tm["applyIfMatch"](<any>t, "aaaa");
+            tm["applyIfMatch"](<any>t, "aaaa", 0);
 
             expect(ar.called).to.be.false;
         });

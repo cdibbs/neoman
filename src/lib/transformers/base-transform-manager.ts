@@ -4,6 +4,7 @@ let NestedError = require('nested-error-stacks');
 let requireg = require('requireg');
 
 import { curry } from '../util/curry';
+import { RuleMatchResult } from '../models';
 import TYPES from '../di/types';
 import * as i from './i';
 import * as ir from '../i/template';
@@ -189,26 +190,42 @@ export class BaseTransformManager {
      * @param ignore A list of ignore globs. Overrides matches from the files parameter.
      * @param configKey A configuration definition to match (itself containing include/ignore globs).
      */
-    replaceDoesApply(path: string, files: string[], ignore: string[], configKey: string): boolean {
+    replaceDoesApply(path: string, files: string[], ignore: string[], configKey: string): RuleMatchResult {
         if (typeof files === "undefined" && typeof ignore === "undefined" && typeof configKey === "undefined")
-            return true; // No explicit inclusions or exclusions --> Global replace.
+        {
+            let reason = "Applies globally because no explicit exclusion or inclusion rules defined.";
+            return new RuleMatchResult(true, reason);
+        }
 
         let ignoresMatch = (ignore && (ignore instanceof Array) && ignore.length) ? this.filePatterns.match(path, ignore) : [];
         if (ignoresMatch.length) { // explicit exclusion overrides explicit inclusion
-            return false;
+            let reason = "Explicitly excluded by user-defined 'ignore' rules.";
+            return new RuleMatchResult(false, reason, null, ignoresMatch);
         }
 
         if (configKey) {
-            if (this.configDoesApply(path, configKey)) {
-                return true; // either-or with files match
+            let configResult = this.configDoesApply(path, configKey);
+            if (configResult.matches) {
+                let reason = "Included because of 'using' directive: {configKey}.";
+                return new RuleMatchResult(true, reason, configResult);
             } else if (! files) { // not defined = nothing overriding config non-match
-                return false;
+                let reason = "Excluded because 'using' directive '{configKey}' does not match, and no explicit, overriding inclusion rule exists.";
+                return new RuleMatchResult(false, reason, configResult);
             }
         }
 
         // if files weren't defined, implicit inclusion. Otherwise, inclusion only if match.
         let filesMatch = (files && (files instanceof Array) && files.length) ? this.filePatterns.match(path, files) : [];
-        return !!(!files || !files.length || filesMatch.length);
+        if (!files || !files.length) {
+            let reason = "Included implicitly because no 'using' or 'ignore' rule caused explicit exclusion.";
+            return new RuleMatchResult(true, reason);
+        } else if (filesMatch.length) {
+            let reason = "Included explicitly by matching 'files' include rules, while no overriding 'ignore' rules match.";
+            return new RuleMatchResult(true, reason, null, filesMatch);
+        }
+
+        let reason = "Excluded implicitly because explicit 'files' include rules defined, yet none match.";
+        return new RuleMatchResult(false, reason);
     }
 
     /**
@@ -217,7 +234,7 @@ export class BaseTransformManager {
      * @param path The path against which to check the config definition.
      * @param configKey The key of the config containing include/ignore globs to lookup.
      */
-    configDoesApply(path: string, configKey: string): boolean {
+    configDoesApply(path: string, configKey: string): RuleMatchResult {
         if (this.configs.hasOwnProperty(configKey)) {
             let c = this.configs[configKey];
             let result = this.replaceDoesApply(path, c.files, c.ignore, undefined);

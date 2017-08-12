@@ -37,14 +37,14 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
     transformAll(path: string, transforms: ir.IPathTransform[] | string[]): string {
         let processing = path;
 
-        for (let i in transforms) {
+        for (let i=0; i<transforms.length; i++) {
             let t = transforms[i];
             if (typeof t === "string") {              
                 t = this.regexToTransform<ir.IPathTransform>(t);
             }
 
             if (typeof t === "object") {
-                processing = this.transformOne(processing, t);
+                processing = this.transformOne(processing, t, i);
             } else {
                 throw new Error(`I do not understand format of path transform #${i + 1}, type ${typeof t}.`);
             }
@@ -53,17 +53,17 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
         return processing;
     }
 
-    transformOne(processing: string, t: ir.IPathTransform): string {
+    transformOne(processing: string, t: ir.IPathTransform, i: number): string {
         if (this.replaceDoesApply(processing, t.files, t.ignore, t.using)) {
-            processing = this.applyIfMatch(t, processing);
+            processing = this.applyIfMatch(t, processing, i);
         } else {
-            this.msg.debug(`Skipping path transform def #${i}, "${t.subject}" (no match: config or globs).`, 2);
+            this.msg.i18n({i, subject: t.subject}).debug(`Skipping path transform def #{i}, "{t.subject}" (no match: config or globs).`, 2);
         }
 
         return processing;
     }
 
-    applyIfMatch(t: ir.IPathTransform, path: string): string {
+    applyIfMatch(t: ir.IPathTransform, path: string, i: number): string {
         if (path.match(t.subject)) {
             this.msg.debug(`Applying path transform for "${t.subject}".`, 2);
             path = this.applyReplace(path, t, path);
