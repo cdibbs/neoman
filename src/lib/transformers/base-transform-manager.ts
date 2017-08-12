@@ -143,18 +143,28 @@ export class BaseTransformManager {
         {
             let hndName = tdef.with.handler;
             let handler = this.hnd.resolveAndLoadSync(this.tconfigBasePath, hndName);
-            return curry.twoOf3((tdef, hndName, original) => {
-                try {
-                    let replacement = tdef.with["value"]; // if any...
-                    return handler(original, replacement, tdef);
-                } catch (ex) {
-                    let errorMsg = this.msg.i18n({hndName}).mf("Error while running user handler '{hndName}'");
-                    throw new NestedError(errorMsg, ex);
-                }
-            }, this, tdef, hndName);
+            return curry.threeOf4(this.replacerWrapper, this, tdef, hndName, handler);
         }
 
-        throw new Error(`Handler definition missing for transform.`);
+        throw new Error(`Handler definition missing for transform, or 'with' format invalid.`);
+    }
+
+    /**
+     * Wraps the calls to user-defined handlers.
+     * @param tdef the original transform definition (curried)
+     * @param hndName the name of the user-defined handler (curried)
+     * @param handler the user-defined handler (curried)
+     * @param original value matching transform definition's subject
+     * @throws i18n NestedError wrapping any errors in the user handler
+     */
+    replacerWrapper(tdef: ir.ITransform, hndName: string, handler: Function, original: string): any {
+        try {
+            let replacement = tdef.with["value"]; // if any...
+            return handler(original, replacement, tdef);
+        } catch (ex) {
+            let errorMsg = this.msg.i18n({hndName}).mf("Error while running user handler '{hndName}'");
+            throw new NestedError(errorMsg, ex);
+        }
     }
 
     private varMatcher = /{{[^}]*}}/g;

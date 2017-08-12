@@ -153,4 +153,16 @@ describe('TransformManager', () => {
             expect(result).to.equal("replaced");
         });
     });
+
+    describe('#formatSource', () => {
+        it('should return comma-seperated list of customization sources', () => {
+            let result = tm["formatSource"](<any>{ using: "custom", with: { handler: "custom"} });
+            expect(result).to.equal(' (using: custom, handler: custom)');
+        });
+
+        it('should handle empty customization sources', () => {
+            let result = tm["formatSource"](<any>{ with: "nocustom" });
+            expect(result).to.equal('');
+        });
+    });
 });

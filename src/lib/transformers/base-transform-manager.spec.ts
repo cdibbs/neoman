@@ -306,6 +306,60 @@ describe('BaseTransformManager', () => {
         });
     });
 
+    describe('#buildReplacer', () => {
+        let resolveStub: sinon.SinonStub, repWrapStub: sinon.SinonStub;
+        beforeEach(() => {
+            resolveStub = sinon.stub(), repWrapStub = sinon.stub();
+            tm['hnd'] = <any>{ resolveAndLoadSync: resolveStub };
+            tm['replacerWrapper'] = repWrapStub;
+        });
+
+        it('should throw when "with" definition is not an object', () => {
+            // Preceding code should ensure string with definitions never make it this far
+            expect(() => {
+                tm.buildReplacer(<any>{ with: "bogus" });
+            }).to.throw().with.property("message").contains("'with' format invalid");
+        });
+
+        it('should resolve handler and return curried replacerWrapper', () => {
+            let bogusHnd = sinon.stub();
+            resolveStub.returns(bogusHnd);
+            tm["tconfigBasePath"] = "something";
+            let tdef = { with: { handler: 'mine' }};
+
+            let result = tm.buildReplacer(<any>tdef);
+            result("thematch");
+
+            sinon.assert.calledWith(resolveStub, "something", tdef.with.handler);
+            expect(resolveStub.calledBefore(repWrapStub)).to.be.true;
+            sinon.assert.calledWith(repWrapStub, tdef, tdef.with.handler, bogusHnd);
+        });
+    });
+
+    describe('#replacerWrapper', () => {
+        let hndStub: sinon.SinonStub;
+        beforeEach(() => {
+            hndStub = sinon.stub();
+        });
+
+        it('should rethrow wrapped, caught user handler errors', () => {
+            hndStub.throws(new Error('oops'));
+            expect(() => {
+                tm.replacerWrapper(<any>{}, "name", hndStub, "match");
+            }).to.throw();
+        });
+
+        it('should pass needed params to handler', () => {
+            hndStub.returns("rightval");
+            let tdef = { with: { value: "user replacement" } }, orig = "something";
+
+            let result = tm.replacerWrapper(<any>tdef, "name", hndStub, orig);
+
+            sinon.assert.calledWith(hndStub, orig, tdef.with.value, tdef);
+            expect(result).to.equal("rightval");
+        });
+    })
+
     describe('#replaceDoesApply integration', () => {
         let path: string, fileGlobs: string[], ignoreGlobs: string[];
         let fpMatchStub: sinon.SinonStub, cdaStub: sinon.SinonStub;

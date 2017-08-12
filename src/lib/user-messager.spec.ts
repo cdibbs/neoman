@@ -100,6 +100,19 @@ describe(UserMessager.name, () => {
         });
     });
 
+    describe('#mf', () => {
+        it('should pass correct state to i18n __mf library call', () => {
+            let stub = sinon.stub();
+            let obj = { hi: "hi" };
+            t.__mf = stub;
+            t["mfDict"] = obj;
+
+            t.mf("message");
+
+            sinon.assert.calledWith(stub, "message", obj);
+        });
+    });
+
     describe('(helpers)', () => {
         let wstub: sinon.SinonStub;
         beforeEach(() => {

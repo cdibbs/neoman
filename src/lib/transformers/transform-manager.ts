@@ -49,24 +49,30 @@ export class TransformManager extends BaseTransformManager implements i.ITransfo
     }
 
     replaceOne(path: string, content: string, rdef: ir.ITransform): string {
-        let using: string;
-        if (rdef.using) {
-            using = ` (config: ${rdef.using})`;
-        } else if (rdef.with && rdef.with["handler"]) {
-            using = ` (handler: ${rdef.with['handler']})`;
-        } else {
-            using = "";
-        }
+        let src: string = this.formatSource(rdef);
 
-        let msgCtxt = this.msg.i18n({subject: rdef.subject, using });
+        let msgCtxt = this.msg.i18n({subject: rdef.subject, src });
 
         if (this.replaceDoesApply(path, rdef.files, rdef.ignore, rdef.using)) {
-            msgCtxt.debug('Applying transform definition for "{subject}"{using}', 2)
+            msgCtxt.debug('Applying transform definition for "{subject}"{src}.', 2)
             content = this.applyReplace(content, rdef, path);
         } else {
-            msgCtxt.debug('Skipping transform definition for "{subject}"{using}', 2);
+            msgCtxt.debug('Skipping transform definition for "{subject}"{src}.', 2);
         }
 
         return content;
+    }
+
+    protected formatSource(rdef: ir.ITransform): string {
+        let srcs = [];
+        if (rdef.using) {
+            srcs.push(`using: ${rdef.using}`);
+        }
+        
+        if (rdef.with && rdef.with["handler"]) {
+            srcs.push(`handler: ${rdef.with['handler']}`);
+        }
+
+        return srcs.length ? ' (' + srcs.join(', ') + ')' : '';
     }
 }

@@ -57,4 +57,14 @@ export namespace curry {
     {
         return fn.bind(self, a, b);
     }
+
+    export function threeOf4<TThis, T1, T2, T3, T4, T5>(
+                fn: (a: T1, b: T2, c: T3, d: T4) => T5,
+        self: TThis,
+        a: T1,
+        b: T2,
+        c: T3): (b: T4) => T5
+    {
+        return fn.bind(self, a, b, c);
+    }
 }
