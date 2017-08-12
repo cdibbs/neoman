@@ -127,7 +127,7 @@ describe('TransformManager', () => {
         });
 
         it('should apply replacement if replace applies', () => {
-            rda.returns(true);
+            rda.returns({ matches: true });
 
             tm["replaceOne"](path, content, def);
 
@@ -136,7 +136,7 @@ describe('TransformManager', () => {
         });
 
         it('should not apply replacement if replace does not apply', () => {
-            rda.returns(false);
+            rda.returns({ matches: false });
 
             tm["replaceOne"](path, content, def);
 
@@ -145,7 +145,7 @@ describe('TransformManager', () => {
         });
 
         it('should return result of replacement', () => {
-            rda.returns(true);
+            rda.returns({matches: true});
             ar.returns("replaced");
 
             let result = tm["replaceOne"](path, content, def);

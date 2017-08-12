@@ -54,7 +54,8 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
     }
 
     transformOne(processing: string, t: ir.IPathTransform, i: number): string {
-        if (this.replaceDoesApply(processing, t.files, t.ignore, t.using)) {
+        let check = this.replaceDoesApply(processing, t.files, t.ignore, t.using);
+        if (check.matches) {
             processing = this.applyIfMatch(t, processing, i);
         } else {
             this.msg.i18n({i, subject: t.subject}).debug(`Skipping path transform def #{i}, "{t.subject}" (no match: config or globs).`, 2);

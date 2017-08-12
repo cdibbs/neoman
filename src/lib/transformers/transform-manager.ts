@@ -53,7 +53,8 @@ export class TransformManager extends BaseTransformManager implements i.ITransfo
 
         let msgCtxt = this.msg.i18n({subject: rdef.subject, src });
 
-        if (this.replaceDoesApply(path, rdef.files, rdef.ignore, rdef.using)) {
+        let check = this.replaceDoesApply(path, rdef.files, rdef.ignore, rdef.using);
+        if (check.matches) {
             msgCtxt.debug('Applying transform definition for "{subject}"{src}.', 2)
             content = this.applyReplace(content, rdef, path);
         } else {

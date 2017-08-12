@@ -142,7 +142,7 @@ describe('PathTransformManager', () => {
         });
 
         it('should apply replacement if replace applies', () => {
-            rda.returns(true);
+            rda.returns({matches: true});
 
             tm["transformOne"](path, def, 0);
 
@@ -151,7 +151,7 @@ describe('PathTransformManager', () => {
         });
 
         it('should not apply replacement if replace does not apply', () => {
-            rda.returns(false);
+            rda.returns({matches: false});
 
             tm["transformOne"](path, def, 0);
 
@@ -160,7 +160,7 @@ describe('PathTransformManager', () => {
         });
 
         it('should return result of replacement', () => {
-            rda.returns(true);
+            rda.returns({matches: true});
             aim.returns("replaced");
 
             let result = tm["transformOne"](path, def, 0);
