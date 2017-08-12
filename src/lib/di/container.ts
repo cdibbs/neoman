@@ -4,6 +4,7 @@ import * as glob from 'glob';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as i18n from 'i18n';
+import * as osLocale from 'os-locale';
 
 import TYPES from "./types";
 import { TransformManager, PathTransformManager } from '../transformers';
@@ -40,10 +41,15 @@ export let containerBuilder = (packageJson: any = null, localesPath?: string): C
     container.bind<i.IInputManager>(TYPES.CustomInputManager).to(CustomInputManager);
     container.bind<i.IInputManager>(TYPES.PromptInputManager).to(PromptInputManager);
 
+    let lobj = <typeof i18n>{};
     i18n.configure({
-        directory: localesPath || path.join(__dirname, '..', "/locales")
-    });    
-    container.bind<i.Ii18nFunction>(TYPES.i18n).toConstantValue(i18n.__mf);
+        defaultLocale: 'en_US',
+        directory: localesPath || path.join(__dirname, '..', "/locales"),
+        register: lobj
+    });
+    let lang = osLocale.sync();
+    i18n.setLocale(lang);
+    container.bind<i.Ii18nFunction>(TYPES.i18n).toConstantValue(lobj.__mf);
 
     container.bind<ICommand<any, any>>(TYPES.Commands).to(SetDirCommand);
     container.bind<ICommand<any, any>>(TYPES.Commands).to(NewCommand);

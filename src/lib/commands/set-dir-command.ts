@@ -20,19 +20,20 @@ export class SetDirCommand extends BaseCommand<any, any> {
     }
 
     run(opts: any, args: any) {
-        this.msg.info(`Setting directory to ${args.directory}`);
+        let imsg = this.msg.i18n({dir: args.directory});
+        imsg.info('Setting directory to {dir}');
 
         let stats = null;
         try {
             stats = this.fs.statSync(args.directory);
         } catch(ex) {
             this.msg.warn(ex);
-            this.msg.warn(`Error accessing '${args.directory}'.`);
+            imsg.warn("Error accessing '{dir}'.");
             return;
         }
 
         if (! stats.isDirectory()) {
-            this.msg.warn(`Warning: Not a directory: '${args.directory}'.`);
+            imsg.warn("Warning: Not a directory: '{dir}'.");
         }
         
         this.settings.set(KEYS.tempDirKey, this.path.resolve(args.directory));

@@ -98,7 +98,7 @@ export class BrowserInputManager extends BaseInputManager {
         ws: any,
         req: any): void
     {
-        this.msg.debug("Connected to browser, awaiting user input...");
+        this.msg.i18n().debug("Connected to browser, awaiting user input...");
         ws.on('message', curry.oneOf3(this.wssMessage, this, reject));
     }
 
@@ -111,13 +111,13 @@ export class BrowserInputManager extends BaseInputManager {
                         reject("User closed browser.");
                         break;
                     case "load":
-                        this.msg.debug(`WebSocket established.`);
+                        this.msg.i18n().debug(`WebSocket established.`);
                         break;
                     default:
-                        this.msg.warn(`Didn't understand wss event type: ${message.eventType}.`);
+                        this.msg.i18n({eventType: message.eventType}).warn("Didn't understand wss event type: ${eventType}.");
                 }
             } else {
-                this.msg.warn("Didn't understand wss message format: " + msgString);
+                this.msg.i18n({msgString}).warn("Didn't understand wss message format: {msgString}.");
             }
         } catch (err) {
             this.msg.warn(err);

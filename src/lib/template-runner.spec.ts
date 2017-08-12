@@ -473,7 +473,7 @@ describe('TemplateRunner', () => {
         let debugSpy: sinon.SinonSpy;
         beforeEach(() => {
             debugSpy = sinon.spy();
-            tr["msg"].debug = debugSpy;
+            tr["msg"]["console"] = { log: debugSpy };
         });
         it('should write when verbosity debug', () => {
             tr["tentativeMatchTmplFile"]("path", VERBOSITY.debug, <i.ITemplateFile>{ relativePath: "relpath" });
@@ -489,7 +489,7 @@ describe('TemplateRunner', () => {
         let debugSpy: sinon.SinonSpy;
         beforeEach(() => {
             debugSpy = sinon.spy();
-            tr["msg"].debug = debugSpy;
+            tr["msg"]["console"] = { log: debugSpy };
         });
 
         it('should inform the user of an exclude', () => {
@@ -502,7 +502,7 @@ describe('TemplateRunner', () => {
         let errorSpy: sinon.SinonSpy;
         beforeEach(() => {
             errorSpy = sinon.spy();
-            tr["msg"].error = errorSpy;
+            tr["msg"]["console"] = { error: errorSpy };
         });
 
         it('should report an error', () => {

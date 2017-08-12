@@ -31,10 +31,11 @@ export class Kernel {
 
     Go(argv: string[] = process.argv): void {
         try {
+            let imsg = this.msg.i18n();
             let root = commandpost
                 .create<any, any>("")
                 .version(this.pkg.version, "-v, --version")
-                .description(this.__mf("Manage and run Neoman project templates."))
+                .description(imsg.mf("Manage and run Neoman project templates."))
                 /*.action((opts, args) => {
                     this.msg.write("Manage and run Neoman project templates.\n", 1);
                     this.msg.write(root.helpText());
@@ -43,31 +44,31 @@ export class Kernel {
             let newCmd = this.commandFactory.build(COMMANDS.NewProject, this.tempDir);
             let newTemp = root
                 .subCommand<INewCmdOpts, INewCmdArgs>("new <template>")
-                .description(this.__mf("Generate a project from a Neoman template."))
-                .option("-n, --name <name>", this.__mf("The project name to use. Default: current directory name."))
-                .option("-d, --defaults", this.__mf("No prompting. Use template defaults for options not specified on command line."))
-                .option("-p, --path <path>", this.__mf("Destination path in which to create project. Defaults to current directory."))
-                .option("-f, --force", this.__mf("Force things you probably shouldn't force. Don't do it, blah blah..."))
-                .option("-v, --verbosity <verbosity>", this.__mf("The verbosity of neoman's output. Can be normal, verbose, debug."))
-                .option("-x, --show-excluded", this.__mf("Show files excluded by template configuration."))
+                .description(imsg.mf("Generate a project from a Neoman template."))
+                .option("-n, --name <name>", imsg.mf("The project name to use. Default: current directory name."))
+                .option("-d, --defaults", imsg.mf("No prompting. Use template defaults for options not specified on command line."))
+                .option("-p, --path <path>", imsg.mf("Destination path in which to create project. Defaults to current directory."))
+                .option("-f, --force", imsg.mf("Force things you probably shouldn't force. Don't do it, blah blah..."))
+                .option("-v, --verbosity <verbosity>", imsg.mf("The verbosity of neoman's output. Can be normal, verbose, debug."))
+                .option("-x, --show-excluded", imsg.mf("Show files excluded by template configuration."))
                 .action(newCmd.run.bind(newCmd));
 
             let listCmd = this.commandFactory.build(COMMANDS.ListTemplates, this.tempDir);
             let list = root
                 .subCommand<{}, {}>("list")
-                .description(this.__mf('List available templates. Template source directory: {dir}', { dir: this.tempDir }))
+                .description(imsg.i18n({ dir: this.tempDir }).mf('List available templates. Template source directory: {dir}'))
                 .action(listCmd.run.bind(listCmd));
 
             let setdirCmd = this.commandFactory.build(COMMANDS.SetDir, this.tempDir);
             let config = root
                 .subCommand<{}, { directory: string }>("setdir <directory>")
-                .description(this.__mf("Set your template source base directory. All first-level subdirectories will be scanned for templates."))
+                .description(imsg.mf("Set your template source base directory. All first-level subdirectories will be scanned for templates."))
                 .action(setdirCmd.run.bind(setdirCmd));
 
             let infoCmd = this.commandFactory.build(COMMANDS.Info, this.tempDir);
             let info = root
                 .subCommand<IInfoCmdOpts, IInfoCmdArgs>("info <tmplId>")
-                .description(this.__mf("Get detailed information for a given template identifier."))
+                .description(imsg.mf("Get detailed information for a given template identifier."))
                 .action(infoCmd.run.bind(infoCmd));
 
             this.commandpost
@@ -79,7 +80,7 @@ export class Kernel {
     }
 
     handleError(err: Error): void {
-        this.msg.error(new NestedError("There was an unexpected error."));
+        this.msg.error(new NestedError(this.msg.mf("There was an unexpected error.")));
         this.msg.error(err.stack);
         this.process.exit(1);
     }

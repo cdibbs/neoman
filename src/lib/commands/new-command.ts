@@ -49,7 +49,7 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
 
     protected handleTmplRunnerError(err: Error) {
         this.msg.error(err.stack || err);
-        this.msg.info("Aborting.");
+        this.msg.i18n().info("Aborting.");
         this.exit();
     }
 

@@ -58,7 +58,7 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
         if (check.matches) {
             processing = this.applyIfMatch(t, processing, i);
         } else {
-            this.msg.i18n({i, subject: t.subject}).debug(`Skipping path transform def #{i}, "{t.subject}" (no match: config or globs).`, 2);
+            this.msg.i18n({i, subject: t.subject}).debug('Skipping path transform def #{i}, "{subject}" (no match: config or globs).', 2);
         }
 
         return processing;
@@ -66,11 +66,11 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
 
     applyIfMatch(t: ir.IPathTransform, path: string, i: number): string {
         if (path.match(t.subject)) {
-            this.msg.debug(`Applying path transform for "${t.subject}".`, 2);
+            this.msg.i18n({subject: t.subject}).debug('Applying path transform for "{subject}".', 2);
             path = this.applyReplace(path, t, path);
-            this.msg.debug(`Int. result: ${path}`, 3);
+            this.msg.i18n({path}).debug('Int. result: {path}', 3);
         } else {
-            this.msg.debug(`Skipping path transform def #${i} (no match: "${t.subject}").`, 2);
+            this.msg.i18n({i, subject: t.subject}).debug('Skipping path transform def #{i} (no match: "{subject}").', 2);
         }
 
         return path;

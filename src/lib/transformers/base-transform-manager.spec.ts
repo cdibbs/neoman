@@ -234,7 +234,7 @@ describe('BaseTransformManager', () => {
             tm["configs"]["aplugin"] = <any>{ pluginInstance: { transform: pluginStub } };
             tm["preprocess"] = prepStub;
             tm["buildReplacer"] = brStub;
-            tm["msg"].error = errStub;
+            tm["msg"]["console"] = { error: errStub, log: tm["msg"]["log"], warn: tm["msg"]["warn"] };
         });
 
         it('should dispatch to preprocess, if replacement is a string', () => {

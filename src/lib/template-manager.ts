@@ -74,7 +74,7 @@ export class TemplateManager implements ITemplateManager {
     private stripComments(obj: any, parent?: any, curKey?: string | number): any {        
         if (obj instanceof Array) {
             if (!parent) {
-                throw new Error("Root-level configuration element cannot be an array.");
+                throw new Error(this.msg.i18n().mf("Root-level configuration element cannot be an array."));
             }
 
             let stripped = [];

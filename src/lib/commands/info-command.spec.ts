@@ -85,7 +85,7 @@ describe('InfoCommand', () => {
     describe("#reportError", () => {
         it("should show the stack, if a proper Error.", () => {
             let spy = sinon.spy();
-            ic["msg"].error = spy;
+            ic["msg"]["console"] = { error: spy };
             let e = new Error();
             e.stack = "mymessage";
             ic.reportError(e);
@@ -94,7 +94,7 @@ describe('InfoCommand', () => {
         });
         it("should show the message, if string.", () => {
             let spy = sinon.spy();
-            ic["msg"].error = spy;
+            ic["msg"]["console"] = { error: spy };
             let e = "string message";
             ic.reportError(<any>e);
             expect(spy.called);

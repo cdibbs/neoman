@@ -111,7 +111,7 @@ export class BaseTransformManager {
                 return config.pluginInstance.transform(path, original, tdef.subject, this.buildReplacer(tdef), _.extend({}, config.pluginOptions, tdef.params));
             }
         } catch (err) {
-            this.msg.error(`Error running plugin from "${tdef.using}" configuration:`, 3);
+            this.msg.i18n({using: tdef.using}).error('Error running plugin from "{using}" configuration:', 3);
             this.msg.error(err.message, 3);
             this.msg.error(err.stack, 4);
             return original;
@@ -120,7 +120,7 @@ export class BaseTransformManager {
 
     chooseReplaceEngine(tdef: ir.ITransform | ir.IPathTransform) {
         if (! tdef)
-            throw new Error("Malformed transform definition.");
+            throw new Error(this.msg.i18n().mf("Malformed transform definition."));
         
         if (! tdef.using || tdef.using === "regex") {
             if (this.configs.hasOwnProperty("regex")) // Then, the user wants to override the default.
@@ -179,7 +179,7 @@ export class BaseTransformManager {
     regexToTransform<T extends ir.ITransform | ir.IPathTransform>(def: string): T {
         let components: string[] = def.match(this.splitter);
         if (!components || components.length < 4) {
-            throw new Error("Must be a valid javascript replace regular expression: /pattern/replace/[opts]");
+            throw new Error(this.msg.i18n().mf("Must be a valid javascript replace regular expression: /pattern/replace/[opts]"));
         }
 
         let searchComponent: string = components[1];

@@ -44,7 +44,7 @@ export class InfoCommand extends BaseCommand<IInfoCmdOpts, IInfoCmdArgs> {
     }
 
     reportError(err: Error): void {
-        this.msg.error('There was an error reading the templates:');
+        this.msg.i18n().error('There was an error reading the templates:');
         this.msg.error(err.stack || err);
     }
 

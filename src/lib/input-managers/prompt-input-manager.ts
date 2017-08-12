@@ -8,7 +8,8 @@ import * as it from '../i/template';
 @injectable()
 export class PromptInputManager extends BaseInputManager {
     constructor(
-        @inject(TYPES.Process) private process: NodeJS.Process
+        @inject(TYPES.Process) private process: NodeJS.Process,
+        @inject(TYPES.UserMessager) private msg: i.IUserMessager
     ) {
         super();
     }
@@ -35,7 +36,7 @@ export class PromptInputManager extends BaseInputManager {
         return new Promise((resolve, reject) => {
             try {
                 if (typeof question !== "string")
-                    throw new Error("Not supported, yet.");
+                    throw new Error(this.msg.i18n().mf("Not supported, yet."));
 
                 this.process.stdin.resume();
                 this.process.stdout.write(question, () => {});
@@ -53,6 +54,6 @@ export class PromptInputManager extends BaseInputManager {
             return Object.keys(inputs).length;
         }
 
-        throw new Error("Unrecognized input section format.");
+        throw new Error(this.msg.i18n().mf("Unrecognized input section format."));
     }
 }

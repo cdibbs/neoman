@@ -289,7 +289,7 @@ describe(BrowserInputManager.name, () => {
             let rejStub = sinon.stub(), debugStub = sinon.stub();
             let message = `{ "eventType": "load" }`;
 
-            cim["msg"].debug = debugStub;
+            cim["msg"]["console"] = { log: debugStub, warn: cim["msg"]["console"].warn, error: cim["msg"]["console"].error };
             cim["wssMessage"](rejStub, message);
 
             expect(rejStub.called).to.be.false;

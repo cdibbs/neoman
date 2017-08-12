@@ -29,7 +29,7 @@ describe('SetDirCommand', () => {
 
             c["fs"].statSync = statSync;
             c["settings"].set = settingsSpy;
-            c["msg"].warn = warnSpy;
+            c["msg"]["console"] = { warn: warnSpy, log: c["msg"]["console"].log, error: c["msg"]["console"].warn };
             let opts = {}, args = { directory: "test" };
             let result = c.run(opts, args);
             sinon.assert.calledWith(warnSpy, `Warning: Not a directory: '${args.directory}'.`);
@@ -43,7 +43,7 @@ describe('SetDirCommand', () => {
 
             c["fs"].statSync = statSync;
             c["settings"].set = settingsSpy;
-            c["msg"].warn = warnSpy;
+            c["msg"]["console"] = { warn: warnSpy, log: c["msg"]["console"].log, error: c["msg"]["console"].warn };
             let opts = {}, args = { directory: "test" };
             let result = c.run(opts, args);
             expect(warnSpy.called).to.be.false;
@@ -57,7 +57,7 @@ describe('SetDirCommand', () => {
 
             c["fs"].statSync = statSync;
             c["settings"].set = settingsSpy;
-            c["msg"].warn = warnSpy;
+            c["msg"]["console"] = { warn: warnSpy, log: c["msg"]["console"].log, error: c["msg"]["console"].warn };
             let opts = {}, args = { directory: "test" };
             let result = c.run(opts, args);
             expect(warnSpy.called).to.be.true;
