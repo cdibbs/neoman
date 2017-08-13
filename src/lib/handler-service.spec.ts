@@ -30,6 +30,56 @@ describe('HandlerService', () => {
         hs['access'] = accessStub;
     })
 
+    describe('#resolveAndLoadSync', () => {
+        let reqNatStub: sinon.SinonStub;
+        beforeEach(() => {
+            reqNatStub = sinon.stub();
+            hs['accessSync'] = accessStub;
+            hs['requireNative'] = <any>reqNatStub;
+            
+        });
+
+        it('build appropriate handler path relative to tmpl config root', () => {
+            let retVal = function Mine() {};
+            reqNatStub.returns(retVal);
+            let result = hs.resolveAndLoadSync('root/path', 'hndid');
+            sinon.assert.calledWith(reqNatStub, 'root/path/.neoman.config/handlers/hndid.js');
+        });
+
+
+        it('should return result of require when function', () => {
+            let retVal = function Mine() {};
+            reqNatStub.returns(retVal);
+            let result = hs.resolveAndLoadSync('root/path', 'hndid');
+            expect(result).to.equal(retVal);
+        });
+
+        it('should throw when require returns non-function', () => {
+            reqNatStub.returns("some string");
+            expect(() => {
+                hs.resolveAndLoadSync('root/path', 'hndid');
+            }).to.throw();
+        });
+
+        it('should throw on no access', () => {
+            accessStub.throws(new Error("blah"));
+            expect(() => {
+                hs.resolveAndLoadSync('root/path', 'hndid');
+            }).to.throw();
+        });
+    });
+
+    describe('#formatPath', () => {
+        it('should add .js extension if missing', () => {
+            let result = hs.formatPath('something');
+            expect(result).to.equal('something.js');
+        });
+        it('should return unmodified, if not missing', () => {
+            let result = hs.formatPath('something.js');
+            expect(result).to.equal('something.js');
+        });
+    });
+
     describe('#resolveAndLoad', () => {
         let crequireStub: sinon.SinonStub;
         beforeEach(() => {

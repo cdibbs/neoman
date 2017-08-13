@@ -43,6 +43,8 @@ export class HandlerService implements i.IHandlerService {
         if (! id.endsWith(".js")) {
             return id + ".js";
         }
+
+        return id;
     }
 
     checkAndRequire(path: string): Promise<Function> {
