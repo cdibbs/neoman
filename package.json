@@ -31,7 +31,8 @@
       "typings",
       "src/e2e/resources",
       "**/*.d.ts",
-      "**/*.spec.ts"
+      "**/*.spec.ts",
+      "**/i-*.ts"
     ],
     "reporter": [
       "json",
