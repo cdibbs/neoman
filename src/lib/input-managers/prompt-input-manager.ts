@@ -2,6 +2,7 @@ import { injectable, inject } from 'inversify';
 import TYPES from '../di/types';
 
 import { BaseInputManager } from './base-input-manager';
+import { curry } from '../util/curry';
 import * as i from '../i';
 import * as it from '../i/template';
 
@@ -16,37 +17,56 @@ export class PromptInputManager extends BaseInputManager {
 
     ask(config: it.IInputConfig): Promise<{ [key: string]: any }> {
         let promise: Promise<{ [key: string]: any }> = null;
-        let count = Object.keys(config.define).length;
+        let count = this.countQuestions(config.define);
         let current = 0;
         for(let key in config.define) {
             let q = `(${current + 1}/${count}) ${config.define[key]}`;
             if (promise === null) {
-                promise = this.prompt(q).then(a => { let answers = {}; answers[key] = a; return answers; });
+                promise = this.askNextQuestion(key, q, {});
             } else {
-                promise = promise.then((answers: { [key: string]: any }) => {
-                    return this.prompt(q).then(a => { answers[key] = a; return answers; });
-                })
+                promise = promise.then(curry.twoOf3(this.askNextQuestion, this, key, q));
             }
         }
 
-        return promise || new Promise(resolve => resolve({}));
+        return promise || Promise.resolve({});
     }
 
-    protected prompt(question: string | it.ITemplateTypedInput | it.ITemplateScriptedInput ): Promise<string> {
-        return new Promise((resolve, reject) => {
-            try {
-                if (typeof question !== "string")
-                    throw new Error(this.msg.i18n().mf("Not supported, yet."));
+    protected askNextQuestion(key: string, q: string, answers: { [key: string]: any }): Promise<{ [key: string]: any }>
+    {
+        return this.prompt(q).then(curry.twoOf3(this.acceptInput, this, answers, key));
+    }
 
-                this.process.stdin.resume();
-                this.process.stdout.write(question, () => {});
-                this.process.stdin.once('data', function (data: any) {
-                    resolve(data.toString().trim());
-                });
-            } catch(err) {
-                reject(err);
-            }
-        });
+    protected acceptInput(answers: { [key: string]: any }, key: string, answer: any): { [key: string]: any }
+    {
+        answers[key] = answer;
+        return answers
+    }
+
+    protected prompt(question: string | it.ITemplateTypedInput | it.ITemplateScriptedInput ): Promise<string>
+    {
+        return new Promise(curry.oneOf3(this.promptCallback, this, question));
+    }
+
+    protected promptCallback(
+        question: string | it.ITemplateTypedInput | it.ITemplateScriptedInput,
+        callback: (data: any) => void,
+        errorCallback: (e: Error) => void): void
+    {
+        try {
+            if (typeof question !== "string")
+                throw new Error(this.msg.i18n().mf("Not supported, yet."));
+
+            this.process.stdin.resume();
+            this.process.stdout.write(question, () => {});
+            this.process.stdin.once('data', curry.oneOf2(this.awaitInput, this, callback));
+        } catch(err) {
+            errorCallback(err);
+        }
+    }
+
+    protected awaitInput(callback: (data: any) => void, data: any): void
+    {
+        callback(data.toString().trim());
     }
 
     protected countQuestions(inputs: it.ITemplateInputs): number {
