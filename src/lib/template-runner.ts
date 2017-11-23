@@ -11,6 +11,7 @@ import * as i from './i';
 import * as iemitters from './emitters/i';
 import { ITemplate, Transforms, PathTransforms } from './i/template';
 import * as it from './transformers/i';
+import { curry } from './util/curry';
 
 @injectable()
 export class TemplateRunner implements i.ITemplateRunner {
@@ -147,7 +148,7 @@ export class TemplateRunner implements i.ITemplateRunner {
         ignore: string[] = []): Promise<RunnerResult>
     {
         return this.readdir(dir)
-            .then<RunnerResult[]>(files => Promise.all(files.map(this.processFileInfo.bind(this, baseDir, dir, include, ignore, emitter))))
+            .then<RunnerResult[]>(files => Promise.all(files.map(curry.fiveOf6(this.processFileInfo, this, baseDir, dir, include, ignore, emitter))))
             .then((results: RunnerResult[]) => results.reduce<RunnerResult>((p, c) => this.combineResults(p, c), new RunnerResult()))
             .catch(err => { emitter.emit('error', err); return new RunnerResult(); });
     }
@@ -174,7 +175,7 @@ export class TemplateRunner implements i.ITemplateRunner {
         return <Promise<RunnerResult>>this.stat(p)
             .then(this.prepareFileInfo.bind(this, baseDir, p, include, ignore, emitter))
             .then<RunnerResult>(this.handleFileInfo.bind(this, baseDir, p, include, ignore, emitter))
-            .catch(err => emitter.emit('error', err));
+            .catch<void>(err => emitter.emit('error', err));
     }
 
     protected prepareFileInfo(
