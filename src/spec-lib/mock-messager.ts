@@ -1,3 +1,5 @@
+import * as sinon from 'sinon';
+
 import * as path from 'path';
 import { UserMessager } from '../lib/user-messager';
 import * as i from '../lib/i';
@@ -24,9 +26,9 @@ export let mockMessagerFactory = () => {
 
     let m = new UserMessager(i18n.__mf);
     m["console"] = <any>{
-        log: () => {},
-        error: () => {},
-        warn: () => {}
+        log: sinon.stub(),
+        error: sinon.stub(),
+        warn: sinon.stub()
     };
     return m;
 }

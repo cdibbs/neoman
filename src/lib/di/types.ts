@@ -20,7 +20,9 @@ let TYPES = {
     CustomInputManager: Symbol("CustomInputManager"),
     PromptInputManager: Symbol("PromptInputManager"),
     HandlerService: Symbol("HandlerService"),
-    i18n: Symbol("i18n")
+    i18n: Symbol("i18n"),
+    Mapper: Symbol("Mapper"),
+    SettingsType: Symbol("SettingsType")
 }
 
 export default TYPES;

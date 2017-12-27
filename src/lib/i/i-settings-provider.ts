@@ -1,4 +1,4 @@
 export interface ISettingsProvider {
-    get(key: string): string;
-    set(key: string, value: string): void;
+    get(key: string): any;
+    set(key: string, value: any): void;
 }

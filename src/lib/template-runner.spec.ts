@@ -16,7 +16,7 @@ import { VERBOSITY, Verbosity } from './types/verbosity';
 import * as i from './i';
 import * as itmp from './i/template';
 import * as itm from './transformers/i';
-import { mockMessagerFactory, mockPathFactory } from '../spec-lib';
+import { mockMessagerFactory, mockPathFactory, mockFSFactory } from '../spec-lib';
 
 describe('TemplateRunner', () => {
     var tr: TemplateRunner;
@@ -32,11 +32,7 @@ describe('TemplateRunner', () => {
                 return [];
             }
         };
-        let fs: i.IFileSystem = {
-            readdirSync: (...args: any[]) => [],
-            statSync: (...args: any[]) => <Stats>{},
-            readFileSync: (...args: any[]) => ""
-        };
+        let fs: i.IFileSystem = mockFSFactory();
         let patterns: i.IFilePatterns = {
             match: (path: string, patterns: string[]) => []
         };

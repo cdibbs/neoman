@@ -1,7 +1,6 @@
 import * as i from '../lib/i';
 
-export let mockPathFactory = () => {
-    let sep = "/";
+export let mockPathFactory = (sep: string = "/") => {
     return <i.IPath> {
         sep: sep,
         join: (...args: any[]) => args.join(sep),

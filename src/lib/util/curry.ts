@@ -24,13 +24,7 @@ export namespace curry {
     {
         return fn.bind(self, a);
     }
-
-    /**
-     * Make binding testable and type safe. Binds this obj + 1 param.
-     * @param fn - function to curry
-     * @param self - self to bind
-     * @param a - parameter to bind
-     */
+    
     export function oneOf3<TThis, T1, T2, T3, T4>(
         fn: (a: T1, b: T2, c: T3) => T4,
         self: TThis,

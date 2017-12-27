@@ -1,3 +1,3 @@
 export default {
-    tempDirKey: "templateDir"
+    tempDirKey: "templateDirectory"
 }

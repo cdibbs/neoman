@@ -1,7 +1,8 @@
 /// <reference path="../../node_modules/@types/mocha/index.d.ts" />
 /// <reference path="../../node_modules/@types/chai/index.d.ts" />
 //import * as fs from 'fs';
-import * as path from 'path';
+import path = require('path');
+import fs = require('fs');
 import 'reflect-metadata';
 import 'mocha';
 import * as sinon from 'sinon';
@@ -10,46 +11,34 @@ let expect = chai.expect, assert = chai.assert;
 
 import { containerBuilder } from '../lib/di/container';
 import TYPES from '../lib/di/types';
-import { IKernel, ISettingsProvider, IFileSystem } from '../lib/i';
+import { UserMessager } from '../lib/user-messager';
+import { IKernel, ISettingsProvider, IFileSystem, IUserMessager } from '../lib/i';
+import { mockMessagerFactory } from '../spec-lib';
 
-// Began playing with mock-fs
-// https://github.com/unexpectedjs/unexpected-fs/blob/master/index.js#L22-L35
 describe('Simple', () => {
     let app: IKernel;
     let mockedPath = '/tmp/neoman-e2e'
+    let msgr: IUserMessager;
     beforeEach(() => {
-        let spget = sinon.stub();
-        spget.returns('/tmp/mytemplates');
-        let cb = containerBuilder({ version: "1.0" }, path.join(__dirname, '../..', "/locales"));
-        let fsspec = {
-            "something": "whoa",
-            "tmp": {
-                "mytemplates": {
-                    "t-one": {
-                        ".neoman.config": {
-                            "template.json": '{ "name": "what", "identity": "one" }'
-                        }
-                    }
-                }
-            }
-        };
-        //mockfs(fsspec);
-        //let fs = require('fs');
-        //cb.rebind<IFileSystem>(TYPES.FS).toConstantValue(fe.fs);
-        cb.rebind<ISettingsProvider>(TYPES.SettingsProvider).toConstantValue( { get: spget, set: spget });
-        app = cb.get<IKernel>(TYPES.Kernel);
-
+        var cont = containerBuilder({ version: "1.2.3" }, "locales/");
+        console.log(process.env.HOME)
+        if (! process.env.USERPROFILE) {
+            cont.rebind<NodeJS.Process>(TYPES.Process).toDynamicValue(() => <NodeJS.Process><any>{ env: { HOME: "/tmp" }, exit: process.exit });
+        } else {
+            cont.rebind<NodeJS.Process>(TYPES.Process).toDynamicValue(() => <NodeJS.Process><any>{ env: { USERPROFILE: "C:\\temp\\" }, exit: process.exit });
+        }
+        // WIP capture stdout directly
+        //msgr = mockMessagerFactory();
+        //cont.rebind<IUserMessager>(TYPES.UserMessager).toDynamicValue(() => msgr);
+        app = cont.get<IKernel>(TYPES.Kernel);
     });
 
     afterEach(() => {
-        //mockfs.restore();
+        
     });
 
-    it('runs', () => {
-        app.Go(["node", "neoman", "help"]);
+    it('runs', (cb) => {
+        app.Go(["node", "neoman", "list"]);
+        cb();
     });
 });
-
-function loadFS(path: string): any {
-
-}

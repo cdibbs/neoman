@@ -17,8 +17,10 @@ import { InputManager, BrowserInputManager, CustomInputManager, PromptInputManag
 import { Kernel, SettingsProvider, TemplateManager } from "./entities";
 import { CommandFactory, SetDirCommand, NewCommand, ListCommand, InfoCommand } from '../commands';
 import { ICommand, ICommandFactory } from "../commands/i";
+import { MapperService, IMapperService } from 'simple-mapper';
 import * as i from '../i';
 import * as it from '../transformers/i';
+import * as m from '../models';
 
 export let containerBuilder = (packageJson: any = null, localesPath?: string): Container => {
     let json = packageJson || require(path.join(path.dirname(__filename), "../../package.json"));
@@ -40,6 +42,8 @@ export let containerBuilder = (packageJson: any = null, localesPath?: string): C
     container.bind<i.IInputManager>(TYPES.BrowserInputManager).to(BrowserInputManager);
     container.bind<i.IInputManager>(TYPES.CustomInputManager).to(CustomInputManager);
     container.bind<i.IInputManager>(TYPES.PromptInputManager).to(PromptInputManager);
+    container.bind<IMapperService>(TYPES.Mapper).to(MapperService);
+    container.bind(TYPES.SettingsType).toDynamicValue(() => m.Settings);
 
     let lobj = <typeof i18n>{};
     i18n.configure({

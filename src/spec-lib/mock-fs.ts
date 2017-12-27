@@ -5,6 +5,7 @@ export let mockFSFactory = () => {
     return <IFileSystem> {
             readdirSync: (...args: any[]) => [],
             statSync: (...args: any[]) => <Stats>{},
-            readFileSync: (...args: any[]) => ""
+            readFileSync: (...args: any[]) => "",
+            writeFileSync: (...args: any[]) => {}
         };
 }
