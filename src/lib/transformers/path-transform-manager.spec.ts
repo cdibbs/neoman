@@ -31,6 +31,14 @@ describe('PathTransformManager', () => {
             tm["transformAll"] = taStub;
         });
 
+        it('should return the input as is when transform undefined', () => {
+            let rdef: any[] = undefined;
+
+            let result = tm["applyTransforms"](path, rdef);
+
+            expect(result).to.equal(path);
+        });
+
         it('should cast to array when array', () => {
             let rdef: any[] = [];
 

@@ -23,7 +23,9 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
     }
 
     applyTransforms(path: string, tdef: ir.PathTransforms): string {
-        if (tdef instanceof Array) {
+        if (typeof tdef === "undefined") {
+            return path;
+        } else if (tdef instanceof Array) {
             return this.transformAll(path, <ir.IPathTransform[]>tdef);
         } else if (typeof tdef === "string") { // simple regexp?
             return this.transformAll(path, [this.regexToTransform<ir.IPathTransform>(tdef)]);
