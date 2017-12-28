@@ -32,6 +32,14 @@ describe('TransformManager', () => {
             tm["replaceInFile"] = rifStub;
         });
 
+        it('should return input as-is when undefined', () => {
+            let rdef: any[] = undefined;
+
+            let result = tm["applyTransforms"](path, content, rdef);
+            
+            expect(result).to.equal(content);
+        });
+
         it('should cast to array when array', () => {
             let rdef: any[] = [];
 

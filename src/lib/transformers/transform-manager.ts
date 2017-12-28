@@ -20,7 +20,9 @@ export class TransformManager extends BaseTransformManager implements i.ITransfo
     }
 
     applyTransforms(path: string, content: string, rdef: ir.Transforms): string {
-        if (rdef instanceof Array) {
+        if (typeof rdef === "undefined") {
+            return content;
+        } else if (rdef instanceof Array) {
             return this.replaceInFile(path, content, <ir.ITransform[]>rdef);
         } else if (typeof rdef === "string") { // simple regexp
             return this.replaceInFile(path, content, [this.regexToTransform(rdef)]);
