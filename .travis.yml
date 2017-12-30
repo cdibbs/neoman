@@ -4,6 +4,7 @@ dist: trusty
 
 os:
 - linux
+- osx
 
 node_js:
 - '6.9.4'
