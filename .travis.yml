@@ -14,4 +14,4 @@ install:
 
 script:
   - npm run cover
-  - npm run report_coverage
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run report_coverage; fi
