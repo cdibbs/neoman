@@ -15,10 +15,12 @@ export class BaseCommand<TOpts, TArgs> implements ICommand<TOpts, TArgs> {
         @inject(TYPES.Process) protected process: NodeJS.Process
     ) {}
 
-    public run(opts: TOpts, args: TArgs): void {
+    public run(opts: TOpts, args: TArgs): Promise<{}> {
         if (! this.tempDir || ! this.tempDir.trim()) {
             this.msg.i18n().error("You have not set a template directory. Please run setdir, first.");
-            this.process.exit(1);
+            this.process.exit(1); // can be no-op in integ tests
         }
+
+        return Promise.resolve(null);
     }
 }

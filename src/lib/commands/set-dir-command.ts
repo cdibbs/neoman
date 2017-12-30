@@ -1,4 +1,6 @@
 import { inject, injectable } from 'inversify';
+let NestedError = require('nested-error-stacks');
+
 import { Commands, COMMANDS } from './commands';
 import { BaseCommand } from './base-command';
 import * as i from '../i';
@@ -19,7 +21,7 @@ export class SetDirCommand extends BaseCommand<any, any> {
         super(msg, process);
     }
 
-    run(opts: any, args: any) {
+    run(opts: any, args: any): Promise<{}> {
         let imsg = this.msg.i18n({dir: args.directory});
         imsg.info('Setting directory to {dir}');
 
@@ -27,9 +29,9 @@ export class SetDirCommand extends BaseCommand<any, any> {
         try {
             stats = this.fs.statSync(args.directory);
         } catch(ex) {
-            this.msg.warn(ex);
-            imsg.warn("Error accessing '{dir}'.");
-            return;
+            var nerr = new NestedError(imsg.mf("Error accessing '{dir}'."), ex);
+            this.msg.warn(nerr);
+            return Promise.reject(nerr);
         }
 
         if (! stats.isDirectory()) {
@@ -37,5 +39,6 @@ export class SetDirCommand extends BaseCommand<any, any> {
         }
         
         this.settings.set(KEYS.tempDirKey, this.path.resolve(args.directory));
+        return Promise.resolve(null);
     }
 }

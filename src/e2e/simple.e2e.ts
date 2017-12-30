@@ -32,26 +32,36 @@ describe('Simple', () => {
     let mockedPath = '/tmp/neoman-e2e'
     let msgr: IUserMessager;
     beforeEach(() => {
-        var cont = containerBuilder({ version: "1.2.3" }, "locales/");
-        console.log(process.env.HOME)
-        if (! process.env.USERPROFILE) {
-            cont.rebind<NodeJS.Process>(TYPES.Process).toDynamicValue(() => <NodeJS.Process><any>{ env: { HOME: "/tmp" }, exit: process.exit });
-        } else {
-            cont.rebind<NodeJS.Process>(TYPES.Process).toDynamicValue(() => <NodeJS.Process><any>{ env: { USERPROFILE: "C:\\temp\\" }, exit: process.exit });
-        }
+        let cont = buildContainer();
         // WIP capture stdout directly
         //msgr = mockMessagerFactory();
         //cont.rebind<IUserMessager>(TYPES.UserMessager).toDynamicValue(() => msgr);
         app = cont.get<IKernel>(TYPES.Kernel);
+        return app
+            .Go(["node", "neoman", "setdir", "./examples"])
+            .then(() => {
+                cont = buildContainer();
+                app = cont.get<IKernel>(TYPES.Kernel)
+            });
     });
 
     afterEach(() => {
         
     });
 
-    it('runs', (cb) => {
-        app.Go(["node", "neoman", "setdir", "./src/e2e/resources"]);
-        app.Go(["node", "neoman", "list"]);
-        cb();
+    it('runs', () => {
+        return app
+            .Go(["node", "neoman", "list"])
+            .then((r) => console.log("finished", r))
     });
+
+    function buildContainer() {
+        var cont = containerBuilder({ version: "1.2.3" }, "locales/");
+        if (! process.env.USERPROFILE) {
+            cont.rebind<NodeJS.Process>(TYPES.Process).toDynamicValue(() => <NodeJS.Process><any>{ env: { HOME: "/tmp" }, exit: process.exit });
+        } else {
+            cont.rebind<NodeJS.Process>(TYPES.Process).toDynamicValue(() => <NodeJS.Process><any>{ env: { USERPROFILE: "C:\\temp\\" }, exit: process.exit });
+        }
+        return cont;
+    }
 });

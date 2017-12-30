@@ -9,6 +9,7 @@ import { IFileSystem, IGlob, IPath, IUserMessager } from '../i';
 export class ListCommand extends BaseCommand<any, any> {
     type: Commands = COMMANDS.ListTemplates;
     neomanPath: string = "*/.neoman.config/template.json";
+    resolve: (value?: any | PromiseLike<any>) => void;
 
     constructor(
         @inject(TYPES.UserMessager) protected msg: IUserMessager,
@@ -20,8 +21,11 @@ export class ListCommand extends BaseCommand<any, any> {
         super(msg, process);
     }
 
-    run(opts: any, args: any): void {
+    run(opts: any, args: any): Promise<any> {
         super.run(opts, args);
+        let promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+        });
 
         this.msg.i18n({tempDir: this.tempDir})
             .info("Listing templates in your template directory.")
@@ -30,6 +34,7 @@ export class ListCommand extends BaseCommand<any, any> {
         let g = new this.glob.Glob(this.neomanPath, { cwd: this.tempDir });
         g.on("match", this.bind(this.match));
         g.on("end", this.bind(this.end));
+        return promise;
     }
 
     match(file: string): any {
@@ -45,7 +50,9 @@ export class ListCommand extends BaseCommand<any, any> {
     }
 
     end(allFiles: string[]): any {
-        this.msg.i18n({num: (allFiles || []).length}).info(`\n{num} template(s) found.\n`);
+        let qty = (allFiles || []).length;
+        this.msg.i18n({num: qty}).info(`\n{num} template(s) found.\n`);
+        this.resolve(qty);
     }
 
     bind<T extends (...args: any[]) => any>(fn: T): T {

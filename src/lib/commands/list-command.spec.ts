@@ -65,6 +65,9 @@ describe('ListCommand', () => {
     });
 
     describe("#end", () => {
+        beforeEach(() => {
+            c.resolve = sinon.stub();
+        });
         it('should not error.', () => {
             assert.doesNotThrow(() => c.end(["one", "two"]));
             assert.doesNotThrow(() => c.end([]));

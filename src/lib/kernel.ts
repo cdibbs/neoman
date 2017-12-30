@@ -8,13 +8,13 @@ import { curry } from './util/curry';
 import { ICommandFactory, INewCmdOpts, INewCmdArgs, IInfoCmdArgs, IInfoCmdOpts } from './commands/i';
 import TYPES from './di/types';
 import KEYS from './settings-keys';
-import { ISettingsProvider, IPackage, IUserMessager, Ii18nFunction } from './i';
+import { ISettingsProvider, IPackage, IUserMessager, Ii18nFunction, IKernel } from './i';
 
 /**
  * Contains the core code to run the application. Only DI runs before this.
  */
 @injectable()
-export class Kernel {
+export class Kernel implements IKernel {
     private tempDir: string;
     private commandpost = commandpost;
 
@@ -29,7 +29,7 @@ export class Kernel {
         this.tempDir = this.settings.get(KEYS.tempDirKey);
     }
 
-    Go(argv: string[] = process.argv): void {
+    Go(argv: string[] = process.argv): Promise<{}> {
         try {
             let imsg = this.msg.i18n();
             let root = commandpost
@@ -71,17 +71,19 @@ export class Kernel {
                 .description(imsg.mf("Get detailed information for a given template identifier."))
                 .action(infoCmd.run.bind(infoCmd));
 
-            this.commandpost
+            return this.commandpost
                 .exec(root, argv)
                 .catch(curry.bindOnly(this.handleError, this));
         } catch (ex) {
-            this.handleError(ex);
+            return this.handleError(ex);
         }
     }
 
-    handleError(err: Error): void {
-        this.msg.error(new NestedError(this.msg.mf("There was an unexpected error.")));
+    handleError(err: Error): Promise<{}> {
+        let nerr = new NestedError(this.msg.mf("There was an unexpected error."), err);
+        this.msg.error(nerr);
         this.msg.error(err.stack);
-        this.process.exit(1);
+        this.process.exit(1); // can be no-op in integ tests
+        return Promise.reject(nerr);
     }
 }

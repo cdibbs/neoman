@@ -1,3 +1,3 @@
 export interface IKernel {
-    Go(argv?: string[]): void;
+    Go(argv?: string[]): Promise<{}>;
 }
