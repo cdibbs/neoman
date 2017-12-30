@@ -1,5 +1,6 @@
 [![npm version](https://badge.fury.io/js/neoman.svg)](https://badge.fury.io/js/neoman)
 [![Build Status](https://travis-ci.org/ossplz/neoman.svg?branch=master)](https://travis-ci.org/ossplz/neoman)
+[![Windows Build status](https://ci.appveyor.com/api/projects/status/6ngl64ck83opvekl?svg=true)](https://ci.appveyor.com/project/OSSPlz/neoman)
 [![dependencies Status](https://david-dm.org/ossplz/neoman/status.svg)](https://david-dm.org/ossplz/neoman)
 [![devDependencies Status](https://david-dm.org/ossplz/neoman/dev-status.svg)](https://david-dm.org/ossplz/neoman?type=dev)
 [![codecov](https://codecov.io/gh/ossplz/neoman/branch/master/graph/badge.svg)](https://codecov.io/gh/ossplz/neoman)
