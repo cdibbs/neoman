@@ -15,6 +15,18 @@ import { UserMessager } from '../lib/user-messager';
 import { IKernel, ISettingsProvider, IFileSystem, IUserMessager } from '../lib/i';
 import { mockMessagerFactory } from '../spec-lib';
 
+/**
+ * List of integration tests to write:
+ * - Set directory
+ * - Display help
+ * - Show project info
+ * - Run different kinds of templates
+ *   - Simplest, prove that bare bones template.json works
+ *   - Various path and content transforms with input.
+ *   - Pre- and post-hooks
+ *   - Handlers
+ */
+
 describe('Simple', () => {
     let app: IKernel;
     let mockedPath = '/tmp/neoman-e2e'
@@ -38,6 +50,7 @@ describe('Simple', () => {
     });
 
     it('runs', (cb) => {
+        app.Go(["node", "neoman", "setdir", "./src/e2e/resources"]);
         app.Go(["node", "neoman", "list"]);
         cb();
     });

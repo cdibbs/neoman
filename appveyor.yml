@@ -1,0 +1,7 @@
+# https://github.com/atom/ci
+
+build_script:
+  - ps: npm run test
+
+skip_tags: true
+test: off
