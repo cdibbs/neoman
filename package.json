@@ -10,9 +10,9 @@
   "author": "Chris Dibbern",
   "license": "ISC",
   "scripts": {
-    "test": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\",\\\"project\\\":\\\"tsconfig-mocha.json\\\"} TS_NODE_CACHE=false mocha --recursive --compilers ts:ts-node/register --compilerOptions --bail src/lib/*.spec.ts src/lib/**/*.spec.ts src/e2e/*.e2e.ts",
+    "test": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\",\\\"project\\\":\\\"tsconfig-mocha.json\\\"} TS_NODE_CACHE=false mocha --recursive --require ts-node/register --compilerOptions --bail src/lib/*.spec.ts src/lib/**/*.spec.ts src/e2e/*.e2e.ts",
     "cover": "nyc npm test",
-    "e2e": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\",\\\"project\\\":\\\"tsconfig-mocha.json\\\"} TS_NODE_CACHE=false mocha --recursive --compilers ts:ts-node/register --compilerOptions --bail src/e2e/*.e2e.ts",
+    "e2e": "cross-env TS_NODE_COMPILER_OPTIONS={\\\"module\\\":\\\"commonjs\\\",\\\"project\\\":\\\"tsconfig-mocha.json\\\"} TS_NODE_CACHE=false mocha --recursive --require ts-node/register --compilerOptions --bail src/e2e/*.e2e.ts",
     "build": "npm-run-all tsc copystatic copylocales",
     "tsc": "tsc",
     "report_coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
