@@ -37,6 +37,12 @@ describe(InputManager.name, () => {
             im["generateDefaults"] = gstub;
         });
 
+        it('should return empty dictionary on undefined input configuration', () => {
+            return im["ask"](undefined).then(res => {
+                expect(res).to.deep.equal({});
+            });
+        });
+
         it('should use prompt manager, if ui type undefined', () => {
             let config = {};
             let answers = { hoha: "me" };

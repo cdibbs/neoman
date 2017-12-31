@@ -11,12 +11,17 @@ export class InputManager extends BaseInputManager {
     constructor(
         @inject(TYPES.PromptInputManager) private promptMgr: i.IInputManager,
         @inject(TYPES.BrowserInputManager) private browserMgr: i.IInputManager,
-        @inject(TYPES.CustomInputManager) private customMgr: i.IInputManager
+        @inject(TYPES.CustomInputManager) private customMgr: i.IInputManager,
+        @inject(TYPES.UserMessager) private msg: i.IUserMessager
     ) {
         super();
     }
 
     ask(config: it.IInputConfig): Promise<{ [key: string]: any }> {
+        if (typeof config === 'undefined') {
+            return Promise.resolve({});
+        }
+        
         try {
             let use: it.ICustomInputInterface | string = config.use;
 
@@ -39,7 +44,7 @@ export class InputManager extends BaseInputManager {
 
             return Promise.reject(`Unrecognized input section format: ${use}.`);
         } catch(err) {
-            return Promise.reject(new NestedError(`Unexpected error asking for ${(config || {}).use} input`, err));
+            return Promise.reject(new NestedError(`Unexpected error asking for ${config.use} input`, err));
         }
     }
 
