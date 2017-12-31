@@ -56,5 +56,6 @@
 	"      Int. result: {path}": "      Int. result: {path}",
 	"    Skipping path transform def #{i} (no match: \"{subject}\").": "    Skipping path transform def #{i} (no match: \"{subject}\").",
 	"    Applying transform definition for \"{subject}\"{src}.": "    Applying transform definition for \"{subject}\"{src}.",
-	"    Skipping transform definition for \"{subject}\"{src}.": "    Skipping transform definition for \"{subject}\"{src}."
+	"    Skipping transform definition for \"{subject}\"{src}.": "    Skipping transform definition for \"{subject}\"{src}.",
+	"Template root is not a directory: {root}.": "Template root is not a directory: {root}."
 }

@@ -39,6 +39,7 @@ describe(TemplateManager.name, () => {
             gstub.returns(fakeGlobEmitter);
             tm["glob"] = <any>{ Glob: gstub };
             tm["fs"].readFileSync = () => '{ "some" : "json" }';
+            tm["fs"].statSync = () => { return <any>{ isDirectory: true }; };
 
             let emitter = tm["list"]();
             emitter.on('match', ematchStub);
@@ -210,6 +211,7 @@ describe(TemplateManager.name, () => {
             emitter = <any>{ emit: eemitStub };
             tm['path'].dirname = dirnameStub;
             tm['fs'].readFileSync = rfsStub;
+            tm["fs"].statSync = () => { return <any>{ isDirectory: true }; };
         });
         it('should load and parse json contents by full path', () => {
             let json = '{ "some": "json" }';

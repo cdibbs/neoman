@@ -103,10 +103,26 @@ export class TemplateManager implements ITemplateManager {
             let fullPath = this.path.join(this.tmplDir, file);
             try {
                 let tmpl = JSON.parse(this.fs.readFileSync(fullPath, 'utf8'));
-                tmpl.__tmplPath = this.path.join(this.path.dirname(fullPath), '..');
+                let tmplAbsRoot = this.path.join(this.path.dirname(fullPath), '..');
+                tmpl.__tmplPath = this.getTemplateRoot(tmpl, tmplAbsRoot);
                 emitter.emit("match", tmpl);
             } catch (ex) {
                 emitter.emit("error", ex);
             }
+    }
+
+    private getTemplateRoot(tmpl: any, absRoot: string): string {
+        let root = absRoot;
+        if (typeof tmpl.root === "string") {
+            let root = this.path.join(absRoot, tmpl.root);
+        } else if (typeof tmpl.root !== "undefined") {
+            throw new Error(this.msg.i18n().mf("Element 'root' (JsonPath: $.root) within template.json must be a string."));
+        }
+
+        if (this.fs.statSync(root).isDirectory) {
+            return root;
+        }
+
+        throw new Error(this.msg.i18n({root}).mf("Template root is not a directory: {root}."));
     }
 }
