@@ -236,6 +236,19 @@ describe(TemplateManager.name, () => {
             expect(eemitStub.calledWith("error", sinon.match.any)).to.be.false;
         });
 
+        it('should emit match with config-adjusted relative path', () => {
+            let json = '{ "some": "json", "root": "./subdirectory" }';
+            rfsStub.returns(json);
+            dirnameStub.returns("/tmp/fullpath/sometmpl/.neoman.config");
+            tm["tmplDir"] = "/tmp/fullpath";
+
+            tm["templateMatch"](emitter, "sometmpl/.neoman.config/template.json");
+
+            sinon.assert.calledWith(dirnameStub, "/tmp/fullpath/sometmpl/.neoman.config/template.json");
+            sinon.assert.calledWith(eemitStub, "match", { "some": "json", "root": "./subdirectory", "__tmplPath": "/tmp/fullpath/sometmpl/.neoman.config/.././subdirectory" });
+            expect(eemitStub.calledWith("error", sinon.match.any)).to.be.false;
+        });
+
         it('should emit error with exception', () => {
             let err = new Error("my error message");
             rfsStub.throws(err);
