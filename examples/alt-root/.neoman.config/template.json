@@ -1,0 +1,65 @@
+{
+    "#": "See the readme.md file for an explanation of this example.",
+
+    "name": "Alternate root folder demo",
+    "description": "A demo template to show an alternative directory structure.",
+    "author": "Chris Dibbern",
+    "tags": {
+        "keywords": [ "alternative", "root", "templating", "demo" ], 
+        "language": "HTML", "#": "The dominant language in this solution."
+    },
+    "root": "./my-project",
+
+    "identity": "rootdemo", "#": "A unique ID for the project template. Used when creating a project from a template.",
+    "shortName": "root", "#": "You can create the project using this short name instead of the one above.",
+
+    "#": "Provides a way of interacting with the user.",
+    "input": {
+        "use": "prompt",
+        "define": {
+            "title": "What will be the title of your website?",
+            "subtitle": "What subtitle?"
+        }
+    },
+
+    "#": [
+        "Transforms occur in the order they are defined. They apply to all files unless constrained by a",
+        "configuration type, glob, or ."],
+    "transform": [
+        "# Strings like this are comments, in this section.",
+        { "subject": "text", "with": "content: {{subtitle}}", "files": ["**/*.html"] },
+        { "subject": "content", "with": { "handler": "uppercase" }, "files": ["**/*.html"] },
+        { "subject": "$.name", "with": "{{title}}", "using": "json", "params": { "action": "set", "type": "string" } },
+        { "subject": "$.description", "with": { "handler": "uppercase" }, "using": "json", "params": { "action": "set", "type": "string" } },
+        { "subject": "$.tags[2]", "with": "super", "using": "json", "params": { "action": "set", "type": "string" } },
+        { "subject": "$.tags[3]", "with": "314", "using": "json", "params": { "action": "set", "type": "number" } },
+        { "subject": "$.tags[3]", "with": "653", "using": "json", "params": { "action": "append", "type": "number" } },
+        { "subject": "html>body>h1:first-child", "with": "My new title: {{title}}", "using": "html", "params": { "type": "text" } }
+    ],
+
+    "#": [
+        "File transforms occur in the order they are defined. Multiple transforms might apply to the same file.",
+        "Subject is always a regular expression. With can reference groupings from subject.",
+        "Input and output paths are always relative to the destination."
+    ],
+    "pathTransform": [
+        "/index.(\\d{4})-(\\d{2})-(\\d{2}).html/index$1$2$3.html/"
+    ],
+
+    "#": "We're leaving out unnecessary sections, in this example, such as files and ignore.",
+    "files": [ "**/*.html", "package.json" ],
+
+    "#": "Optional section to define configurations per file type.",
+    "configurations": {
+        "#": "Configuration keys should be short but descriptive. ",
+        "html": {
+            "files": ["**/*.html"],
+            "plugin": "xml",
+            "#": "Will try to find the plugin in ./plugins, first, then node_modules? Let's see."
+        },
+        "json": {
+            "files": ["**/*.json"],
+            "plugin": "json"
+        }
+    }
+}

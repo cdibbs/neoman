@@ -1,0 +1,31 @@
+{
+	"compilerOptions": {
+        "baseUrl": "./",
+		"experimentalDecorators": true,
+		"lib": ["es2015", "dom"],
+		"module": "commonjs",
+		"target": "es6",
+		"noImplicitAny": true,
+		"suppressImplicitAnyIndexErrors": true,
+		"moduleResolution": "node",
+		"emitDecoratorMetadata": true,
+		"sourceMap": true,
+		"declaration": true,
+		"outDir": "test",
+		"removeComments": false,
+		"typeRoots": [
+			"../../node_modules/@types",
+			"../lib/types"
+		],
+		"types": [
+			"@types/node"
+		]
+	},
+	"include": [
+		"**/*.e2e.ts"
+	],
+	"exclude": [
+		"./resources",
+		"node_modules"
+	]
+}

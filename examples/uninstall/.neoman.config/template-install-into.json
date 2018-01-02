@@ -1,0 +1,21 @@
+{
+    "inherits":  {
+        "file": "template.json",
+
+        "#": "Removes prior to applying overrides specified in remaining file.",        
+        "removeJSONPaths": [
+            "$.input"
+        ]
+    },
+
+    "#": [
+        "Overrides are merge non-destructively, where possible. In the case of arrays, the final array",
+        "will be the concatenation of the values in both. With objects, keys and values will be appended.",
+        "Where values are primitives, they will replace the inherited value. If you want a particular object",
+        "or array to be replaced instead of merged, just remove it by adding its path to 'removeJSONPaths'",
+        "in the inherits section.",
+
+        "As usual with ignore, if a glob matches in files, also, ignore will override."
+    ],
+    "ignore": [ "package.json", ".git/**/*" ]
+}

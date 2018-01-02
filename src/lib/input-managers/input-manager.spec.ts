@@ -26,7 +26,7 @@ describe(InputManager.name, () => {
         bim = <any>{ ask: bask };
         cim = <any>{ ask: cask, configure: cconf };
 
-        im = new InputManager(pim, bim, cim);
+        im = new InputManager(pim, bim, cim, mockMessagerFactory());
         im.configure(mytmp);
     });
 
