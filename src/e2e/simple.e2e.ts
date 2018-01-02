@@ -34,7 +34,7 @@ import { BaseIntegrationTest } from './base-integration';
     }
 
     protected assertListsTemplates() { 
-        Expect(this.intercepted).toMatch(/Using: .*neoman\\examples\n/);
+        Expect(this.intercepted).toMatch(/Using: .*neoman[\\\/]examples\n/);
         Expect(this.intercepted).toMatch(/\trootdemo - Alternate root folder demo/);
         Expect(this.intercepted).toMatch(/4 template\(s\) found.\n/);
     }
