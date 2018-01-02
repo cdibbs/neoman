@@ -11,7 +11,7 @@
 		"emitDecoratorMetadata": true,
 		"sourceMap": true,
 		"declaration": true,
-		"outDir": "test",
+		"outDir": "../../test",
 		"removeComments": false,
 		"typeRoots": [
 			"../../node_modules/@types",
