@@ -11,6 +11,9 @@ import { IEventEmitter } from '../emitters/i';
 import { TemplateFilesEmitterType, EventEmitter } from '../emitters';
 import { INewCmdArgs, INewCmdOpts } from './i';
 import TYPES from '../di/types';
+import Command from 'commandpost/lib/command';
+import { curry } from '../util/curry';
+import { CommandValidationResult, CommandErrorType } from './models';
 
 @injectable()
 export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
@@ -25,15 +28,28 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
         super(msg, process);
     }
 
-    run(opts: INewCmdOpts, args: INewCmdArgs): Promise<any> {
-        super.run(opts, args);
+    run(cmdDef: Command<INewCmdOpts, INewCmdArgs>, opts: INewCmdOpts, args: INewCmdArgs): Promise<CommandValidationResult> {
+        return this.validate(cmdDef, opts, args)
+            .then(curry.twoOf3(this.runWithValidation, this, opts, args));
+    }
+
+    public runWithValidation(opts: INewCmdOpts, args: INewCmdArgs, validationResult: CommandValidationResult): Promise<any> {
+        if (validationResult.IsError) {
+            this.reportError(validationResult)
+            return Promise.reject(validationResult);
+        }
+
         let options = this.buildOptions(opts);
-        this.msg.write(`Generating project ${options.name} from template ${args.template}...`);
+        this.msg.write(`Generating project ${options.name} from template ${args.template}...`);        
         return this.tmplMgr
             .info(args.template)
-            .then(this.trunner.run.bind(this.trunner, options.path, options))
+            .then(curry.twoOf3(this.trunner.run, this.trunner, options.path, options))
             .then(this.exit.bind(this))
-            .catch(this.handleTmplRunnerError.bind(this));
+            .catch(this.reportError.bind(this));
+    }
+
+    public validate(cmd: Command<INewCmdOpts, INewCmdArgs>, opts: INewCmdOpts, args: INewCmdArgs): Promise<CommandValidationResult> {
+        return Promise.resolve(new CommandValidationResult());
     }
 
     buildOptions(opts: INewCmdOpts): RunOptions {
@@ -47,10 +63,14 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
         return options;
     }
 
-    protected handleTmplRunnerError(err: Error) {
-        this.msg.error(err.stack || err);
-        this.msg.i18n().info("Aborting.");
-        this.exit();
+    reportError(err: Error | CommandValidationResult): void {
+        if (err instanceof CommandValidationResult && err.ErrorType == CommandErrorType.UserError) {
+            this.msg.info(err.Message);
+        } else {
+            this.msg.i18n().error('There was an error running the project generator.');
+            this.msg.error(err['stack'] || err.toString());
+            this.exit();
+        }
     }
 
     protected exit() {

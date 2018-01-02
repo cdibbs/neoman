@@ -10,29 +10,33 @@ import * as nci from './i';
 
 import { BaseCommand } from './base-command';
 import { mockMessagerFactory } from '../../spec-lib'
+import Command from "commandpost/lib/command";
 
 describe('BaseCommand', () => {
+    let cmdDef: Command<any, any>;
     let nc: BaseCommand<any, any>;
     beforeEach(() => {
-        nc = new BaseCommand(mockMessagerFactory(), <any>{});
+        nc = new TestBaseCommand(mockMessagerFactory(), <any>{});
+        cmdDef = <any>{ help: () => "" };
     });
 
-    describe('#run', () => {
-        it("exits non-zero if tempDir not set.", () => {
-            let spy = sinon.spy();
+    describe('#validate', () => {
+        it("rejects if tempDir not set.", () => {
             nc.tempDir = "";
-            nc["process"].exit = <any>spy;
-            nc.run(<any>{}, <any>{});
-            expect(spy.calledOnce).to.be.true;
-            expect(spy.calledWith(1)).to.be.true;
+            var result = nc["validate"](cmdDef, <any>{}, <any>{});
+            assert.isRejected(result);
         });
 
-        it("does not exit if tempDir set.", () => {
-            let spy = sinon.spy();
+        it("resolves if tempDir set.", () => {
             nc.tempDir = "I am set!";
-            nc["process"].exit = <any>spy;
-            nc.run(<any>{}, <any>{});
-            expect(spy.calledOnce).to.be.false;
+            var result = nc["validate"](cmdDef, <any>{}, <any>{});
+            assert.isFulfilled(result);
         });
     });
 });
+
+class TestBaseCommand extends BaseCommand<any, any> {
+    public run(cmd: Command<any, any>, opts: any, args: any): Promise<{}> {
+        return Promise.resolve(null);
+    }    
+}

@@ -11,10 +11,13 @@ import { ITemplate } from '../i/template';
 import { mockMessagerFactory } from '../../spec-lib'
 
 import { InfoCommand } from './info-command';
+import Command from "commandpost/lib/command";
 
 describe('InfoCommand', () => {
     let ic: InfoCommand;
+    let cmdDef: Command<any, any>;
     beforeEach(() => {
+        cmdDef = <any>{ help: () => "" };
         ic = new InfoCommand(<i.ITemplateManager>{}, <i.ITemplateValidator>{ }, mockMessagerFactory(), <NodeJS.Process>{}, <i.IPath>{});
         let vstub = sinon.stub();
         vstub.returns([]);
@@ -32,11 +35,11 @@ describe('InfoCommand', () => {
             ic["tmplMgr"].info = tmplMgrStub;
             ic["reportError"] = errorNoop;
             ic["showTemplateInfo"] = infoNoop;
-            let results = ic.run(<nci.IInfoCmdOpts>{}, <nci.IInfoCmdArgs>{ tmplId: "none", template: "mytmp" });
+            let results = ic.run(cmdDef, <nci.IInfoCmdOpts>{}, <nci.IInfoCmdArgs>{ tmplId: "none", template: "mytmp" });
             return results 
                 .then(() => {
                     expect(errorNoop.called).to.be.false;
-                    sinon.assert.calledWith(infoNoop, info)
+                    sinon.assert.calledWith(infoNoop, info);
                 });
         });
 
@@ -49,7 +52,7 @@ describe('InfoCommand', () => {
             ic["tmplMgr"].info = tmplMgrStub;
             ic["reportError"] = errorNoop;
             ic["showTemplateInfo"] = infoNoop;
-            let results = ic.run(<nci.IInfoCmdOpts>{}, <nci.IInfoCmdArgs>{ tmplId: "none", template: "mytmp" });
+            let results = ic.run(cmdDef, <nci.IInfoCmdOpts>{}, <nci.IInfoCmdArgs>{ tmplId: "none", template: "mytmp" });
             return results 
                 .then(() => {
                     expect(infoNoop.called).to.be.false;

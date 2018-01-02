@@ -4,7 +4,6 @@ import 'reflect-metadata';
 import { SinonStub } from 'sinon';
 import { Container } from 'inversify';
 import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown, Expect } from 'alsatian';
-let interceptStdout = require('intercept-stdout');
 
 import { containerBuilder } from '../lib/di/container';
 import TYPES from '../lib/di/types';
@@ -26,44 +25,18 @@ import { BaseIntegrationTest } from './base-integration';
  */
 @TestFixture("Simple Runs Test")
  export class Simple extends BaseIntegrationTest {
-    intercepted: string;
-    unhook: () => void;
-
-    @AsyncSetup
-    public async beforeEach() {
-        this.intercepted = "";
-        this.unhook = interceptStdout((txt: string) => { this.intercepted += txt; return ""; });
-    }
-
-    @AsyncTeardown
-    public async afterEach() {
-        this.unhook();
-    }
-
-    protected async run(args: string[]) {
-        return this.app
-            .Go(args)
-            .catch(this.assertNoErrors.bind(this));
-    }
 
     @AsyncTest("Uses correct home and displays a list of templates.")
     public async listsTemplates() {
-        this.unhook();
-        let p = this.app
-            .Go(["node", "neoman", "list"])
+        let p = this.run(["node", "neoman", "list"])
             .then(this.assertListsTemplates.bind(this));
         await p;
     }
 
     protected assertListsTemplates() { 
-        let calls: string[][] = this.msgr["console"].log.args;
-        Expect(calls[1][0]).toMatch(/Using: .*neoman\\examples\n/);
-        Expect(calls[2][0]).toEqual("\trootdemo - Alternate root folder demo");
-        Expect(calls[calls.length - 1][0]).toEqual("\n4 template(s) found.\n");
-
-        if (! this.debug) {
-            Expect(this.intercepted).toBeEmpty();
-        }
+        Expect(this.intercepted).toMatch(/Using: .*neoman\\examples\n/);
+        Expect(this.intercepted).toMatch(/\trootdemo - Alternate root folder demo/);
+        Expect(this.intercepted).toMatch(/4 template\(s\) found.\n/);
     }
 
     @AsyncTest("Displays help when appropriate")

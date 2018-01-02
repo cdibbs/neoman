@@ -6,6 +6,8 @@ import { BaseCommand } from './base-command';
 import * as i from '../i';
 import KEYS from '../settings-keys';
 import TYPES from '../di/types';
+import Command from 'commandpost/lib/command';
+import { CommandValidationResult } from './models';
 
 @injectable()
 export class SetDirCommand extends BaseCommand<any, any> {
@@ -21,7 +23,7 @@ export class SetDirCommand extends BaseCommand<any, any> {
         super(msg, process);
     }
 
-    run(opts: any, args: any): Promise<{}> {
+    run(cmdDef: Command<any, any>, opts: any, args: any): Promise<CommandValidationResult> {
         let imsg = this.msg.i18n({dir: args.directory});
         imsg.info('Setting directory to {dir}');
 
@@ -39,6 +41,10 @@ export class SetDirCommand extends BaseCommand<any, any> {
         }
         
         this.settings.set(KEYS.tempDirKey, this.path.resolve(args.directory));
+        return Promise.resolve(null);
+    }
+
+    public validate(cmd: Command<any, any>, opts: any, args: any): Promise<CommandValidationResult> {
         return Promise.resolve(null);
     }
 }

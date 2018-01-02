@@ -11,10 +11,13 @@ import { ITemplate } from '../i/template';
 import { mockMessagerFactory } from '../../spec-lib'
 
 import { SetDirCommand } from './set-dir-command';
+import Command from "commandpost/lib/command";
 
 describe('SetDirCommand', () => {
+    let cmdDef: Command<any, any>;
     let c: SetDirCommand;
     beforeEach(() => {
+        cmdDef = <any>{ help: () => "" };
         c = new SetDirCommand(mockMessagerFactory(), <NodeJS.Process>{}, <i.ISettingsProvider>{}, <i.IFileSystem>{ }, <i.IPath>{});
         let resolveSpy = sinon.spy();
         c["path"] = <any>{ resolve: resolveSpy };
@@ -31,7 +34,7 @@ describe('SetDirCommand', () => {
             c["settings"].set = settingsSpy;
             c["msg"]["console"] = { warn: warnSpy, log: c["msg"]["console"].log, error: c["msg"]["console"].warn };
             let opts = {}, args = { directory: "test" };
-            let result = c.run(opts, args);
+            let result = c.run(cmdDef, opts, args);
             sinon.assert.calledWith(warnSpy, `Warning: Not a directory: '${args.directory}'.`);
         });
 
@@ -45,7 +48,7 @@ describe('SetDirCommand', () => {
             c["settings"].set = settingsSpy;
             c["msg"]["console"] = { warn: warnSpy, log: c["msg"]["console"].log, error: c["msg"]["console"].warn };
             let opts = {}, args = { directory: "test" };
-            let result = c.run(opts, args);
+            let result = c.run(cmdDef, opts, args);
             expect(warnSpy.called).to.be.false;
             expect(settingsSpy.called).to.be.true;
         });
@@ -59,7 +62,7 @@ describe('SetDirCommand', () => {
             c["settings"].set = settingsSpy;
             c["msg"]["console"] = { warn: warnSpy, log: c["msg"]["console"].log, error: c["msg"]["console"].warn };
             let opts = {}, args = { directory: "test" };
-            let result = c.run(opts, args);
+            let result = c.run(cmdDef, opts, args);
             expect(warnSpy.called).to.be.true;
             expect(settingsSpy.called).to.be.false;
         });

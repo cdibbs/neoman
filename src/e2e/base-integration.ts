@@ -25,34 +25,63 @@ import { mockMessagerFactory } from '../spec-lib';
  *   - Handlers
  */
  export class BaseIntegrationTest {
+    protected intercepted: string;
+    protected unhook: () => void;
     protected debug: boolean = false;
     protected app: IKernel;
     protected mockedPath = '/tmp/neoman-e2e'
     protected msgr: IUserMessager;
     protected realProcessExit: (c?: number) => never;
+    protected realWrite: (...args: any[]) => void;
 
     @AsyncSetup
-    public async setup() {
+    public async beforeEach() {
         this.realProcessExit = process.exit;
         process.exit = <any>sinon.stub();
         let cont = this.buildIntegTestContainer();
         let sp = cont.get<ISettingsProvider>(TYPES.SettingsProvider);
         Expect(<string>sp["filepath"]).toMatch(/^(?:\/tmp\/|[cC]:\\temp\\)\.neoman-settings$/);
-
         this.app = cont.get<IKernel>(TYPES.Kernel);
-        await this.app
-            .Go(["node", "neoman", "setdir", "./examples"])
-            .then(() => {
-                // rebuild after settings in place.
-                cont = this.buildIntegTestContainer();
-                this.app = cont.get<IKernel>(TYPES.Kernel)
-            })
-            .catch(this.assertNoErrors.bind(this));
+
+        await 
+            this.captureOutput()
+                .then(() => this.app.Go(["node", "neoman", "setdir", "./examples"]))
+                .then(this.releaseOutput.bind(this))
+                .catch(this.releaseOutput.bind(this))
+                .then(() => {
+                    // rebuild after settings in place.
+                    cont = this.buildIntegTestContainer();
+                    this.app = cont.get<IKernel>(TYPES.Kernel)
+                })
+                .catch(this.assertNoErrors.bind(this));
     }
 
     @AsyncTeardown
     public async afterEach() {
         process.exit = this.realProcessExit;
+    }
+
+    protected async captureOutput() {
+        this.realWrite = process.stdout.write;
+        this.intercepted = "";
+        process.stdout.write = <any>sinon.spy((w: string) => {
+            if (typeof w === "string")
+                this.intercepted += w.replace( /\n$/ , '' ) + (w && (/\n$/).test( w ) ? '\n' : '');
+        });
+        return Promise.resolve(null);
+    }
+
+    protected async releaseOutput(v: any) {
+        process.stdout.write = <any>this.realWrite;
+        return v;
+    }
+
+    protected async run(args: string[]) {
+        return this.captureOutput()
+            .then(() => this.app.Go(args))
+            .then(this.releaseOutput.bind(this))
+            .catch(this.releaseOutput.bind(this))
+            .catch(this.assertNoErrors.bind(this));
     }
 
     protected assertNoErrors(ex: any) {
@@ -69,8 +98,7 @@ import { mockMessagerFactory } from '../spec-lib';
             cont.rebind<NodeJS.Process>(TYPES.Process).toDynamicValue(() => <any>{ env: { USERPROFILE: "C:\\temp\\" }, exit: process.exit });
         }
 
-        // Spy on any output while conditionally echoing it to console
-        this.msgr = mockMessagerFactory({ echo: this.debug });
+        this.msgr = mockMessagerFactory({ echo: true });
         cont.rebind<IUserMessager>(TYPES.UserMessager).toDynamicValue(() => this.msgr);
         return cont;
     }

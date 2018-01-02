@@ -57,5 +57,9 @@
 	"    Skipping path transform def #{i} (no match: \"{subject}\").": "    Skipping path transform def #{i} (no match: \"{subject}\").",
 	"    Applying transform definition for \"{subject}\"{src}.": "    Applying transform definition for \"{subject}\"{src}.",
 	"    Skipping transform definition for \"{subject}\"{src}.": "    Skipping transform definition for \"{subject}\"{src}.",
-	"Template root is not a directory: {root}.": "Template root is not a directory: {root}."
+	"Template root is not a directory: {root}.": "Template root is not a directory: {root}.",
+	"Manage and run Neoman project templates. Use: `neoman help [command]` for more help.": "Manage and run Neoman project templates. Use: `neoman help [command]` for more help.",
+	"Force things you maybe shouldn't force. Me: \"Don't do it, blah blah... Oh no, you poor fool!\"": "Force things you maybe shouldn't force. Me: \"Don't do it, blah blah... Oh no, you poor fool!\"",
+	"There was an error running the project generator.": "There was an error running the project generator.",
+	"You must specify a template identifier.\n\n{helptext}": "You must specify a template identifier.\n\n{helptext}"
 }

@@ -4,6 +4,9 @@ import { COMMANDS, Commands } from './commands';
 import { BaseCommand } from './base-command';
 import TYPES from '../di/types';
 import { IFileSystem, IGlob, IPath, IUserMessager } from '../i';
+import Command from 'commandpost/lib/command';
+import { CommandValidationResult } from './models';
+import { curry } from '../util/curry';
 
 @injectable()
 export class ListCommand extends BaseCommand<any, any> {
@@ -21,9 +24,17 @@ export class ListCommand extends BaseCommand<any, any> {
         super(msg, process);
     }
 
-    run(opts: any, args: any): Promise<any> {
-        super.run(opts, args);
-        let promise = new Promise((resolve, reject) => {
+    run(cmdDef: Command<any, any>, opts: any, args: any): Promise<any> {
+        return this.validate(cmdDef, opts, args)
+            .then(curry.twoOf3(this.runWithValidation, this, opts, args));
+    }
+
+    public async runWithValidation(opts: any, args: any, validationResult: CommandValidationResult): Promise<any> {
+        if (validationResult.IsError) {
+            return validationResult;
+        }
+        
+        let listerPromise = new Promise((resolve, reject) => {
             this.resolve = resolve;
         });
 
@@ -34,7 +45,11 @@ export class ListCommand extends BaseCommand<any, any> {
         let g = new this.glob.Glob(this.neomanPath, { cwd: this.tempDir });
         g.on("match", this.bind(this.match));
         g.on("end", this.bind(this.end));
-        return promise;
+        return listerPromise;
+    }
+
+    public validate(cmd: Command<any, any>, opts: any, args: any): Promise<CommandValidationResult> {
+        return Promise.resolve(new CommandValidationResult());
     }
 
     match(file: string): any {

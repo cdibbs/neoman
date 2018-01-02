@@ -35,7 +35,7 @@ export class Kernel implements IKernel {
             let root = commandpost
                 .create<any, any>("")
                 .version(this.pkg.version, "-v, --version")
-                .description(imsg.mf("Manage and run Neoman project templates."))
+                .description(imsg.mf("Manage and run Neoman project templates. Use: `neoman help [command]` for more help."));
                 /*.action((opts, args) => {
                     this.msg.write("Manage and run Neoman project templates.\n", 1);
                     this.msg.write(root.helpText());
@@ -48,28 +48,29 @@ export class Kernel implements IKernel {
                 .option("-n, --name <name>", imsg.mf("The project name to use. Default: current directory name."))
                 .option("-d, --defaults", imsg.mf("No prompting. Use template defaults for options not specified on command line."))
                 .option("-p, --path <path>", imsg.mf("Destination path in which to create project. Defaults to current directory."))
-                .option("-f, --force", imsg.mf("Force things you probably shouldn't force. Don't do it, blah blah..."))
+                .option("-f, --force", imsg.mf("Force things you maybe shouldn't force. Me: \"Don't do it, blah blah... Oh no, you poor fool!\""))
                 .option("-v, --verbosity <verbosity>", imsg.mf("The verbosity of neoman's output. Can be normal, verbose, debug."))
-                .option("-x, --show-excluded", imsg.mf("Show files excluded by template configuration."))
-                .action(newCmd.run.bind(newCmd));
+                .option("-x, --show-excluded", imsg.mf("Show files excluded by template configuration."));
+            newTemp.action(curry.oneOf3(newCmd.run, newCmd, newTemp));
 
             let listCmd = this.commandFactory.build(COMMANDS.ListTemplates, this.tempDir);
             let list = root
                 .subCommand<{}, {}>("list")
-                .description(imsg.i18n({ dir: this.tempDir }).mf('List available templates. Template source directory: {dir}'))
-                .action(listCmd.run.bind(listCmd));
+                .description(imsg.i18n({ dir: this.tempDir }).mf('List available templates. Template source directory: {dir}'));
+            list.action(curry.oneOf3(listCmd.run, listCmd, list));
 
             let setdirCmd = this.commandFactory.build(COMMANDS.SetDir, this.tempDir);
             let config = root
                 .subCommand<{}, { directory: string }>("setdir <directory>")
-                .description(imsg.mf("Set your template source base directory. All first-level subdirectories will be scanned for templates."))
-                .action(setdirCmd.run.bind(setdirCmd));
+                .description(imsg.mf("Set your template source base directory. All first-level subdirectories will be scanned for templates."));
+            config.action(curry.oneOf3(setdirCmd.run, setdirCmd, config));
 
             let infoCmd = this.commandFactory.build(COMMANDS.Info, this.tempDir);
             let info = root
-                .subCommand<IInfoCmdOpts, IInfoCmdArgs>("info <tmplId>")
-                .description(imsg.mf("Get detailed information for a given template identifier."))
-                .action(infoCmd.run.bind(infoCmd));
+                .subCommand<IInfoCmdOpts, IInfoCmdArgs>("info [tmplId]")
+                .description(imsg.mf("Get detailed information for a given template identifier."));
+
+            info.action(curry.oneOf3(infoCmd.run, infoCmd, info));
 
             return this.commandpost
                 .exec(root, argv)

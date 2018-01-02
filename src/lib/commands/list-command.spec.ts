@@ -11,10 +11,13 @@ import { ITemplate } from '../i/template';
 import { mockMessagerFactory } from '../../spec-lib'
 
 import { ListCommand } from './list-command';
+import Command from "commandpost/lib/command";
 
 describe('ListCommand', () => {
+    let cmdDef: Command<any, any>;
     let c: ListCommand;
     beforeEach(() => {
+        cmdDef = <any>{ help: () => "" };
         c = new ListCommand(mockMessagerFactory(), <NodeJS.Process>{}, <i.IFileSystem>{ }, <i.IPath>{}, <i.IGlob>{});
         c.tempDir = "/tmp/mytemplates";
     });
@@ -30,10 +33,12 @@ describe('ListCommand', () => {
             c["glob"].Glob = <any>globStub;
             c["bind"] = bindStub;
             let opts = {}, args = {};
-            let result = c.run(opts, args);
-            sinon.assert.calledWith(globStub, c.neomanPath, { cwd: c.tempDir });
-            sinon.assert.calledWith(onSpy, "match", c.match);
-            sinon.assert.calledWith(onSpy, "end", c.end);
+            let result = c.run(cmdDef, opts, args);
+            result.then(() => {
+                sinon.assert.calledWith(globStub, c.neomanPath, { cwd: c.tempDir });
+                sinon.assert.calledWith(onSpy, "match", c.match);
+                sinon.assert.calledWith(onSpy, "end", c.end);
+            });
         });
     });
 

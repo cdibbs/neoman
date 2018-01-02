@@ -4,9 +4,11 @@ import { COMMANDS, Commands } from './commands';
 import { ICommand } from './i';
 import { IUserMessager } from '../i';
 import TYPES from '../di/types';
+import Command from 'commandpost/lib/command';
+import { CommandValidationResult, CommandErrorType } from './models';
 
 @injectable()
-export class BaseCommand<TOpts, TArgs> implements ICommand<TOpts, TArgs> {
+export abstract class BaseCommand<TOpts, TArgs> implements ICommand<TOpts, TArgs> {
     public tempDir: string = null;
     public type: Commands;
 
@@ -15,12 +17,15 @@ export class BaseCommand<TOpts, TArgs> implements ICommand<TOpts, TArgs> {
         @inject(TYPES.Process) protected process: NodeJS.Process
     ) {}
 
-    public run(opts: TOpts, args: TArgs): Promise<{}> {
-        if (! this.tempDir || ! this.tempDir.trim()) {
-            this.msg.i18n().error("You have not set a template directory. Please run setdir, first.");
-            this.process.exit(1); // can be no-op in integ tests
-        }
+    public abstract run(cmd: Command<TOpts, TArgs>, opts: TOpts, args: TArgs): Promise<{}>;
 
-        return Promise.resolve(null);
+    protected async validate(cmd: Command<TOpts, TArgs>, opts: TOpts, args: TArgs): Promise<CommandValidationResult>
+    {
+        if (! this.tempDir || ! this.tempDir.trim()) {
+            let v = new CommandValidationResult();
+            v.Message = this.msg.i18n().mf("You have not set a template directory. Please run setdir, first.");
+            v.ErrorType = CommandErrorType.UserError;
+            return Promise.reject(v);
+        }
     }
 }
