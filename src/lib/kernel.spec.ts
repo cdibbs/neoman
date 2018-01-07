@@ -44,11 +44,12 @@ describe(Kernel.name, () => {
 
     describe('#Go', () => {
         it('should run without error', () => {
-            expect(() => {
-                k.Go();
-            }).not.to.throw();
-            let firstErr = errStub.args[0] || [];
-            expect(firstErr[0]).to.be.undefined;
+            return k.Go()
+                .then(() => {
+                    let firstErr = errStub.args[0] || [];
+                    expect(firstErr[0]).to.be.undefined;    
+                })
+                .catch((ex) => { console.log(ex); assert.fail("Expected to run without error."); })
         });
 
         it('should gracefully handle a hitherto unexpected error', () => {
@@ -64,8 +65,11 @@ describe(Kernel.name, () => {
 
     describe('#handleError', () => {
         it('should wrap the error to ensure the user gets something', () => {
-            k.handleError(new Error());
-            sinon.assert.calledWith(errStub, sinon.match.instanceOf(NestedError));
+            k.handleError(new Error())
+                .catch((ex) => {
+                    expect(ex).to.equal(ex);
+                    sinon.assert.calledWith(errStub, sinon.match.instanceOf(NestedError));
+                });
         });
 
         it('should exit', () => {

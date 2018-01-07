@@ -19,6 +19,7 @@ let TYPES = {
     BrowserInputManager: Symbol("BrowserInputManager"),
     CustomInputManager: Symbol("CustomInputManager"),
     PromptInputManager: Symbol("PromptInputManager"),
+    DefaultsInputManager: Symbol("DefaultsInputManager"),
     HandlerService: Symbol("HandlerService"),
     i18n: Symbol("i18n"),
     Mapper: Symbol("Mapper"),

@@ -44,7 +44,7 @@ export class TemplateRunner implements i.ITemplateRunner {
     protected getUserInputAndRun(path: string, options: RunOptions, tmpl: ITemplate): Promise<RunnerResult> {
         let emitter = new EventEmitter<TemplateFilesEmitterType>();
         return this.inputManager
-            .ask(tmpl.input)
+            .ask(tmpl.input, options)
             .then(this.andRun.bind(this, path, options, tmpl, emitter))
             .then<RunnerResult>(this.finishRun.bind(this));
     }

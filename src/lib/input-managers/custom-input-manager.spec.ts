@@ -10,6 +10,7 @@ let expect = chai.expect, assert = chai.assert;
 
 import * as i from '../i';
 import { CustomInputManager } from './custom-input-manager';
+import { RunOptions } from "../models";
 
 describe(CustomInputManager.name, () => {
     describe(`#${CustomInputManager.prototype.ask.name}`, () => {
@@ -35,7 +36,7 @@ describe(CustomInputManager.name, () => {
             let inputConfig = {
                 handler: "myhandler"
             };
-            return cim.ask(inputConfig).then(() => {
+            return cim.ask(inputConfig, <RunOptions>{}).then(() => {
                 sinon.assert.calledWith(resolveAndLoadStub, mytmp, inputConfig.handler);
                 expect(handlerStub.called).to.be.true;
                 sinon.assert.calledWith(handlerStub, inputConfig);
@@ -44,8 +45,8 @@ describe(CustomInputManager.name, () => {
 
         it("returns a rejected promise on unknown error", () =>  {
             resolveAndLoadStub.throws(new Error("umm... null pointer? let's go with that"), );
-            return cim.ask({})
-                .catch(e => expect(e).property("message").to.contain("Error running handler"));
+            return cim.ask({}, <RunOptions>{})
+                .catch((e: any) => expect(e).property("message").to.contain("Error running handler"));
         });
     });
 });

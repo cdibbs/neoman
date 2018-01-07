@@ -26,7 +26,7 @@ import { BaseIntegrationTest } from './base-integration';
 @TestFixture("Simple Runs Test")
  export class Simple extends BaseIntegrationTest {
 
-    @AsyncTest("Uses correct home and displays a list of templates.")
+    @AsyncTest("Uses correct home.")
     public async listsTemplates() {
         let p = this.run(["node", "neoman", "list"])
             .then(this.assertListsTemplates.bind(this));
@@ -35,8 +35,7 @@ import { BaseIntegrationTest } from './base-integration';
 
     protected assertListsTemplates() { 
         Expect(this.intercepted).toMatch(/Using: .*neoman[\\\/]examples\n/);
-        Expect(this.intercepted).toMatch(/\trootdemo - Alternate root folder demo/);
-        Expect(this.intercepted).toMatch(/4 template\(s\) found.\n/);
+        Expect(this.intercepted).toMatch(/\d+ template\(s\) found.\n/);
     }
 
     @AsyncTest("Displays help when appropriate")

@@ -9,6 +9,7 @@ import { ICommandFactory, INewCmdOpts, INewCmdArgs, IInfoCmdArgs, IInfoCmdOpts }
 import TYPES from './di/types';
 import KEYS from './settings-keys';
 import { ISettingsProvider, IPackage, IUserMessager, Ii18nFunction, IKernel } from './i';
+import { CommandValidationResult } from './commands/models';
 
 /**
  * Contains the core code to run the application. Only DI runs before this.
@@ -29,7 +30,7 @@ export class Kernel implements IKernel {
         this.tempDir = this.settings.get(KEYS.tempDirKey);
     }
 
-    Go(argv: string[] = process.argv): Promise<{}> {
+    Go(argv: string[] = this.process.argv): Promise<{}> {
         try {
             let imsg = this.msg.i18n();
             let root = commandpost
@@ -43,7 +44,7 @@ export class Kernel implements IKernel {
 
             let newCmd = this.commandFactory.build(COMMANDS.NewProject, this.tempDir);
             let newTemp = root
-                .subCommand<INewCmdOpts, INewCmdArgs>("new <template>")
+                .subCommand<INewCmdOpts, INewCmdArgs>("new [templateId]")
                 .description(imsg.mf("Generate a project from a Neoman template."))
                 .option("-n, --name <name>", imsg.mf("The project name to use. Default: current directory name."))
                 .option("-d, --defaults", imsg.mf("No prompting. Use template defaults for options not specified on command line."))
@@ -67,7 +68,7 @@ export class Kernel implements IKernel {
 
             let infoCmd = this.commandFactory.build(COMMANDS.Info, this.tempDir);
             let info = root
-                .subCommand<IInfoCmdOpts, IInfoCmdArgs>("info [tmplId]")
+                .subCommand<IInfoCmdOpts, IInfoCmdArgs>("info [templateId]")
                 .description(imsg.mf("Get detailed information for a given template identifier."));
 
             info.action(curry.oneOf3(infoCmd.run, infoCmd, info));
@@ -80,11 +81,14 @@ export class Kernel implements IKernel {
         }
     }
 
-    handleError(err: Error): Promise<{}> {
-        let nerr = new NestedError(this.msg.mf("There was an unexpected error."), err);
-        this.msg.error(nerr);
-        this.msg.error(err.stack);
-        this.process.exit(1); // can be no-op in integ tests
-        return Promise.reject(nerr);
+    handleError(err: Error | CommandValidationResult): Promise<{}> {
+        if (!(err instanceof CommandValidationResult)) {
+            let nerr = new NestedError(this.msg.mf("There was an unexpected error."), err);
+            this.msg.error(nerr.stack);
+            this.process.exit(1); // can be no-op in integ tests
+            return Promise.reject(nerr);
+        }
+
+        return Promise.reject(err);
     }
 }

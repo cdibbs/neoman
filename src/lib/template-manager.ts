@@ -105,6 +105,7 @@ export class TemplateManager implements ITemplateManager {
                 let tmpl = JSON.parse(this.fs.readFileSync(fullPath, 'utf8'));
                 let tmplAbsRoot = this.path.join(this.path.dirname(fullPath), '..');
                 tmpl.__tmplPath = this.getTemplateRoot(tmpl, tmplAbsRoot);
+                tmpl.__tmplConfigPath = tmplAbsRoot;
                 emitter.emit("match", tmpl);
             } catch (ex) {
                 emitter.emit("error", ex);

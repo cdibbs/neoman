@@ -1,5 +1,6 @@
 import path = require('path');
 import fs = require('fs');
+import tmp = require('tmp');
 import 'reflect-metadata';
 import * as sinon from 'sinon';
 import { Container } from 'inversify';
@@ -10,6 +11,7 @@ import TYPES from '../lib/di/types';
 import { UserMessager } from '../lib/user-messager';
 import { IKernel, ISettingsProvider, IFileSystem, IUserMessager } from '../lib/i';
 import { mockMessagerFactory } from '../spec-lib';
+import { AsyncSetupFixture } from 'alsatian/core/decorators/async-setup-fixture-decorator';
 
 /**
  * List of integration tests to write:
@@ -33,6 +35,12 @@ import { mockMessagerFactory } from '../spec-lib';
     protected msgr: IUserMessager;
     protected realProcessExit: (c?: number) => never;
     protected realWrite: (...args: any[]) => void;
+
+    @AsyncSetupFixture
+    public async setupFixture() {
+        if (! this.debug)
+            tmp.setGracefulCleanup();
+    }
 
     @AsyncSetup
     public async beforeEach() {
@@ -101,5 +109,17 @@ import { mockMessagerFactory } from '../spec-lib';
         this.msgr = mockMessagerFactory({ echo: true });
         cont.rebind<IUserMessager>(TYPES.UserMessager).toDynamicValue(() => this.msgr);
         return cont;
+    }
+
+    protected makeTmpDir(): Promise<string> {
+        return new Promise((resolve, reject) => {
+            tmp.dir((err, path) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(path);
+                }
+            });
+        });
     }
  }

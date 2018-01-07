@@ -16,7 +16,7 @@ describe('NewCommand', () => {
     let cmdDef: Command<any, any>;
     let nc: NewCommand;
     beforeEach(() => {
-        cmdDef = <any>{ help: () => "" };
+        cmdDef = <any>{ help: () => "", helpText: () => "" };
         nc = new NewCommand(mockMessagerFactory(), <i.ITemplateManager>{}, <i.IPath>{ sep: "/" }, <i.ITemplateRunner>{});
     });
 
@@ -33,7 +33,7 @@ describe('NewCommand', () => {
             nc["tmplMgr"] = <any>{ info: infoSpy };
             nc["trunner"] = { run: runSpy };
             nc["buildOptions"] = optsSpy;
-            let results = nc.run(cmdDef, <nci.INewCmdOpts>{}, <nci.INewCmdArgs>{ tmplId: "none", template: "mytmp" });
+            let results = nc.run(cmdDef, <nci.INewCmdOpts>{}, <nci.INewCmdArgs>{ tmplId: "none", templateId: "mytmp" });
             return results 
                 .then(() => {
                     sinon.assert.calledWith(infoSpy, "mytmp")
@@ -53,7 +53,7 @@ describe('NewCommand', () => {
             nc["tmplMgr"] = <any>{ info: infoSpy };
             nc["trunner"] = { run: runSpy };
             nc["buildOptions"] = optsSpy;
-            let results = nc.run(cmdDef, <nci.INewCmdOpts>{}, <nci.INewCmdArgs>{ tmplId: "none", template: "" });
+            let results = nc.run(cmdDef, <nci.INewCmdOpts>{}, <nci.INewCmdArgs>{ tmplId: "none", templateId: "" });
             return results 
                 .then(() => {
                     sinon.assert.calledOnce(exitNoop);
@@ -72,7 +72,7 @@ describe('NewCommand', () => {
             nc["tmplMgr"] = <any>{ info: infoSpy };
             nc["trunner"] = { run: runSpy };
             nc["buildOptions"] = optsSpy;
-            let results = nc.run(cmdDef, <nci.INewCmdOpts>{}, <nci.INewCmdArgs>{ tmplId: "none", template: "" });
+            let results = nc.run(cmdDef, <nci.INewCmdOpts>{}, <nci.INewCmdArgs>{ tmplId: "none", templateId: "" });
             return results 
                 .then(() => {
                     sinon.assert.calledOnce(exitNoop);

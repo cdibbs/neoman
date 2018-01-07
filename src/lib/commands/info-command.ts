@@ -33,14 +33,14 @@ export class InfoCommand extends BaseCommand<IInfoCmdOpts, IInfoCmdArgs> {
     }
 
     public runWithValidArgs(opts: IInfoCmdOpts, args: IInfoCmdArgs, validationResult: CommandValidationResult): Promise<any> {
-        return this.tmplMgr.info(args.tmplId)
+        return this.tmplMgr.info(args.templateId)
             .then(this.showTemplateInfo.bind(this))
             .catch(this.reportError.bind(this));
     }
 
     public validate(cmd: Command<IInfoCmdOpts, IInfoCmdArgs>, opts: IInfoCmdOpts, args: IInfoCmdArgs): Promise<CommandValidationResult> {
         let promise: Promise<CommandValidationResult>;
-        if (! args.tmplId) {
+        if (! args.templateId) {
             var v = new CommandValidationResult();
             v.Message = this.msg.i18n({helptext: cmd.helpText()}).mf("You must specify a template identifier.\n\n{helptext}");
             v.ErrorType = CommandErrorType.UserError;

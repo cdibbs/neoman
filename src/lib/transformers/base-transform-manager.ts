@@ -30,7 +30,7 @@ export class BaseTransformManager {
     configure(tmpl: ir.ITemplate, inputs: { [key: string]: any }) {
         this.inputs = inputs;
         this.preparePlugins(tmpl.configurations);
-        this.tconfigBasePath = tmpl.__tmplPath;
+        this.tconfigBasePath = tmpl.__tmplConfigPath;
     }
 
     //FIXME Need to cover plugin loading with better tests

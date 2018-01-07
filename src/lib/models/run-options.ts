@@ -6,4 +6,5 @@ export class RunOptions {
     force: boolean = false;
     path: string = "";
     name: string = "";
+    defaults: boolean = false;
 }

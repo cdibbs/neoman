@@ -5,6 +5,7 @@ import { BaseInputManager } from './base-input-manager';
 import { curry } from '../util/curry';
 import * as i from '../i';
 import * as it from '../i/template';
+import { RunOptions } from '../models';
 
 @injectable()
 export class PromptInputManager extends BaseInputManager {
@@ -15,7 +16,7 @@ export class PromptInputManager extends BaseInputManager {
         super();
     }
 
-    ask(config: it.IInputConfig): Promise<{ [key: string]: any }> {
+    ask(config: it.IInputConfig, options: RunOptions): Promise<{ [key: string]: any }> {
         let promise: Promise<{ [key: string]: any }> = null;
         let count = this.countQuestions(config.define);
         let current = 0;

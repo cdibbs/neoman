@@ -5,6 +5,7 @@ import { BaseInputManager } from './base-input-manager';
 import TYPES from '../di/types';
 import * as i from '../i';
 import * as it from '../i/template';
+import { RunOptions } from '../models';
 
 @injectable()
 export class CustomInputManager extends BaseInputManager {
@@ -14,7 +15,7 @@ export class CustomInputManager extends BaseInputManager {
         super();
     }
 
-    ask(config: it.IInputConfig): Promise<{ [key: string]: any }> {
+    ask(config: it.IInputConfig, options: RunOptions): Promise<{ [key: string]: any }> {
         try {
             return this.handlerService
                 .resolveAndLoad(this.tmplRootPath, config.handler)

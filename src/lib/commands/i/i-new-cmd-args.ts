@@ -1,3 +1,3 @@
 export interface INewCmdArgs {
-    template: string;
+    templateId: string;
 }

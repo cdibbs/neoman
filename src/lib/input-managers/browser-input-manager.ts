@@ -10,6 +10,7 @@ import { curry } from '../util/curry';
 import TYPES from '../di/types';
 import * as i from '../i';
 import * as it from '../i/template';
+import { RunOptions } from '../models';
 
 @injectable()
 export class BrowserInputManager extends BaseInputManager {
@@ -27,7 +28,7 @@ export class BrowserInputManager extends BaseInputManager {
         super();
     }
 
-    ask(config: it.IInputConfig): Promise<{ [key: string]: any }> {
+    ask(config: it.IInputConfig, options: RunOptions): Promise<{ [key: string]: any }> {
         let answers = {};
         let promise = null;
         this.msg.write("Launching browser... please answer template questions and close.");

@@ -1,0 +1,59 @@
+{
+    "name": "Neoman Project Template Template (NPTT)",
+    "description": "A template used by Neoman, itself, to turn other projects into project templates.",
+    "author": "OSS, Plz.",
+    "tags": {
+        "keywords": [ "neoman", "built-in", "template" ], 
+        "language": "JSON"
+    },
+    "root": "./nptt",
+    "identity": "nptt",
+    "options": {
+        "ignoreNonEmpty": true, "#": "This template initializes projects, some of which may be non-empty."
+    },
+
+    "#": "Provides a way of interacting with the user.",
+    "input": {
+        "use": "prompt",
+        "define": {
+            "name": "What is a good display name for your template project?",
+            "description": "Describe your template project:",
+            "author": "Who is the author?",
+            "uid": "Please pick a short identifier:",
+            "language": "What is the main language of your project template?",
+            "glob": "What glob identifies your source files (e.g, **/*.js, **/*.cs)?"
+        }
+    },
+
+    "#": [
+        "Transforms occur in the order they are defined. They apply to all files unless constrained by a",
+        "configuration type, glob, or ."],
+    "transform": [
+        "# Strings like this are comments, in this section.",
+        { "subject": "$.name", "with": "{{name}}", "configuration": "json" },
+        { "subject": "$.description", "with": "{{description}}", "configuration": "json" },
+        { "subject": "$.author", "with": "{{author}}", "configuration": "json" },
+        { "subject": "$.identity", "with": "{{uid}}", "configuration": "json" },
+        { "subject": "$.configurations.mainSrcs.files[0]", "with": "{{glob}}", "configuration": "json" }
+    ],
+
+    "#": [
+        "Path transforms occur in the order they are defined. Multiple transforms might apply to the same file.",
+        "Subject is always a regular expression. The 'with' property, if any, can reference groupings from subject.",
+        "Input and output paths are always relative to the destination.",
+        "Ex: a string, like, \"/text/toreplace/\"",
+        "Ex: an object, like, { \"subject\": \"text\", \"with\": \"toreplace\" }"
+    ],
+    "pathTransform": [
+        
+    ],
+
+    "#": "Optional section to define configurations per file type.",
+    "configurations": {
+        "#": "Configuration keys should be short but descriptive. ",
+        "json": {
+            "files": ["**/*.json"],
+            "plugin": "json"
+        }
+    }
+}

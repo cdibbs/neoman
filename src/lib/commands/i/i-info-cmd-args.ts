@@ -1,3 +1,3 @@
 export interface IInfoCmdArgs {
-    tmplId: string;
+    templateId: string;
 }

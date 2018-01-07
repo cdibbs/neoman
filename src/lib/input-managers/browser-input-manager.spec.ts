@@ -11,6 +11,7 @@ let expect = chai.expect, assert = chai.assert;
 import * as i from '../i';
 import { BrowserInputManager } from './browser-input-manager';
 import { mockPathFactory, mockMessagerFactory } from '../../spec-lib';
+import { RunOptions } from "../models";
 
 describe(BrowserInputManager.name, () => {
     let cim: BrowserInputManager;
@@ -29,7 +30,7 @@ describe(BrowserInputManager.name, () => {
             let conf = { };
             cim["launchBrowserAndServer"] = lbasStub;
 
-            let resp = cim.ask(conf);
+            let resp = cim.ask(conf, <RunOptions>{});
 
             expect(resp.then).to.be.an.instanceOf(Function);
             sinon.assert.calledWith(lbasStub, conf, sinon.match.func, sinon.match.func);

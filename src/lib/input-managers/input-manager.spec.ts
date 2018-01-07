@@ -9,24 +9,28 @@ chai.use(chaiAsPromised);
 let expect = chai.expect, assert = chai.assert;
 
 import * as i from '../i';
-import { InputManager, PromptInputManager, CustomInputManager, BrowserInputManager } from './index';
+import { InputManager, PromptInputManager, CustomInputManager, BrowserInputManager, DefaultsInputManager } from './index';
 import { mockPathFactory, mockMessagerFactory } from '../../spec-lib';
+import { RunOptions } from "../models";
 
 describe(InputManager.name, () => {
     let im: InputManager;
     let mytmp: string;
-    let pask: sinon.SinonStub, bask: sinon.SinonStub, cask: sinon.SinonStub, cconf: sinon.SinonStub;
-    let pim: PromptInputManager, bim: BrowserInputManager, cim: CustomInputManager;
+    let pask: sinon.SinonStub, bask: sinon.SinonStub, cask: sinon.SinonStub, dask: sinon.SinonStub;
+    let cconf: sinon.SinonStub;
+    let pim: PromptInputManager, bim: BrowserInputManager, cim: CustomInputManager, dim: DefaultsInputManager;
 
     beforeEach(() => {
         mytmp = "/my/tmp";
-        pask = sinon.stub(), bask = sinon.stub(), cask = sinon.stub();
+        pask = sinon.stub(), bask = sinon.stub(), cask = sinon.stub(), dask = sinon.stub();
+
         cconf = sinon.stub();
         pim = <any>{ ask: pask };
         bim = <any>{ ask: bask };
         cim = <any>{ ask: cask, configure: cconf };
+        dim = <any>{ ask: dask };
 
-        im = new InputManager(pim, bim, cim, mockMessagerFactory());
+        im = new InputManager(pim, bim, cim, dim, mockMessagerFactory());
         im.configure(mytmp);
     });
 
@@ -38,7 +42,7 @@ describe(InputManager.name, () => {
         });
 
         it('should return empty dictionary on undefined input configuration', () => {
-            return im["ask"](undefined).then(res => {
+            return im["ask"](undefined, <RunOptions>{}).then((res: any) => {
                 expect(res).to.deep.equal({});
             });
         });
@@ -48,7 +52,7 @@ describe(InputManager.name, () => {
             let answers = { hoha: "me" };
             pask.returns(Promise.resolve(answers));
 
-            return im["ask"](config).then(res => {
+            return im["ask"](config, <RunOptions>{}).then((res: any) => {
                 sinon.assert.calledWith(pask, config);
                 expect(res).to.deep.equal(answers);
             });
@@ -60,7 +64,7 @@ describe(InputManager.name, () => {
             gstub.returns({ type: "browser" });
             bask.returns(Promise.resolve(answers));
 
-            return im["ask"](<any>config).then(res => {
+            return im["ask"](<any>config, <RunOptions>{}).then((res: any) => {
                 sinon.assert.calledWith(gstub, config.use);
                 sinon.assert.calledWith(bask, config);
                 expect(res).to.deep.equal(answers);
@@ -73,7 +77,7 @@ describe(InputManager.name, () => {
             gstub.returns({ type: "prompt" });
             pask.returns(Promise.resolve(answers));
 
-            return im["ask"](<any>config).then(res => {
+            return im["ask"](<any>config, <RunOptions>{}).then((res: any) => {
                 sinon.assert.calledWith(gstub, config.use);
                 sinon.assert.calledWith(pask, config);
                 expect(res).to.deep.equal(answers);
@@ -86,7 +90,7 @@ describe(InputManager.name, () => {
             im["tmplRootPath"] = "/tmp/whoa";
             cask.returns(Promise.resolve(answers));
 
-            return im["ask"](<any>config).then(res => {
+            return im["ask"](<any>config, <RunOptions>{}).then((res: any) => {
                 sinon.assert.calledWith(cconf, "/tmp/whoa");
                 sinon.assert.calledWith(cask, config);
                 expect(res).to.deep.equal(answers);
@@ -96,7 +100,7 @@ describe(InputManager.name, () => {
         it('should error when use format not recognized', () => {
             let config = { use: 123 };
 
-            expect(im["ask"](<any>config)).to.be.rejectedWith("Unrecognized");
+            expect(im["ask"](<any>config, <RunOptions>{})).to.be.rejectedWith("Unrecognized");
         });
 
         it('should trap and wrap any unexpected errors', () => {
@@ -105,7 +109,7 @@ describe(InputManager.name, () => {
             gstub.returns({ type: "prompt" });
             pask.throws(new Error("you had ooone thing to do"));
 
-            return im["ask"](<any>config).catch(err => {
+            return im["ask"](<any>config, <RunOptions>{}).catch((err: any) => {
                 sinon.assert.calledWith(pask, config);
                 expect(err).to.have.property("message").which.contains("Unexpected error").and.contains("prompt");
             });

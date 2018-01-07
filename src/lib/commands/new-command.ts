@@ -29,27 +29,35 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
     }
 
     run(cmdDef: Command<INewCmdOpts, INewCmdArgs>, opts: INewCmdOpts, args: INewCmdArgs): Promise<CommandValidationResult> {
-        return this.validate(cmdDef, opts, args)
-            .then(curry.twoOf3(this.runWithValidation, this, opts, args));
+        let promise = this.validate(cmdDef, opts, args)
+            .then(curry.twoOf3(this.runWithValidArgs, this, opts, args))
+            .catch(curry.bindOnly(this.reportError, this));
+
+        return promise;
     }
 
-    public runWithValidation(opts: INewCmdOpts, args: INewCmdArgs, validationResult: CommandValidationResult): Promise<any> {
-        if (validationResult.IsError) {
-            this.reportError(validationResult)
-            return Promise.reject(validationResult);
-        }
-
+    public runWithValidArgs(opts: INewCmdOpts, args: INewCmdArgs, validationResult: CommandValidationResult): Promise<any> {
         let options = this.buildOptions(opts);
-        this.msg.write(`Generating project ${options.name} from template ${args.template}...`);        
+        this.msg.write(`Generating project ${options.name} from template ${args.templateId}...`);        
         return this.tmplMgr
-            .info(args.template)
+            .info(args.templateId)
             .then(curry.twoOf3(this.trunner.run, this.trunner, options.path, options))
             .then(this.exit.bind(this))
             .catch(this.reportError.bind(this));
     }
 
     public validate(cmd: Command<INewCmdOpts, INewCmdArgs>, opts: INewCmdOpts, args: INewCmdArgs): Promise<CommandValidationResult> {
-        return Promise.resolve(new CommandValidationResult());
+        let promise: Promise<CommandValidationResult>;
+        if (! args.templateId) {
+            var v = new CommandValidationResult();
+            v.Message = this.msg.i18n({helptext: cmd.helpText()}).mf("You must specify a template identifier.\n\n{helptext}");
+            v.ErrorType = CommandErrorType.UserError;
+            promise = Promise.reject(v);
+        } else {
+            promise = Promise.resolve(new CommandValidationResult());
+        }
+
+        return promise.then(curry.threeOf4(super.validate, this, cmd, opts, args));
     }
 
     buildOptions(opts: INewCmdOpts): RunOptions {
@@ -60,6 +68,7 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
         options.path = (opts.path || [])[0] || cwd;
         options.verbosity = <Verbosity>(opts.verbosity || [])[0] || options.verbosity;
         options.showExcluded = (typeof opts.showExcluded !== "boolean") || options.showExcluded;
+        options.defaults = !! opts.defaults;
         return options;
     }
 
@@ -67,13 +76,13 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
         if (err instanceof CommandValidationResult && err.ErrorType == CommandErrorType.UserError) {
             this.msg.info(err.Message);
         } else {
-            this.msg.i18n().error('There was an error running the project generator.');
+            this.msg.i18n().error('There was an error reading the templates:');
             this.msg.error(err['stack'] || err.toString());
-            this.exit();
         }
+        this.exit(1);
     }
 
-    protected exit() {
-        this.process.exit();
+    protected exit(n?: number) {
+        this.process.exit(n);
     }
 }

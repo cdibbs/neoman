@@ -13,7 +13,7 @@ import { FilePatterns } from '../file-patterns';
 import { UserMessager } from '../user-messager';
 import { TemplateValidator } from '../template-validator';
 import { HandlerService } from '../handler-service';
-import { InputManager, BrowserInputManager, CustomInputManager, PromptInputManager } from '../input-managers';
+import { InputManager, BrowserInputManager, CustomInputManager, PromptInputManager, DefaultsInputManager } from '../input-managers';
 import { Kernel, SettingsProvider, TemplateManager } from "./entities";
 import { CommandFactory, SetDirCommand, NewCommand, ListCommand, InfoCommand } from '../commands';
 import { ICommand, ICommandFactory } from "../commands/i";
@@ -42,6 +42,7 @@ export let containerBuilder = (packageJson: any = null, localesPath?: string): C
     container.bind<i.IInputManager>(TYPES.BrowserInputManager).to(BrowserInputManager);
     container.bind<i.IInputManager>(TYPES.CustomInputManager).to(CustomInputManager);
     container.bind<i.IInputManager>(TYPES.PromptInputManager).to(PromptInputManager);
+    container.bind<i.IInputManager>(TYPES.DefaultsInputManager).to(DefaultsInputManager);
     container.bind<IMapperService>(TYPES.Mapper).to(MapperService);
     container.bind(TYPES.SettingsType).toDynamicValue(() => m.Settings);
 

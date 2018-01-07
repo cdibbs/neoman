@@ -12,7 +12,7 @@ import { IKernel, ISettingsProvider, IFileSystem, IUserMessager } from '../lib/i
 import { mockMessagerFactory } from '../spec-lib';
 import { BaseIntegrationTest } from './base-integration';
 
-@TestFixture("Info command tests")
+@TestFixture("Info command integration tests")
  export class InfoCommandTest extends BaseIntegrationTest {
 
     @AsyncTest("Displays information about a template")
@@ -41,6 +41,6 @@ import { BaseIntegrationTest } from './base-integration';
 
     protected assertHelp() {
         Expect(this.intercepted).toMatch(/Get detailed information for a given template identifier./);
-        Expect(this.intercepted).toMatch(/Usage:\s*info \[--\] \[tmplId\]/);
+        Expect(this.intercepted).toMatch(/Usage:\s*info \[--\] \[templateId\]/);
     }
  }

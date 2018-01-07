@@ -1,0 +1,58 @@
+{
+    "#": [
+        "Comments for all to read"
+    ],
+    "name": "[Template Project Name]",
+    "description": "[A description]",
+    "author": "[An author]",
+    "tags": {
+        "keywords": [ ], 
+        "language": "HTML", "#": "The dominant language in this solution."
+    },
+    "root": "./",
+
+    "identity": "htmlproj", "#": "A unique ID for the project template. Used when creating a project from a template.",
+
+    "#": "Provides a way of interacting with the user.",
+    "input": {
+        "use": "prompt",
+        "define": {
+            "title": "What namespace would you like to use?"
+        }
+    },
+
+    "#": [
+        "Transforms occur in the order they are defined. They apply to the content within all",
+        "files unless constrained by a configuration type, glob, or within a custom handler."
+    ],
+    "transform": [
+        "# Strings like this are comments, in this section.",
+        { "subject": "my.namespace", "with": "{{namespace}}", "configuration": "mainSrcs" }
+    ],
+
+    "#": [
+        "Path transforms occur in the order they are defined. Multiple transforms might apply to the same file.",
+        "Subject is always a regular expression. The 'with' property, if any, can reference groupings from subject.",
+        "Input and output paths are always relative to the destination.",
+        "Ex: a string, like, '/text/toreplace/'",
+        "Ex: an object, like, { \"subject\": \"text\", \"with\": \"toreplace\" }"
+    ],
+    "pathTransform": [
+        "/my.namespace(.*)/{{namespace}}$1/"
+    ],
+
+    "#": [
+        "Matches from the 'ignore' section override matches in the 'files' section. If both files",
+        "and ignore are omitted, all files are considered."
+    ],
+    "files": [ "**/*" ],
+    "ignore": [ ".git", "node_modules" ],
+
+    "#": "Optional section to define configurations per file type.",
+    "configurations": {
+        "#": "Configuration keys should be short but descriptive. ",
+        "mainSrcs": {
+            "files": ["**/*.ts"]
+        }
+    }
+}

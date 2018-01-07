@@ -35,7 +35,7 @@ describe('InfoCommand', () => {
             ic["tmplMgr"].info = tmplMgrStub;
             ic["reportError"] = errorNoop;
             ic["showTemplateInfo"] = infoNoop;
-            let results = ic.run(cmdDef, <nci.IInfoCmdOpts>{}, <nci.IInfoCmdArgs>{ tmplId: "none", template: "mytmp" });
+            let results = ic.run(cmdDef, <nci.IInfoCmdOpts>{}, <nci.IInfoCmdArgs>{ templateId: "none", template: "mytmp" });
             return results 
                 .then(() => {
                     expect(errorNoop.called).to.be.false;
@@ -52,7 +52,7 @@ describe('InfoCommand', () => {
             ic["tmplMgr"].info = tmplMgrStub;
             ic["reportError"] = errorNoop;
             ic["showTemplateInfo"] = infoNoop;
-            let results = ic.run(cmdDef, <nci.IInfoCmdOpts>{}, <nci.IInfoCmdArgs>{ tmplId: "none", template: "mytmp" });
+            let results = ic.run(cmdDef, <nci.IInfoCmdOpts>{}, <nci.IInfoCmdArgs>{ templateId: "none", template: "mytmp" });
             return results 
                 .then(() => {
                     expect(infoNoop.called).to.be.false;

@@ -232,7 +232,10 @@ describe(TemplateManager.name, () => {
             tm["templateMatch"](emitter, "sometmpl/.neoman.config/template.json");
 
             sinon.assert.calledWith(dirnameStub, "/tmp/fullpath/sometmpl/.neoman.config/template.json");
-            sinon.assert.calledWith(eemitStub, "match", { "some": "json", "__tmplPath": "/tmp/fullpath/sometmpl/.neoman.config/.." });
+            sinon.assert.calledWith(eemitStub, "match", {
+                "some": "json",
+                "__tmplConfigPath": "/tmp/fullpath/sometmpl/.neoman.config/..",
+                "__tmplPath": "/tmp/fullpath/sometmpl/.neoman.config/.." });
             expect(eemitStub.calledWith("error", sinon.match.any)).to.be.false;
         });
 
@@ -245,7 +248,11 @@ describe(TemplateManager.name, () => {
             tm["templateMatch"](emitter, "sometmpl/.neoman.config/template.json");
 
             sinon.assert.calledWith(dirnameStub, "/tmp/fullpath/sometmpl/.neoman.config/template.json");
-            sinon.assert.calledWith(eemitStub, "match", { "some": "json", "root": "./subdirectory", "__tmplPath": "/tmp/fullpath/sometmpl/.neoman.config/.././subdirectory" });
+            sinon.assert.calledWith(eemitStub, "match", {
+                "some": "json",
+                "root": "./subdirectory",
+                "__tmplConfigPath": "/tmp/fullpath/sometmpl/.neoman.config/..",
+                "__tmplPath": "/tmp/fullpath/sometmpl/.neoman.config/.././subdirectory" });
             expect(eemitStub.calledWith("error", sinon.match.any)).to.be.false;
         });
 

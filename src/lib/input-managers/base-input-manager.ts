@@ -3,6 +3,7 @@ import { injectable, inject } from 'inversify';
 import TYPES from '../di/types';
 import * as i from '../i';
 import * as it from '../i/template';
+import { RunOptions } from '../models';
 
 @injectable()
 export abstract class BaseInputManager implements i.IInputManager {
@@ -12,5 +13,5 @@ export abstract class BaseInputManager implements i.IInputManager {
         this.tmplRootPath = tmplRootPath;
     }
 
-    abstract ask(config: it.IInputConfig): Promise<{ [key: string]: any }>;
+    abstract ask(config: it.IInputConfig, options: RunOptions): Promise<{ [key: string]: any }>;
 }
