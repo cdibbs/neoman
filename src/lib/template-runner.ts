@@ -82,6 +82,7 @@ export class TemplateRunner implements i.ITemplateRunner {
     }
 
     protected validate(tmpl: ITemplate): boolean {
+        console.log(tmpl);
         let deps = this.validator.dependenciesInstalled(tmpl);
         let missing: boolean = false;
         for(var key in deps) {

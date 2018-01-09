@@ -40,7 +40,7 @@ export class TemplateManager implements ITemplateManager {
     info(tmplId: string): Promise<ITemplate> {
         return new Promise((resolve, reject) => {
             let emitter = this.list();
-            emitter.on('end', curry.twoOf3(this.infoFound, this, resolve, tmplId));
+            emitter.on('end', curry.threeOf4(this.infoFound, this, resolve, reject, tmplId));
             emitter.on('error', curry.oneOf2(this.infoError, this, reject));
         });
     }
@@ -51,10 +51,16 @@ export class TemplateManager implements ITemplateManager {
 
     private infoFound(
         resolve: (value?: ITemplate | PromiseLike<ITemplate>) => void,
+        reject: (reason?: any) => void,
         tmplId: string,
         list: ITemplate[]): void
     {
-        resolve(this.mapToViewModel(list.find(tmpl => tmpl.identity === tmplId)));
+        let result: ITemplate = list.find(tmpl => tmpl.identity === tmplId);
+        if (typeof result === "undefined") {
+            reject(`Template with templateId "${tmplId}" was not found.`);
+        } else {
+            resolve(this.mapToViewModel(result));
+        }
     }
 
     private listMatch(templatesRef: ITemplate[], tmpl: ITemplate): void {

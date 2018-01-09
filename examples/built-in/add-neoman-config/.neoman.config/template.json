@@ -30,11 +30,11 @@
         "configuration type, glob, or ."],
     "transform": [
         "# Strings like this are comments, in this section.",
-        { "subject": "$.name", "with": "{{name}}", "configuration": "json" },
-        { "subject": "$.description", "with": "{{description}}", "configuration": "json" },
-        { "subject": "$.author", "with": "{{author}}", "configuration": "json" },
-        { "subject": "$.identity", "with": "{{uid}}", "configuration": "json" },
-        { "subject": "$.configurations.mainSrcs.files[0]", "with": "{{glob}}", "configuration": "json" }
+        { "subject": "$.name", "with": "{{name}}", "using": "json" },
+        { "subject": "$.description", "with": "{{description}}", "using": "json" },
+        { "subject": "$.author", "with": "{{author}}", "using": "json" },
+        { "subject": "$.identity", "with": "{{uid}}", "using": "json" },
+        { "subject": "$.configurations.mainSrcs.files[0]", "with": "{{glob}}", "using": "json" }
     ],
 
     "#": [

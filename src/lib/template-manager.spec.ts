@@ -75,7 +75,7 @@ describe(TemplateManager.name, () => {
             tm["infoError"] = infoErrorStub;
         });
 
-        it('should delegate "end" and "error" events to curried infoFound', () => {
+        it('should delegate "end" and "error" events to curried info* methods', () => {
             let promise = tm["info"]("myid");
 
             sinon.assert.calledWith(emitterOnStub, "end", sinon.match.func);
@@ -84,7 +84,7 @@ describe(TemplateManager.name, () => {
             let errfn = emitterOnStub.args[1][1];
             endfn([]);
             errfn("an error!");
-            sinon.assert.calledWith(infoFoundStub, sinon.match.func, "myid", []);
+            sinon.assert.calledWith(infoFoundStub, sinon.match.func, sinon.match.func, "myid", []);
             sinon.assert.calledWith(infoErrorStub, sinon.match.func, "an error!");
         });
     });
@@ -101,8 +101,8 @@ describe(TemplateManager.name, () => {
     });
 
     describe(TemplateManager.prototype["infoFound"].name, () => {
-        it('should resolve with a mapped first match', () => {
-            let resStub = sinon.stub(), mapStub = sinon.stub();
+        it('should error when key does not exist', () => {
+            let resStub = sinon.stub(), rejStub = sinon.stub(), mapStub = sinon.stub();
             let mapRet = {};
             mapStub.returns(mapRet);
             tm["mapToViewModel"] = mapStub;
@@ -111,7 +111,24 @@ describe(TemplateManager.name, () => {
                 { identity: "myid" }
             ];
 
-            tm["infoFound"](resStub, "myid", <any>tmpls);
+            tm["infoFound"](resStub, rejStub, "dne_id", <any>tmpls);
+
+            sinon.assert.notCalled(resStub);
+            sinon.assert.calledWith(rejStub, sinon.match(/templateId.*not found/));
+            sinon.assert.notCalled(mapStub); // don't waste the computation
+        });
+
+        it('should resolve with a mapped first match', () => {
+            let resStub = sinon.stub(), rejStub = sinon.stub(), mapStub = sinon.stub();
+            let mapRet = {};
+            mapStub.returns(mapRet);
+            tm["mapToViewModel"] = mapStub;
+            let tmpls = [
+                { identity: "notmyid" },
+                { identity: "myid" }
+            ];
+
+            tm["infoFound"](resStub, rejStub, "myid", <any>tmpls);
 
             sinon.assert.calledWith(resStub, sinon.match.same(mapRet));
             sinon.assert.calledWith(mapStub, sinon.match.same(tmpls[1]));
