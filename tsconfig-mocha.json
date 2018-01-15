@@ -9,6 +9,7 @@
 		"suppressImplicitAnyIndexErrors": true,
 		"moduleResolution": "node",
 		"emitDecoratorMetadata": true,
+		"preserveConstEnums": true,
 		"sourceMap": true,
 		"declaration": true,
 		"outDir": "test",

@@ -72,7 +72,6 @@
     "chai": "^4.0.2",
     "chai-as-promised": "^7.1.1",
     "codecov": "^3.0.0",
-    "commandpost": "^1.1.0",
     "copyfiles": "^1.2.0",
     "cross-env": "^5.1.3",
     "express": "^4.15.3",

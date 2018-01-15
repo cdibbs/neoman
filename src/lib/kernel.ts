@@ -10,6 +10,7 @@ import TYPES from './di/types';
 import KEYS from './settings-keys';
 import { ISettingsProvider, IPackage, IUserMessager, Ii18nFunction, IKernel } from './i';
 import { CommandValidationResult } from './commands/models';
+import { cmdErrors } from './cmd-errors';
 
 /**
  * Contains the core code to run the application. Only DI runs before this.
@@ -82,7 +83,11 @@ export class Kernel implements IKernel {
     }
 
     handleError(err: Error | CommandValidationResult): Promise<{}> {
-        if (!(err instanceof CommandValidationResult)) {
+        if (err instanceof this.commandpost.CommandpostError) {
+            this.msg.error(cmdErrors[err.params.reason](err));
+            this.process.exit(1);
+            return Promise.reject(err);
+        } else if (!(err instanceof CommandValidationResult)) {
             let nerr = new NestedError(this.msg.mf("There was an unexpected error."), err);
             this.msg.error(nerr.stack);
             this.process.exit(1); // can be no-op in integ tests
