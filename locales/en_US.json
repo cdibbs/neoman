@@ -61,5 +61,9 @@
 	"Manage and run Neoman project templates. Use: `neoman help [command]` for more help.": "Manage and run Neoman project templates. Use: `neoman help [command]` for more help.",
 	"Force things you maybe shouldn't force. Me: \"Don't do it, blah blah... Oh no, you poor fool!\"": "Force things you maybe shouldn't force. Me: \"Don't do it, blah blah... Oh no, you poor fool!\"",
 	"There was an error running the project generator.": "There was an error running the project generator.",
-	"You must specify a template identifier.\n\n{helptext}": "You must specify a template identifier.\n\n{helptext}"
+	"You must specify a template identifier.\n\n{helptext}": "You must specify a template identifier.\n\n{helptext}",
+	"Excluded because 'using' directive '{rules[0]}' does not match, and no explicit, overriding inclusion rule exists.": "Excluded because 'using' directive '{rules[0]}' does not match, and no explicit, overriding inclusion rule exists.",
+	"Reason: {reason}": "Reason: {reason}",
+	"Rule(s): {rules}": "Rule(s): {rules}",
+	"Excluded implicitly because 'files' inclusion rules exist, yet none match.": "Excluded implicitly because 'files' inclusion rules exist, yet none match."
 }

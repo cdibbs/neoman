@@ -23,7 +23,9 @@ let TYPES = {
     HandlerService: Symbol("HandlerService"),
     i18n: Symbol("i18n"),
     Mapper: Symbol("Mapper"),
-    SettingsType: Symbol("SettingsType")
+    SettingsType: Symbol("SettingsType"),
+    ErrorReporter: Symbol("ErrorReporter"),
+    TemplateInfo: Symbol("TemplateInfo")
 }
 
 export default TYPES;

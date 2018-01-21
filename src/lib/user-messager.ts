@@ -60,7 +60,9 @@ export class UserMessager implements IUserMessager {
      * @param mfDict Dictionary to use for i18n
      */
     i18n(mfDict?: any): IUserMessager {
-        let um = new UserMessager(this.__mf, mfDict, true);
+        let newDict = {};
+        Object.assign(newDict, this.mfDict || {}, mfDict);
+        let um = new UserMessager(this.__mf, newDict, true);
         um.console = this.console;
         return um;
     }

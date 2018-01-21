@@ -13,3 +13,4 @@ export * from './i-file-patterns';
 export * from './i-template-validator';
 export * from './i-handler-service';
 export * from './i-i18n-function';
+export * from './i-error-reporter';

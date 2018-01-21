@@ -52,7 +52,7 @@
     "configurations": {
         "#": "Configuration keys should be short but descriptive. ",
         "json": {
-            "files": ["**/*.json"],
+            "files": ["**\\*.json"],
             "plugin": "json"
         }
     }

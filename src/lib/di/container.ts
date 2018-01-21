@@ -11,6 +11,7 @@ import { TransformManager, PathTransformManager } from '../transformers';
 import { TemplateRunner } from '../template-runner';
 import { FilePatterns } from '../file-patterns';
 import { UserMessager } from '../user-messager';
+import { ErrorReporter } from '../error-reporter';
 import { TemplateValidator } from '../template-validator';
 import { HandlerService } from '../handler-service';
 import { InputManager, BrowserInputManager, CustomInputManager, PromptInputManager, DefaultsInputManager } from '../input-managers';
@@ -21,6 +22,8 @@ import { MapperService, IMapperService } from 'simple-mapper';
 import * as i from '../i';
 import * as it from '../transformers/i';
 import * as m from '../models';
+import { ITemplateInfo } from "../commands/info/i/i-template-info";
+import { TemplateInfo } from "../commands/info/template-info";
 
 export let containerBuilder = (packageJson: any = null, localesPath?: string): Container => {
     let json = packageJson || require(path.join(path.dirname(__filename), "../../package.json"));
@@ -44,6 +47,8 @@ export let containerBuilder = (packageJson: any = null, localesPath?: string): C
     container.bind<i.IInputManager>(TYPES.PromptInputManager).to(PromptInputManager);
     container.bind<i.IInputManager>(TYPES.DefaultsInputManager).to(DefaultsInputManager);
     container.bind<IMapperService>(TYPES.Mapper).to(MapperService);
+    container.bind<i.IErrorReporter>(TYPES.ErrorReporter).to(ErrorReporter);
+    container.bind<ITemplateInfo>(TYPES.TemplateInfo).to(TemplateInfo);
     container.bind(TYPES.SettingsType).toDynamicValue(() => m.Settings);
 
     let lobj = <typeof i18n>{};

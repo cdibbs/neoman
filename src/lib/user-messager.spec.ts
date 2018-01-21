@@ -92,11 +92,11 @@ describe(UserMessager.name, () => {
 
     describe('#i18n', () => {
         it('returns new instance of self with i18n enabled', () => {
-            let dict = {};
+            let dict = { mykey: 1 };
             let result = t.i18n(dict);
             expect(result["__mf"]).to.equal(mf);
             expect(result["usei18n"]).to.be.true;
-            expect(result["mfDict"] === dict).to.be.true;
+            expect(result["mfDict"].mykey).to.equal(dict.mykey);
         });
     });
 

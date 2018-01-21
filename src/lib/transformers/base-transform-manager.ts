@@ -203,7 +203,7 @@ export class BaseTransformManager {
     replaceDoesApply(path: string, files: string[], ignore: string[], configKey: string): RuleMatchResult {
         if (typeof files === "undefined" && typeof ignore === "undefined" && typeof configKey === "undefined")
         {
-            let reason = "Applies globally because no explicit exclusion or inclusion rules defined.";
+            let reason = "All files and paths match implicitly because no filters defined ('files', 'ignore', etc).";
             return new RuleMatchResult(true, reason);
         }
 
@@ -216,26 +216,26 @@ export class BaseTransformManager {
         if (configKey) {
             let configResult = this.configDoesApply(path, configKey);
             if (configResult.matches) {
-                let reason = "Included because of 'using' directive: {configKey}.";
-                return new RuleMatchResult(true, reason, configResult);
+                let reason = "Included because of 'using' directive: {rules[0]}.";
+                return new RuleMatchResult(true, reason, configResult, [configKey]);
             } else if (! files) { // not defined = nothing overriding config non-match
-                let reason = "Excluded because 'using' directive '{configKey}' does not match, and no explicit, overriding inclusion rule exists.";
-                return new RuleMatchResult(false, reason, configResult);
+                let reason = "Excluded because 'using' directive '{rules[0]}' does not match, and no explicit, overriding inclusion rule exists.";
+                return new RuleMatchResult(false, reason, configResult, [configKey]);
             }
         }
 
         // if files weren't defined, implicit inclusion. Otherwise, inclusion only if match.
         let filesMatch = (files && (files instanceof Array) && files.length) ? this.filePatterns.match(path, files) : [];
         if (!files || !files.length) {
-            let reason = "Included implicitly because no 'using' or 'ignore' rule caused explicit exclusion.";
+            let reason = "Included implicitly because no 'using' or 'ignore' rules match.";
             return new RuleMatchResult(true, reason);
         } else if (filesMatch.length) {
-            let reason = "Included explicitly by matching 'files' include rules, while no overriding 'ignore' rules match.";
+            let reason = "Included explicitly by matching 'files' inclusion rules, while no overriding 'ignore' rules match.";
             return new RuleMatchResult(true, reason, null, filesMatch);
         }
 
-        let reason = "Excluded implicitly because explicit 'files' include rules defined, yet none match.";
-        return new RuleMatchResult(false, reason);
+        let reason = `Excluded implicitly because 'files' inclusion rules exist, yet none match.` ;
+        return new RuleMatchResult(false, reason, null, [path, files.join(',')]);
     }
 
     /**

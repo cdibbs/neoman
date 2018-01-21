@@ -2,7 +2,6 @@
 	"#": "This file is only an aid to your code editor. See root dir for real tsconfig files.",
 
 	"compilerOptions": {
-        "baseUrl": "./",
 		"experimentalDecorators": true,
 		"lib": ["es6", "dom"],
 		"module": "commonjs",
@@ -24,8 +23,8 @@
 			"requireg"
 		]
 	},
-	"files": [
-		"lib/**/*.test.ts"
+	"include": [
+		"**/*.ts"
 	],
 	"exclude": [
 	]

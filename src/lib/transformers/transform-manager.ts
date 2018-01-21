@@ -7,6 +7,8 @@ import * as ir from '../i/template';
 import * as bi from '../i';
 import { BaseTransformManager } from './base-transform-manager';
 import { TemplateConfiguration } from './models/configuration';
+import { RuleMatchResult } from '../models';
+import { IUserMessager } from '../i';
 
 @injectable()
 export class TransformManager extends BaseTransformManager implements i.ITransformManager{
@@ -60,10 +62,23 @@ export class TransformManager extends BaseTransformManager implements i.ITransfo
             msgCtxt.debug('Applying transform definition for "{subject}"{src}.', 2)
             content = this.applyReplace(content, rdef, path);
         } else {
-            msgCtxt.debug('Skipping transform definition for "{subject}"{src}.', 2);
+            let nest = msgCtxt.debug('Skipping transform definition for "{subject}"{src}.', 2);
+            this.displaySkipReason(msgCtxt, check);
         }
 
         return content;
+    }
+
+    protected displaySkipReason(msgCtxt: IUserMessager, check: RuleMatchResult) {
+        msgCtxt = msgCtxt.i18n({rules: check.rules});
+        let reason = msgCtxt.mf(check.reason);
+        msgCtxt = msgCtxt.i18n({reason, rulesSummary: (check.rules || []).join(', ') || "N/A" });
+        msgCtxt.debug("Reason: {reason}");
+        let nest = msgCtxt.debug("Rule(s): {rules}");
+
+        if (check.nestedRuleMatchResult) {
+            this.displaySkipReason(nest, check.nestedRuleMatchResult);
+        }
     }
 
     protected formatSource(rdef: ir.ITransform): string {

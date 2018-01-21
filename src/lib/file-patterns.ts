@@ -9,7 +9,7 @@ export class FilePatterns implements i.IFilePatterns {
 
     match(path: string, patterns: string[]): string[] {
         return patterns.reduce((p, cpattern) => {
-            if (this.minimatch(path, cpattern)) {
+            if (this.minimatch(path, cpattern, { dot: true } )) {
                 p.push(cpattern);
             }
             return p;
