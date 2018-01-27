@@ -36,14 +36,12 @@ export class InfoCommand extends BaseCommand<IInfoCmdOpts, IInfoCmdArgs> {
     }
 
     public runWithValidArgs(opts: IInfoCmdOpts, args: IInfoCmdArgs, validationResult: CommandValidationResult): Promise<any> {
-        console.log(this.reporter);
         return this.tmplMgr.info(args.templateId)
             .then(curry.bindOnly(this.tmplInfo.showTemplateInfo, this))
             .catch(curry.bindOnly(this.reporter.reportError, this));
     }
 
     public validate(cmd: Command<IInfoCmdOpts, IInfoCmdArgs>, opts: IInfoCmdOpts, args: IInfoCmdArgs): Promise<CommandValidationResult> {
-        console.log(this.reporter);
         let promise: Promise<CommandValidationResult>;
         if (! args.templateId) {
             var v = new CommandValidationResult();
