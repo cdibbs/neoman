@@ -1,6 +1,5 @@
 // 3rd party imports installed via npm install
 import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown, Expect } from 'alsatian';
-import * as sinon from 'sinon';
 import { Command } from "commandpost";
 import * as TypeMoq from "typemoq";
 import { It, Times } from 'typemoq';
@@ -15,33 +14,26 @@ import { ITemplate } from '../../i/template';
 import { mockMessagerFactory } from '../../../spec-lib'
 import { InfoCommand } from './info-command';
 import { ErrorReporter } from '../../error-reporter';
+import { TemplateManager } from '../../template-manager'
 
 @TestFixture("Info command tests")
 export class InfoCommandTests {
     ic: InfoCommand;
     cmdDef: Command<any, any>;
-    tmplMgrStub: sinon.SinonStub;
     errRepMock: TypeMoq.IMock<i.IErrorReporter>;
     tmplInfoMock: TypeMoq.IMock<ITemplateInfo>;
-    infoNoop: sinon.SinonSpy;
+    tmplMgrMock: TypeMoq.IMock<i.ITemplateManager>;
 
     @AsyncSetup
     public async beforeEach() {
         this.errRepMock = TypeMoq.Mock.ofType<i.IErrorReporter>(ErrorReporter);
         this.tmplInfoMock = TypeMoq.Mock.ofType<ITemplateInfo>(TemplateInfo);
+        this.tmplMgrMock = TypeMoq.Mock.ofType<TemplateManager>();
         this.cmdDef = <any>{ help: () => "" };
-        this.ic = new InfoCommand(<i.ITemplateManager>{}, <i.ITemplateValidator>{ }, mockMessagerFactory(),
+        this.ic = new InfoCommand(this.tmplMgrMock.object, mockMessagerFactory(),
             <NodeJS.Process>{}, <i.IPath>{}, this.errRepMock.object, this.tmplInfoMock.object);
-        let vstub = sinon.stub();
-        vstub.returns([]);
-        this.ic["validator"].dependenciesInstalled = vstub;
-
-        this.infoNoop = sinon.spy();
-        this.tmplMgrStub = sinon.stub();
-
+    
         this.ic["tempDir"] = "noop";
-        this.ic["tmplMgr"].info = this.tmplMgrStub;
-        this.ic["showTemplateInfo"] = this.infoNoop;
     }
 
     @AsyncTeardown
@@ -51,8 +43,8 @@ export class InfoCommandTests {
 
     @AsyncTest("should get template info and report it to the user.")
     public async run_reportsTemplateInfoToUser() {
-        let info = { interesting: false };
-        this.tmplMgrStub.returns(Promise.resolve(info));
+        let info = <ITemplate><any>{ interesting: false };
+        this.tmplMgrMock.setup(m => m.info(It.isAnyString())).returns(() => Promise.resolve(info));
 
         let results = this.ic.run(this.cmdDef, <nci.IInfoCmdOpts>{}, <nci.IInfoCmdArgs>{ templateId: "none", template: "mytmp" });
         return results 
@@ -65,15 +57,13 @@ export class InfoCommandTests {
 
     @AsyncTest("should report any error.")
     public async run_reportsAnyError() {
-        this.tmplMgrStub.returns(Promise.reject("bad"));
+        this.tmplMgrMock.setup(m => m.info(It.isAnyString())).returns(() => Promise.reject("bad"));
 
         let results = this.ic.run(this.cmdDef, <nci.IInfoCmdOpts>{}, <nci.IInfoCmdArgs>{ templateId: "none", template: "mytmp" });
         return results 
             .then(() => {
-                Expect(this.infoNoop.called).toBe(false);
                 this.tmplInfoMock.verify<void>(t => t.showTemplateInfo(It.isAny()), Times.never());
                 this.errRepMock.verify<void>(x => x.reportError(TypeMoq.It.isAny()), TypeMoq.Times.once());
-                //sinon.assert.calledWith(this.errorNoop, "bad");
             });
     }
 }

@@ -17,7 +17,6 @@ export class InfoCommand extends BaseCommand<IInfoCmdOpts, IInfoCmdArgs> {
 
     constructor(
         @inject(TYPES.TemplateManager) protected tmplMgr: ITemplateManager,
-        @inject(TYPES.TemplateValidator) private validator: ITemplateValidator,
         @inject(TYPES.UserMessager) protected msg: IUserMessager,
         @inject(TYPES.Process) protected process: NodeJS.Process,
         @inject(TYPES.Path) private path: IPath,

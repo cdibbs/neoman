@@ -8,6 +8,7 @@ let TYPES = {
     Path: Symbol("Path"),
     FS: Symbol("FileSystem"),
     Glob: Symbol("Glob"),
+    GlobFactory: Symbol("GlobFactory"),
     UserMessager: Symbol("UserMessager"),
     TemplateManager: Symbol("TemplateManager"),
     TemplateRunner: Symbol("TemplateRunner"),

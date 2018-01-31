@@ -1,4 +1,4 @@
-export * from './list-command';
+export * from './list/list-command';
 export * from './new-command';
 export * from './set-dir-command';
 export * from './info/info-command';

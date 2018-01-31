@@ -1,12 +1,13 @@
 import { injectable, inject } from 'inversify';
 
-import { COMMANDS, Commands } from './commands';
-import { BaseCommand } from './base-command';
-import TYPES from '../di/types';
-import { IFileSystem, IGlob, IPath, IUserMessager } from '../i';
+import { COMMANDS, Commands } from '../commands';
+import { BaseCommand } from '../base-command';
+import TYPES from '../../di/types';
+import { IFileSystem, IGlob, IPath, IUserMessager } from '../../i';
 import Command from 'commandpost/lib/command';
-import { CommandValidationResult } from './models';
-import { curry } from '../util/curry';
+import { CommandValidationResult } from '../models';
+import { curry } from '../../util/curry';
+import { IGlobFactory } from '../../util/i-glob-factory';
 
 @injectable()
 export class ListCommand extends BaseCommand<any, any> {
@@ -19,21 +20,21 @@ export class ListCommand extends BaseCommand<any, any> {
         @inject(TYPES.Process) protected process: NodeJS.Process,
         @inject(TYPES.FS) private fs: IFileSystem,
         @inject(TYPES.Path) private path: IPath,
-        @inject(TYPES.Glob) private glob: IGlob
+        @inject(TYPES.GlobFactory) private globFactory: IGlobFactory
     ) {
         super(msg, process);
     }
 
-    run(cmdDef: Command<any, any>, opts: any, args: any): Promise<any> {
-        return this.validate(cmdDef, opts, args)
-            .then(curry.twoOf3(this.runWithValidation, this, opts, args));
-    }
-
-    public async runWithValidation(opts: any, args: any, validationResult: CommandValidationResult): Promise<any> {
+    public async run(cmdDef: Command<any, any>, opts: any, args: any): Promise<any> {
+        let validationResult = await this.validate(cmdDef, opts, args);
         if (validationResult.IsError) {
             return validationResult;
         }
-        
+
+        return this.runValidated(opts, args);
+    }
+
+    public async runValidated(opts: any, args: any): Promise<any> {       
         let listerPromise = new Promise((resolve, reject) => {
             this.resolve = resolve;
         });
@@ -42,9 +43,9 @@ export class ListCommand extends BaseCommand<any, any> {
             .info("Listing templates in your template directory.")
             .info("Using: {tempDir}\n");
 
-        let g = new this.glob.Glob(this.neomanPath, { cwd: this.tempDir });
-        g.on("match", this.bind(this.match));
-        g.on("end", this.bind(this.end));
+        let g = this.globFactory.build(this.neomanPath, { cwd: this.tempDir });
+        g.on("match", curry.bindOnly(this.match, this));
+        g.on("end", curry.bindOnly(this.end, this));
         return listerPromise;
     }
 
@@ -68,9 +69,5 @@ export class ListCommand extends BaseCommand<any, any> {
         let qty = (allFiles || []).length;
         this.msg.i18n({num: qty}).info(`\n{num} template(s) found.\n`);
         this.resolve(qty);
-    }
-
-    bind<T extends (...args: any[]) => any>(fn: T): T {
-        return fn.bind(this);
     }
 }
