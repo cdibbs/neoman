@@ -5,7 +5,7 @@ import { BaseCommand } from '../base-command';
 import TYPES from '../../di/types';
 import { IFileSystem, IGlob, IPath, IUserMessager } from '../../i';
 import Command from 'commandpost/lib/command';
-import { CommandValidationResult } from '../models';
+import { CommandValidationResult } from '../../models';
 import { curry } from '../../util/curry';
 import { IGlobFactory } from '../../util/i-glob-factory';
 

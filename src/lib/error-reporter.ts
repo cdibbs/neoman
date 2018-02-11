@@ -1,4 +1,4 @@
-import { CommandValidationResult, CommandErrorType } from "./commands/models";
+import { CommandValidationResult, CommandErrorType } from "./models";
 import { inject, injectable } from "inversify";
 import { IUserMessager, IErrorReporter } from "./i";
 import TYPES from "./di/types";
@@ -15,8 +15,11 @@ export class ErrorReporter implements IErrorReporter {
         if (err instanceof CommandValidationResult && err.ErrorType == CommandErrorType.UserError) {
             this.msg.info(err.Message);
         } else {
-            this.msg.i18n().error('There was an error reading the templates:');
-            this.msg.error(err['stack'] || err.toString());
+            this.msg.i18n().error('There was an unexpected error:');
+            this.msg.error(err['message'] || err.toString());
+            if (err['stack']) {
+                this.msg.error(err['stack']);
+            }
         }
     }
 }

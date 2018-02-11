@@ -1,6 +1,6 @@
 import { Commands } from '../commands';
 import Command from 'commandpost/lib/command';
-import { CommandValidationResult } from '../models';
+import { CommandValidationResult } from '../../models';
 
 export interface ICommand<TOpts, TArgs> {
     type: Commands;

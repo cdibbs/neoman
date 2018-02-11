@@ -79,30 +79,42 @@ export class TemplateManager implements ITemplateManager {
 
     private stripComments(obj: any, parent?: any, curKey?: string | number): any {        
         if (obj instanceof Array) {
-            if (!parent) {
-                throw new Error(this.msg.i18n().mf("Root-level configuration element cannot be an array."));
-            }
-
-            let stripped = [];
-            for(var i=0; i<obj.length; i++) {
-                if (typeof obj[i] !== "string" || obj[i].substr(0, 1) !== "#")
-                {
-                    stripped.push(this.stripComments(obj[i], obj, i));
-                }
-            }
-
-            return stripped;
+            return this.stripArrayComments(obj, parent, curKey);
         } else if (typeof obj === "object") {
-            for(var key in obj) {
-                if (key === "#") {
-                    delete obj[key];
-                } else if (typeof obj[key] === "object") {
-                    obj[key] = this.stripComments(obj[key], obj, key);
-                }
+            return this.stripObjectComments(obj, parent, curKey);
+        }
+
+        return obj;
+    }
+
+    // Co-recursive with stripComments
+    private stripObjectComments(obj: any, parent?: any, curKey?: string | number): any {
+        for(var key in obj) {
+            if (key === "#") {
+                delete obj[key];
+            } else if (typeof obj[key] === "object") {
+                obj[key] = this.stripComments(obj[key], obj, key);
             }
         }
 
         return obj;
+    }
+
+    // Co-recursive with stripComments
+    private stripArrayComments(obj: any, parent?: any, curKey?: string | number): any {
+        if (!parent) {
+            throw new Error(this.msg.i18n().mf("Root-level configuration element cannot be an array."));
+        }
+
+        let stripped = [];
+        for(var i=0; i<obj.length; i++) {
+            if (typeof obj[i] !== "string" || obj[i].substr(0, 1) !== "#")
+            {
+                stripped.push(this.stripComments(obj[i], obj, i));
+            }
+        }
+
+        return stripped;
     }
 
     private templateMatch(emitter: EventEmitter<TemplateSearchEmitterType>, file: string): any {

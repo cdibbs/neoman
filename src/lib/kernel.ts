@@ -9,8 +9,8 @@ import { ICommandFactory, INewCmdOpts, INewCmdArgs, IInfoCmdArgs, IInfoCmdOpts }
 import TYPES from './di/types';
 import KEYS from './settings-keys';
 import { ISettingsProvider, IPackage, IUserMessager, Ii18nFunction, IKernel } from './i';
-import { CommandValidationResult } from './commands/models';
 import { cmdErrors } from './cmd-errors';
+import { CommandResult, CommandValidationResult } from './models';
 
 /**
  * Contains the core code to run the application. Only DI runs before this.
@@ -20,7 +20,7 @@ export class Kernel implements IKernel {
     private tempDir: string;
     private commandpost = commandpost;
 
-    constructor(
+    public constructor(
         @inject(TYPES.UserMessager) private msg: IUserMessager,
         @inject(TYPES.Process) private process: NodeJS.Process,
         @inject(TYPES.SettingsProvider) private settings: ISettingsProvider,
@@ -31,7 +31,7 @@ export class Kernel implements IKernel {
         this.tempDir = this.settings.get(KEYS.tempDirKey);
     }
 
-    Go(argv: string[] = this.process.argv): Promise<{}> {
+    public async Go(argv: string[] = this.process.argv): Promise<{}> {
         try {
             let imsg = this.msg.i18n();
             let root = commandpost
@@ -74,24 +74,31 @@ export class Kernel implements IKernel {
 
             info.action(curry.oneOf3(infoCmd.run, infoCmd, info));
 
-            return this.commandpost
-                .exec(root, argv)
-                .catch(curry.bindOnly(this.handleError, this));
+            let result = <CommandResult>await this.commandpost.exec(root, argv);
+            this.handleCommandResult(result);
         } catch (ex) {
             return this.handleError(ex);
         }
     }
 
-    handleError(err: Error | CommandValidationResult): Promise<{}> {
-        if (err instanceof this.commandpost.CommandpostError) {
-            this.msg.error(cmdErrors[err.params.reason](err));
-            this.process.exit(1);
-            return Promise.reject(err);
-        } else if (!(err instanceof CommandValidationResult)) {
-            let nerr = new NestedError(this.msg.mf("There was an unexpected error."), err);
+    protected handleCommandResult(result: CommandResult) {
+        if (result && result.IsError) {
+            let nerr = new NestedError(this.msg.mf("There was an unexpected error."), result);
             this.msg.error(nerr.stack);
             this.process.exit(1); // can be no-op in integ tests
             return Promise.reject(nerr);
+        }
+
+        this.process.exit();
+        return Promise.resolve(null);
+    }
+
+    protected handleError(err: Error): Promise<{}> {
+        if (err instanceof this.commandpost.CommandpostError) {
+            this.msg.error(cmdErrors[err.params.reason](err));
+            this.process.exit(1);
+        } else {
+            this.msg.error(err)
         }
 
         return Promise.reject(err);

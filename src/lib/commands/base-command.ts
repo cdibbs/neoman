@@ -5,7 +5,7 @@ import { ICommand } from './i';
 import { IUserMessager } from '../i';
 import TYPES from '../di/types';
 import Command from 'commandpost/lib/command';
-import { CommandValidationResult, CommandErrorType } from './models';
+import { CommandValidationResult, CommandErrorType } from '../models';
 
 @injectable()
 export abstract class BaseCommand<TOpts, TArgs> implements ICommand<TOpts, TArgs> {
@@ -23,9 +23,12 @@ export abstract class BaseCommand<TOpts, TArgs> implements ICommand<TOpts, TArgs
     {
         if (! this.tempDir || ! this.tempDir.trim()) {
             let v = new CommandValidationResult();
-            v.Message = this.msg.i18n().mf("You have not set a template directory. Please run setdir, first.");
+            let missingTemplateDir = this.msg.i18n().mf("You have not set a template directory. Please run setdir, first.");
+            v.Messages.push(missingTemplateDir);
             v.ErrorType = CommandErrorType.UserError;
-            return Promise.reject(v);
+            return v;
         }
+
+        return new CommandValidationResult();
     }
 }

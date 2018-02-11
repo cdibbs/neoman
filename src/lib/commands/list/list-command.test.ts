@@ -23,11 +23,8 @@ export class ListCommandTests {
     cmdDef: Command<any, any>;
     globMock: TypeMoq.IMock<glob.IGlob>;
     globFactoryMock: TypeMoq.IMock<IGlobFactory>;
-    msgrMock: TypeMoq.IMock<i.IUserMessager>;
     c: ListCommand;
-    tmplMgrStub: sinon.SinonStub;
     errRepMock: TypeMoq.IMock<i.IErrorReporter>;
-    infoNoop: sinon.SinonSpy;
 
     @AsyncSetup
     public async beforeEach() {
@@ -37,22 +34,11 @@ export class ListCommandTests {
         this.globFactoryMock
             .setup(m => m.build(It.isAnyString(), It.isAny()))
             .returns(() => this.globMock.object);
-        this.msgrMock = TypeMoq.Mock.ofType<i.IUserMessager>(UserMessager);
         this.c = new ListCommand(mockMessagerFactory(), <NodeJS.Process>{}, <i.IFileSystem>{ }, <i.IPath>{}, this.globFactoryMock.object);
         this.c.tempDir = "/tmp/mytemplates";
 
         this.errRepMock = TypeMoq.Mock.ofType<i.IErrorReporter>(ErrorReporter);
         this.cmdDef = <any>{ help: () => "" };
-        /*let vstub = sinon.stub();
-        vstub.returns([]);
-        this.ic["validator"].dependenciesInstalled = vstub;
-
-        this.infoNoop = sinon.spy();
-        this.tmplMgrStub = sinon.stub();
-
-        this.ic["tempDir"] = "noop";
-        this.ic["tmplMgr"].info = this.tmplMgrStub;
-        this.ic["showTemplateInfo"] = this.infoNoop;*/
     }
 
     @Teardown
@@ -62,16 +48,9 @@ export class ListCommandTests {
 
     @AsyncTest('should set the Glob to use tempDir, and bind match and end')
     public async runValidated_globShouldUseTempDir() {
-        //let onSpy = sinon.spy(), bindStub = sinon.stub();
-        //let globStub = sinon.stub();
-        //globStub.returns({ on: onSpy});
         this.globMock.setup(m => m.on("match", this.c.match));
         this.globMock.setup(m => m.on("end", this.c.end));
-        //bindStub.withArgs(c.match).returns(c.match);
-        //bindStub.withArgs(c.end).returns(c.end);
 
-        //c["glob"].Glob = <any>globStub;
-        //c["bind"] = bindStub;
         let opts = {}, args = {};
         let result = this.c.runValidated(opts, args);
         this.globFactoryMock.verify(m => m.build(this.c.neomanPath, { cwd: this.c.tempDir }), TypeMoq.Times.once());

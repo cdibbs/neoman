@@ -8,7 +8,7 @@ import { ITemplate } from '../../i/template';
 import { ITemplateInfo } from './i/i-template-info';
 import { IInfoCmdArgs, IInfoCmdOpts } from '../i';
 import TYPES from '../../di/types';
-import { CommandValidationResult, CommandErrorType } from '../models';
+import { CommandValidationResult, CommandErrorType } from '../../models';
 import { curry } from '../../util/curry';
 
 @injectable()
@@ -44,7 +44,7 @@ export class InfoCommand extends BaseCommand<IInfoCmdOpts, IInfoCmdArgs> {
         let promise: Promise<CommandValidationResult>;
         if (! args.templateId) {
             var v = new CommandValidationResult();
-            v.Message = this.msg.i18n({helptext: cmd.helpText()}).mf("You must specify a template identifier.\n\n{helptext}");
+            v.Messages.push(this.msg.i18n({helptext: cmd.helpText()}).mf("You must specify a template identifier.\n\n{helptext}"));
             v.ErrorType = CommandErrorType.UserError;
             promise = Promise.reject(v);
         } else {

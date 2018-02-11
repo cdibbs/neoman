@@ -65,5 +65,6 @@
 	"Excluded because 'using' directive '{rules[0]}' does not match, and no explicit, overriding inclusion rule exists.": "Excluded because 'using' directive '{rules[0]}' does not match, and no explicit, overriding inclusion rule exists.",
 	"Reason: {reason}": "Reason: {reason}",
 	"Rule(s): {rules}": "Rule(s): {rules}",
-	"Excluded implicitly because 'files' inclusion rules exist, yet none match.": "Excluded implicitly because 'files' inclusion rules exist, yet none match."
+	"Excluded implicitly because 'files' inclusion rules exist, yet none match.": "Excluded implicitly because 'files' inclusion rules exist, yet none match.",
+	"There was an unexpected error:": "There was an unexpected error:"
 }

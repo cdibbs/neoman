@@ -7,7 +7,7 @@ import * as i from '../i';
 import KEYS from '../settings-keys';
 import TYPES from '../di/types';
 import Command from 'commandpost/lib/command';
-import { CommandValidationResult } from './models';
+import { CommandValidationResult } from '../models';
 
 @injectable()
 export class SetDirCommand extends BaseCommand<any, any> {

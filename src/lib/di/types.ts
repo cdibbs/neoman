@@ -26,7 +26,8 @@ let TYPES = {
     Mapper: Symbol("Mapper"),
     SettingsType: Symbol("SettingsType"),
     ErrorReporter: Symbol("ErrorReporter"),
-    TemplateInfo: Symbol("TemplateInfo")
+    TemplateInfo: Symbol("TemplateInfo"),
+    NewCommandValidator: Symbol("NewCommandValidator")
 }
 
 export default TYPES;

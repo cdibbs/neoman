@@ -26,6 +26,7 @@ import { ITemplateInfo } from "../commands/info/i/i-template-info";
 import { TemplateInfo } from "../commands/info/template-info";
 import { IGlobFactory } from "../util/i-glob-factory";
 import { GlobFactory } from "../util/glob-factory";
+import { NewCommandValidator, ICommandValidator, INewCmdArgs, INewCmdOpts } from "../commands";
 
 export let containerBuilder = (packageJson: any = null, localesPath?: string): Container => {
     let json = packageJson || require(path.join(path.dirname(__filename), "../../package.json"));
@@ -68,6 +69,8 @@ export let containerBuilder = (packageJson: any = null, localesPath?: string): C
     container.bind<ICommand<any, any>>(TYPES.Commands).to(ListCommand);
     container.bind<ICommand<any, any>>(TYPES.Commands).to(InfoCommand);
     container.bind<ICommandFactory>(TYPES.CommandFactory).to(CommandFactory)
+
+    container.bind<ICommandValidator<INewCmdOpts, INewCmdArgs>>(TYPES.NewCommandValidator).to(NewCommandValidator);
 
     container.bind<i.IPath>(TYPES.Path).toConstantValue(path);
     container.bind<i.IFileSystem>(TYPES.FS).toConstantValue(fs);
