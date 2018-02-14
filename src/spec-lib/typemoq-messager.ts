@@ -38,7 +38,6 @@ export let mockMessagerFactory = ( { echo = false }: { echo: boolean } = { echo:
         .callback(createCallback(console.log));
 
     let m = new UserMessager(i18n.__mf);
-    console.log(mockConsole.object);
     m["console"] = mockConsole.object;
 
     return m;
