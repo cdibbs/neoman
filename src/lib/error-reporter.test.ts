@@ -20,7 +20,7 @@ export class ErrorReporterTests {
 
     @TestCases(userErrorGen())
     @Test("should show stack when appropriate.")
-    reportError_showStackOrNot(err: Error | string, expMsg: string, errorTimes: number, infoTimes: number) {
+    public reportError_showStackOrNot(err: Error | string, expMsg: string, errorTimes: number, infoTimes: number) {
         this.reporter.reportError(err);
 
         this.messagerMock.verify(m => m.error(It.isAnyString()), Times.exactly(errorTimes));

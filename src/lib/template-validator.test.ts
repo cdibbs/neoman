@@ -20,7 +20,7 @@ export class TemplateValidatorTests {
     }
 
     @Test("should build dictionary of installed dependencies.")
-    reportError_showStackOrNot(err: Error | string, expMsg: string, errorTimes: number, infoTimes: number) {
+    public dependenciesInstalled_buildsDictionaryOfInstalledDeps(err: Error | string, expMsg: string, errorTimes: number, infoTimes: number) {
         let config = {
             configurations: {
                 "one": { plugin: "something" },

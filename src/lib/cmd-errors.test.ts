@@ -8,7 +8,7 @@ export class CmdErrorsTests {
 
     @TestCases(cpErrorGen())
     @Test("should not throw for any commandpost errors.")
-    noErrorsEver(err: c.ErrorReason) {
+    public noErrorsEver(err: c.ErrorReason) {
         Expect(err in cmdErrors).toBe(true);
         Expect(() => cmdErrors[err](null)).not.toThrow();
         Expect(() => cmdErrors[err](<any>{})).not.toThrow();
