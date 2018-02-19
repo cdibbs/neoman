@@ -7,7 +7,7 @@ import TYPES from './di/types';
 export class UserMessager implements IUserMessager {
     private console = console;
     constructor(
-        @inject(TYPES.i18n) public __mf: Ii18nFunction,
+        @inject(TYPES.i18n) private __mf: Ii18nFunction,
         private mfDict: any = null,
         private usei18n: boolean = false
     ) {}

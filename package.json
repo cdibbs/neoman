@@ -17,7 +17,7 @@
     "copylocales": "copyfiles -u 1 locales/**/* dist/locales",
     "copystatic": "copyfiles -u 2 src/browser-prompt/**/* dist/browser-prompt",
     "precover": "rimraf ./coverage/*",
-    "cover": "nyc npm run unittest",
+    "cover": "nyc --all npm run unittest",
     "pree2e": "npm-run-all clean builde2e",
     "e2e": "alsatian --tap test/e2e/*.e2e.js",
     "report_coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
@@ -101,7 +101,6 @@
     "reporter": [
       "json",
       "html"
-    ],
-    "all": true
+    ]
   }
 }
