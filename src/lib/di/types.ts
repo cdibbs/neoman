@@ -27,7 +27,10 @@ let TYPES = {
     SettingsType: Symbol("SettingsType"),
     ErrorReporter: Symbol("ErrorReporter"),
     TemplateInfo: Symbol("TemplateInfo"),
-    NewCommandValidator: Symbol("NewCommandValidator")
+    NewCommandValidator: Symbol("NewCommandValidator"),
+    FSTreeProcessor: Symbol("FSTreeProcessor"),
+    SimulatedTreeDiscoveryHandler: Symbol("SimulateTreeDiscoveryHandler"),
+    RealTreeDiscoveryHandler: Symbol("RealTreeDiscoveryHandler")
 }
 
 export default TYPES;

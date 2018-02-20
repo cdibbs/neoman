@@ -62,6 +62,17 @@ export namespace curry {
         return fn.bind(self, a, b, c);
     }
 
+    export function fourOf5<TThis, T1, T2, T3, T4, T5, T6>(
+        fn: (a: T1, b: T2, c: T3, d: T4, e: T5) => T6,
+        self: TThis,
+        a: T1,
+        b: T2,
+        c: T3,
+        d: T4): (e: T5) => T6
+    {
+        return fn.bind(self, a, b, c, d);
+    }
+
     export function fiveOf6<TThis, T1, T2, T3, T4, T5, T6, T7>(
         fn: (a: T1, b: T2, c: T3, d: T4, e: T5, f: T6) => T7,
         self: TThis,

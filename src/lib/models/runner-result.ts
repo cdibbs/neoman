@@ -1,8 +1,17 @@
 import { CommandResult } from "./command-result";
+import { CommandErrorType } from "./command-error-type";
 
 export class RunnerResult extends CommandResult {
-    public get Message(): string {
-        return `${this.totalFiles} files copied, ${this.changed} were transformed.`;
+    public constructor(
+        message?: string,
+        errorType: CommandErrorType = CommandErrorType.None,
+        error: Error = null)
+    {
+        super(message, errorType, error);
+        if (! message)
+        {
+            this.Message = `${this.totalFiles} files copied, ${this.changed} were transformed.`;
+        }
     }
 
     totalFiles: number = 0;

@@ -8,7 +8,7 @@ import * as osLocale from 'os-locale';
 
 import TYPES from "./types";
 import { TransformManager, PathTransformManager } from '../transformers';
-import { TemplateRunner } from '../template-runner';
+import { TemplateRunner } from '../template-runner/template-runner';
 import { FilePatterns } from '../file-patterns';
 import { UserMessager } from '../user-messager';
 import { ErrorReporter } from '../error-reporter';
@@ -27,6 +27,8 @@ import { TemplateInfo } from "../commands/info/template-info";
 import { IGlobFactory } from "../util/i-glob-factory";
 import { GlobFactory } from "../util/glob-factory";
 import { NewCommandValidator, ICommandValidator, INewCmdArgs, INewCmdOpts } from "../commands";
+import { IFSTreeProcessor, ITreeDiscoveryEventHandler } from "../template-runner/i";
+import { FSTreeProcessor, SimulatedTreeDiscoveryHandler, RealTreeDiscoveryHandler } from "../template-runner";
 
 export let containerBuilder = (packageJson: any = null, localesPath?: string): Container => {
     let json = packageJson || require(path.join(path.dirname(__filename), "../../package.json"));
@@ -53,6 +55,9 @@ export let containerBuilder = (packageJson: any = null, localesPath?: string): C
     container.bind<i.IErrorReporter>(TYPES.ErrorReporter).to(ErrorReporter);
     container.bind<ITemplateInfo>(TYPES.TemplateInfo).to(TemplateInfo);
     container.bind(TYPES.SettingsType).toDynamicValue(() => m.Settings);
+    container.bind<IFSTreeProcessor>(TYPES.FSTreeProcessor).to(FSTreeProcessor);
+    container.bind<ITreeDiscoveryEventHandler>(TYPES.RealTreeDiscoveryHandler).to(RealTreeDiscoveryHandler);
+    container.bind<ITreeDiscoveryEventHandler>(TYPES.SimulatedTreeDiscoveryHandler).to(SimulatedTreeDiscoveryHandler);
 
     let lobj = <typeof i18n>{};
     i18n.configure({

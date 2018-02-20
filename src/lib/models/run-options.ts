@@ -7,4 +7,5 @@ export class RunOptions {
     path: string = "";
     name: string = "";
     defaults: boolean = false;
+    simulate: boolean = false;
 }
