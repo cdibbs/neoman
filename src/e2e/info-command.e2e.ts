@@ -17,9 +17,8 @@ import { BaseIntegrationTest } from './base-integration';
 
     @AsyncTest("Displays information about a template")
     public async templateInfo() {
-        let p = this.run(["node", "neoman", "info", "rootdemo"])
-            .then(this.assertListsTemplates.bind(this));
-        await p;
+        await this.run(["node", "neoman", "info", "rootdemo"]);
+        this.assertListsTemplates();
     }
 
     protected assertListsTemplates() { 
@@ -34,9 +33,8 @@ import { BaseIntegrationTest } from './base-integration';
     @TestCase(["node", "neoman", "info"])
     @TestCase(["node", "neoman", "help", "info"])
     public async displaysHelp(args: string[]) {
-        let p = this.run(args)
-            .then(this.assertHelp.bind(this))
-        await p;
+        await this.run(args);
+        this.assertHelp();
     }
 
     protected assertHelp() {

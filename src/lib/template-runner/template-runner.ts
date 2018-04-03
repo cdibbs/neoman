@@ -32,7 +32,7 @@ export class TemplateRunner implements ITemplateRunner {
             return new RunnerResult(this.msg.mf("Template configuration not valid."), CommandErrorType.SystemState);
         }
 
-        if (!this.destinationEmpty(destPath) /* && not force */) {
+        if (!this.destinationEmpty(destPath) && !options.force) {
             return new RunnerResult(this.msg.i18n({destPath}).mf('The destination directory is not empty ({path}).'), CommandErrorType.SystemState);
         }
 

@@ -13,9 +13,8 @@ import { BaseIntegrationTest } from './base-integration';
     @TestCase(["node", "neoman", "new" /*, missing arg */])
     @TestCase(["node", "neoman", "help", "new"])
     public async showsHelp(args: string[]) {
-        let p = this.run(args)
-            .then(this.assertNewHelp.bind(this));
-        return p;
+        await this.run(args);
+        this.assertNewHelp();
     }
 
     protected assertNewHelp() { 
@@ -30,25 +29,16 @@ import { BaseIntegrationTest } from './base-integration';
 
     @AsyncTest("Informs user of missing templateId argument.")
     public async informsMissingTmplId(args: string[]) {
-        let p = this.run(["node", "neoman", "new"])
-            .then(this.assertNewMissingId.bind(this));
-        return p;
-    }
+        await this.run(["node", "neoman", "new"]);
 
-    protected assertNewMissingId() { 
         Expect(this.intercepted).toMatch(/You must specify a template identifier./);
     }
 
     @AsyncTest("Can generate a simple project from an example template.")
     public async generatesSimpleProject(args: string[]) {
         var tmpDir = await this.makeTmpDir();
-        console.log(tmpDir);
-        let p = this.run(["node", "neoman", "new", "rootdemo", "--path", tmpDir, "--defaults"])
-            .then(this.assertFilesGenerated.bind(this, tmpDir));
-        return p;
-    }
+        await this.run(["node", "neoman", "new", "rootdemo", "--path", tmpDir, "--defaults"]);
 
-    protected async assertFilesGenerated(tmpDir: string) { 
         Expect(fs.existsSync(path.join(tmpDir, "index20170709.html"))).toBe(true);
         Expect(fs.existsSync(path.join(tmpDir, "package.json"))).toBe(true);
     }

@@ -17,9 +17,8 @@ import { BaseIntegrationTest } from './base-integration';
 
     @AsyncTest("Displays a list of templates.")
     public async listsTemplates() {
-        let p = this.run(["node", "neoman", "list"])
-            .then(this.assertListsTemplates.bind(this));
-        await p;
+        await this.run(["node", "neoman", "list"]);
+        this.assertListsTemplates();
     }
 
     protected assertListsTemplates() { 

@@ -10,7 +10,7 @@ import TYPES from './di/types';
 import KEYS from './settings-keys';
 import { ISettingsProvider, IPackage, IUserMessager, Ii18nFunction, IKernel } from './i';
 import { cmdErrors } from './cmd-errors';
-import { CommandResult, CommandValidationResult } from './models';
+import { CommandResult, CommandValidationResult, CommandErrorType } from './models';
 
 /**
  * Contains the core code to run the application. Only DI runs before this.
@@ -50,7 +50,7 @@ export class Kernel implements IKernel {
                 .option("-n, --name <name>", imsg.mf("The project name to use. Default: current directory name."))
                 .option("-d, --defaults", imsg.mf("No prompting. Use template defaults for options not specified on command line."))
                 .option("-p, --path <path>", imsg.mf("Destination path in which to create project. Defaults to current directory."))
-                .option("-f, --force", imsg.mf("Force things you maybe shouldn't force. Me: \"Don't do it, blah blah... Oh no, you poor fool!\""))
+                .option("-f, --force", imsg.mf("Force things you maybe shouldn't force."))
                 .option("-v, --verbosity <verbosity>", imsg.mf("The verbosity of neoman's output. Can be normal, verbose, debug."))
                 .option("-x, --show-excluded", imsg.mf("Show files excluded by template configuration."));
             newTemp.action(curry.oneOf3(newCmd.run, newCmd, newTemp));
@@ -82,7 +82,12 @@ export class Kernel implements IKernel {
     }
 
     protected handleCommandResult(result: CommandResult) {
-        if (result && result.IsError) {
+        if (result instanceof CommandValidationResult && result.ErrorType === CommandErrorType.UserError) {
+            this.msg.info("The following validation errors occured:\n\n");
+            for (let msg of result.Messages) {
+                this.msg.info(" - " + msg);
+            }
+        } else if (result instanceof Error) {
             let nerr = new NestedError(this.msg.mf("There was an unexpected error."), result);
             this.msg.error(nerr.stack);
             this.process.exit(1); // can be no-op in integ tests
