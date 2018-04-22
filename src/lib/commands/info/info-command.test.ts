@@ -1,5 +1,6 @@
 // 3rd party imports installed via npm install
 import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown, Expect } from 'alsatian';
+import { Assert, MatchMode } from 'alsatian-fluent-assertions';
 import { Command } from "commandpost";
 import * as TypeMoq from "typemoq";
 import { It, Times } from 'typemoq';
@@ -15,6 +16,7 @@ import { mockMessagerFactory } from '../../../spec-lib'
 import { InfoCommand } from './info-command';
 import { ErrorReporter } from '../../error-reporter';
 import { TemplateManager } from '../../template-manager'
+import { CommandValidationResult, CommandErrorType } from "../../models";
 
 @TestFixture("Info command tests")
 export class InfoCommandTests {
@@ -65,5 +67,19 @@ export class InfoCommandTests {
                 this.tmplInfoMock.verify<void>(t => t.showTemplateInfo(It.isAny()), Times.never());
                 this.errRepMock.verify<void>(x => x.reportError(TypeMoq.It.isAny()), TypeMoq.Times.once());
             });
+    }
+
+    @AsyncTest('validate should return an error result when templateId is not defined.')
+    public async validate_invalidWhenNoTemplateId() {
+        var result = await this.ic.validate(<any>{}, {}, <any>{});
+        Assert(result)
+            .is(CommandValidationResult)
+            .has({
+                ErrorType: CommandErrorType.UserError,
+                Messages: m => Assert(m).hasElements([
+                    /You must specify a template identifier./
+                ])
+            })
+            .hasProperties([3,2])
     }
 }

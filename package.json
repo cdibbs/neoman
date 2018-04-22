@@ -1,8 +1,8 @@
 {
   "name": "neoman",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha001",
   "description": "Neoman templating engine.",
-  "license": "ISC",
+  "license": "MIT",
   "author": "Chris Dibbern",
   "main": "dist/index.js",
   "bin": {
@@ -47,6 +47,7 @@
     "@types/underscore": "^1.8.1",
     "@types/ws": "^3.0.0",
     "alsatian": "^2.2.1",
+    "alsatian-fluent-assertions": "^1.0.0-alpha002",
     "body-parser": "^1.17.2",
     "chai": "^4.0.2",
     "chai-as-promised": "^7.1.1",
@@ -83,7 +84,7 @@
     "tmp": "0.0.33",
     "ts-node": "^4.1.0",
     "typemoq": "^2.1.0",
-    "typescript": "^2.4.1",
+    "typescript": "^2.8.1",
     "underscore": "^1.8.3",
     "ws": "^3.3.2"
   },
