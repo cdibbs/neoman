@@ -1,5 +1,5 @@
 // 3rd party imports installed via npm install
-import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown, Expect } from 'alsatian';
+import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown } from 'alsatian';
 import { Assert, MatchMode } from 'alsatian-fluent-assertions';
 import { Command } from "commandpost";
 import * as TypeMoq from "typemoq";
@@ -71,15 +71,18 @@ export class InfoCommandTests {
 
     @AsyncTest('validate should return an error result when templateId is not defined.')
     public async validate_invalidWhenNoTemplateId() {
-        var result = await this.ic.validate(<any>{}, {}, <any>{});
+        //try {
+        var result = await this.ic.validate(<any>{ helpText: () => "test help text" }, {}, <any>{});
         Assert(result)
             .is(CommandValidationResult)
             .has({
                 ErrorType: CommandErrorType.UserError,
                 Messages: m => Assert(m).hasElements([
-                    /You must specify a template identifier./
+                    /You must specify a template identifier\.[\n\r]+test help text/,
                 ])
-            })
-            .hasProperties([3,2])
+            });
+        /*} catch(ex) {
+            console.log(ex);
+        }*/
     }
 }

@@ -1,11 +1,12 @@
 // 3rd party imports installed via npm install
-import { Test, TestFixture, AsyncTest, TestCase, TestCases, AsyncSetup, AsyncTeardown, Expect, Teardown, Setup } from 'alsatian';
+import { Test, TestFixture, AsyncTest, TestCase, TestCases, AsyncSetup, AsyncTeardown, Teardown, Setup } from 'alsatian';
 import { IMock, Mock, It, Times } from 'typemoq';
 
 import { TemplateValidator } from './template-validator';
 import { PLUGIN_PREFIX } from './constants';
 import { IUserMessager, IErrorReporter } from './i';
 import { CommandValidationResult, CommandErrorType } from "./models";
+import { Assert } from 'alsatian-fluent-assertions';
 
 @TestFixture("Template Validator Tests")
 export class TemplateValidatorTests {
@@ -32,7 +33,8 @@ export class TemplateValidatorTests {
 
         let result = this.validator.dependenciesInstalled(<any>config);
 
-        Expect(result[PLUGIN_PREFIX + "something"]).toBe(true);
-        Expect(result[PLUGIN_PREFIX + "missing"]).toBe(false);
+        let a = Assert(result);
+        a.hasProperty(PLUGIN_PREFIX + "something").that.equals(true);
+        a.hasProperty(PLUGIN_PREFIX + "missing").that.equals(false);
     }
 }

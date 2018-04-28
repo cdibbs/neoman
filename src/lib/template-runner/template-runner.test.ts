@@ -1,6 +1,5 @@
 import { Test, TestFixture, AsyncTest, TestCase, TestCases, AsyncSetup,
-    AsyncTeardown, Teardown, Setup, Expect as OldExpect,
-    FluentExpect as Expect
+    AsyncTeardown, Teardown, Setup
 } from 'alsatian';
 import { Mock, IMock, It, Times } from 'typemoq';
 import * as c from 'commandpost';
@@ -10,6 +9,7 @@ import { Levels, LEVELS, Ii18nFunction, IUserMessager, IFileSystem, ITemplateVal
 import { TemplateRunner } from './template-runner';
 import { CommandErrorType } from "../models";
 import { mockMessagerFactory } from '../../spec-lib';
+import { Assert } from 'alsatian-fluent-assertions';
 
 @TestFixture("Template Runner Tests")
 export class TemplateRunnerTests {
@@ -42,9 +42,9 @@ export class TemplateRunnerTests {
 
         let result = await this.trunner.run("", <any>{}, <any>{});
 
-        Expect(result).with.properties({
+        Assert(result).has({
             ErrorType: CommandErrorType.SystemState,
-            Message: r => Expect(r).to.match(/configuration not valid/)
+            Message: /configuration not valid/
         });
     }
 
@@ -52,9 +52,9 @@ export class TemplateRunnerTests {
     public async run_returnsValidationErrorOnNonEmpty() {
         this.fsMock.setup(m => m.readdirSync(It.isAnyString())).returns(() => [ "not empty" ]);
         let result = await this.trunner.run("", <any>{}, <any>{});
-        Expect(result).with.properties({
+        Assert(result).hasAsserts({
             ErrorType: CommandErrorType.SystemState,
-            Message: m => Expect(m).to.beDefined()
+            Message: a => a.isDefined()
         });
     }
 }

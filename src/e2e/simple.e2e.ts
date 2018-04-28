@@ -3,7 +3,7 @@ import fs = require('fs');
 import 'reflect-metadata';
 import { SinonStub } from 'sinon';
 import { Container } from 'inversify';
-import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown, Expect } from 'alsatian';
+import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown } from 'alsatian';
 
 import { containerBuilder } from '../lib/di/container';
 import TYPES from '../lib/di/types';
@@ -11,6 +11,7 @@ import { UserMessager } from '../lib/user-messager';
 import { IKernel, ISettingsProvider, IFileSystem, IUserMessager } from '../lib/i';
 import { mockMessagerFactory } from '../spec-lib';
 import { BaseIntegrationTest } from './base-integration';
+import { Assert } from 'alsatian-fluent-assertions';
 
 /**
  * List of integration tests to write:
@@ -34,8 +35,9 @@ import { BaseIntegrationTest } from './base-integration';
     }
 
     protected assertListsTemplates() { 
-        Expect(this.intercepted).toMatch(/Using: .*neoman[\\\/]examples\n/);
-        Expect(this.intercepted).toMatch(/\d+ template\(s\) found.\n/);
+        Assert(this.intercepted)
+            .matches(/Using: .*neoman[\\\/]examples\n/)
+            .matches(/\d+ template\(s\) found.\n/);
     }
 
     @AsyncTest("Displays help when appropriate")
@@ -49,11 +51,12 @@ import { BaseIntegrationTest } from './base-integration';
     }
 
     protected assertHelp() {
-        Expect(this.intercepted).toMatch(/Manage and run Neoman/);
-        Expect(this.intercepted).toMatch(/Usage:\s*\[command\]/);
-        Expect(this.intercepted).toMatch(/new/);
-        Expect(this.intercepted).toMatch(/list/);
-        Expect(this.intercepted).toMatch(/info/);
+        Assert(this.intercepted)
+            .matches(/Manage and run Neoman/)
+            .matches(/Usage:\s*\[command\]/)
+            .matches(/new/)
+            .matches(/list/)
+            .matches(/info/);
     }
 
     @AsyncTest("Displays version when requested")
@@ -64,7 +67,7 @@ import { BaseIntegrationTest } from './base-integration';
     }
 
     protected assertVersion() {
-        Expect(this.intercepted).toMatch(/1\.2\.3/);
-        Expect((<SinonStub><any>process.exit).called).toBe(true);
+        Assert(this.intercepted).matches(/1\.2\.3/);
+        Assert((<SinonStub><any>process.exit).called).equals(true);
     }
  }

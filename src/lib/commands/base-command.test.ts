@@ -1,5 +1,5 @@
 // 3rd party imports installed via npm install
-import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown, Expect, Teardown, Setup } from 'alsatian';
+import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown, Teardown, Setup } from 'alsatian';
 import { Command } from "commandpost";
 import * as TypeMoq from "typemoq";
 import { It, Times } from 'typemoq';
@@ -8,6 +8,7 @@ import * as _ from "lodash";
 import { BaseCommand } from './base-command';
 import { mockMessagerFactory } from '../../spec-lib'
 import { CommandValidationResult } from '../models';
+import { Assert } from 'alsatian-fluent-assertions';
 
 @TestFixture("Base command tests")
 export class BaseCommandTests {
@@ -30,15 +31,15 @@ export class BaseCommandTests {
     public async validate_NoTmplDir_returnsInvalid() {
         this.c.tempDir = null;
         let result = await this.c.validator(<Command<any, any>>{}, {}, {});
-        Expect(result).toBeDefined();
-        Expect(result.IsError).toBe(true);
+        Assert(result).isDefined();
+        Assert(result.IsError).equals(true);
     }
 
     @AsyncTest("validate() returns valid when template directory.")
     public async validate_tmplDir_returnsValid() {
         let result = await this.c.validator(<Command<any, any>>{}, {}, {});
-        Expect(result).toBeDefined();
-        Expect(result.IsError).toBe(false);
+        Assert(result).isDefined();
+        Assert(result.IsError).equals(false);
     }
 }
 

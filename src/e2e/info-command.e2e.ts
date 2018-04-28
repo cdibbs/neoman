@@ -3,7 +3,7 @@ import fs = require('fs');
 import 'reflect-metadata';
 import { SinonStub } from 'sinon';
 import { Container } from 'inversify';
-import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown, Expect } from 'alsatian';
+import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown } from 'alsatian';
 
 import { containerBuilder } from '../lib/di/container';
 import TYPES from '../lib/di/types';
@@ -11,6 +11,7 @@ import { UserMessager } from '../lib/user-messager';
 import { IKernel, ISettingsProvider, IFileSystem, IUserMessager } from '../lib/i';
 import { mockMessagerFactory } from '../spec-lib';
 import { BaseIntegrationTest } from './base-integration';
+import { Assert } from 'alsatian-fluent-assertions';
 
 @TestFixture("Info command integration tests")
  export class InfoCommandTest extends BaseIntegrationTest {
@@ -22,11 +23,12 @@ import { BaseIntegrationTest } from './base-integration';
     }
 
     protected assertListsTemplates() { 
-        Expect(this.intercepted).toMatch(/Details for template identity 'rootdemo'/);
-        Expect(this.intercepted).toMatch(/Name:/);
-        Expect(this.intercepted).toMatch(/Base Dir:/);
-        Expect(this.intercepted).toMatch(/Description:/);
-        Expect(this.intercepted).toMatch(/Author:/);
+        Assert(this.intercepted)
+            .matches(/Details for template identity 'rootdemo'/)
+            .matches(/Name:/)
+            .matches(/Base Dir:/)
+            .matches(/Description:/)
+            .matches(/Author:/);
     }
 
     @AsyncTest("Gets template info help")
@@ -38,7 +40,8 @@ import { BaseIntegrationTest } from './base-integration';
     }
 
     protected assertHelp() {
-        Expect(this.intercepted).toMatch(/Get detailed information for a given template identifier./);
-        Expect(this.intercepted).toMatch(/Usage:\s*info \[--\] \[templateId\]/);
+        Assert(this.intercepted)
+            .matches(/Get detailed information for a given template identifier./)
+            .matches(/Usage:\s*info \[--\] \[templateId\]/);
     }
  }

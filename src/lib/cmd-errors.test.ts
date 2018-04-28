@@ -1,4 +1,5 @@
-import { Test, TestFixture, AsyncTest, TestCase, TestCases, AsyncSetup, AsyncTeardown, Expect, Teardown, Setup } from 'alsatian';
+import { Test, TestFixture, AsyncTest, TestCase, TestCases, AsyncSetup, AsyncTeardown, Teardown, Setup } from 'alsatian';
+import { Assert } from 'alsatian-fluent-assertions';
 import * as c from 'commandpost';
 
 import { cmdErrors } from './cmd-errors';
@@ -9,12 +10,12 @@ export class CmdErrorsTests {
     @TestCases(cpErrorGen())
     @Test("should not throw for any commandpost errors.")
     public noErrorsEver(err: c.ErrorReason) {
-        Expect(err in cmdErrors).toBe(true);
-        Expect(() => cmdErrors[err](null)).not.toThrow();
-        Expect(() => cmdErrors[err](<any>{})).not.toThrow();
-        Expect(() => cmdErrors[err](<any>{ params: null })).not.toThrow();
-        Expect(() => cmdErrors[err](<any>{ params: { parts: null } })).not.toThrow();
-        Expect(() => cmdErrors[err](<any>{ params: { parts: [ "whoa" ] } })).not.toThrow();
+        Assert(cmdErrors).hasProperty(err);
+        Assert(() => cmdErrors[err](null)).not.throws();
+        Assert(() => cmdErrors[err](<any>{})).not.throws();
+        Assert(() => cmdErrors[err](<any>{ params: null })).not.throws();
+        Assert(() => cmdErrors[err](<any>{ params: { parts: null } })).not.throws();
+        Assert(() => cmdErrors[err](<any>{ params: { parts: [ "whoa" ] } })).not.throws();
     }
 }
 

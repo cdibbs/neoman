@@ -1,9 +1,10 @@
-import { Test, TestFixture, AsyncTest, TestCase, TestCases, AsyncSetup, AsyncTeardown, Expect, Teardown, Setup } from 'alsatian';
+import { Test, TestFixture, AsyncTest, TestCase, TestCases, AsyncSetup, AsyncTeardown, Teardown, Setup } from 'alsatian';
 import { Mock, IMock, It, Times } from 'typemoq';
 import * as c from 'commandpost';
 
 import { Levels, LEVELS, Ii18nFunction, IUserMessager } from './i';
 import { UserMessager } from './user-messager';
+import { Assert } from 'alsatian-fluent-assertions';
 
 @TestFixture("User Messager Tests")
 export class UserMessagerTests {
@@ -46,8 +47,9 @@ export class UserMessagerTests {
     @Test("write - returns self.")
     public write_returnsSelf() {
         let result = this.msgr.write("something");
-        Expect(result).toBeDefined();
-        Expect(result).toEqual(this.msgr);
+        Assert(result)
+            .isDefined()
+            .equals(this.msgr);
     }
 
     @TestCase(false, 0)
@@ -64,17 +66,20 @@ export class UserMessagerTests {
     public write_throwsOnBadLogLevel() {
         let err = "formatted error message";
         this.i18nMock.setup(i => i(It.isAnyString(), It.isAny())).returns(() => err);
-        Expect(() => this.msgr.write("something", 0, <Levels>"bogus")).toThrowError(Error, err);
+        Assert(() => this.msgr.write("something", 0, <Levels>"bogus"))
+            .throws(Error)
+            .that.has({ message: err })
     }
 
     @Test("i18n - returns new instance of self with i18n enabled.")
     public i18n_returnsSelfWithi18nEnabled() {
         let mybag = { "what": "is this" };
         let result = this.msgr.i18n(mybag);
-        Expect(result).toBeDefined();
-        Expect(result instanceof UserMessager).toBeTruthy();
-        Expect(result["mfDict"]).toEqual(mybag);
-        Expect(result["usei18n"]).toBeTruthy();
+        let a = Assert(result)
+            .isDefined()
+            .is(UserMessager);
+        a.hasProperty(<any>"mfDict").that.deepStrictlyEquals(mybag);
+        a.hasProperty(<any>"usei18n").that.isTruthy();
     }
 
     @Test("mf - should pass correct state to i18n __mf library call.")

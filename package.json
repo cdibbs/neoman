@@ -4,7 +4,8 @@
   "description": "Neoman templating engine.",
   "license": "MIT",
   "author": "Chris Dibbern",
-  "main": "dist/index.js",
+  "main": "dist",
+  "typings": "dist",
   "bin": {
     "neoman": "./bin/neoman"
   },
@@ -25,7 +26,8 @@
     "tsc": "tsc -p tsconfig-build.json",
     "ts-node": "ts-node",
     "unittest": "ts-node --project tsconfig-xunit.json src/spec-lib/runner.ts",
-    "taptest": "ts-node --tap src/spec-lib/runner.ts"
+    "taptest": "ts-node --tap src/spec-lib/runner.ts",
+    "prepublishOnly": "npm-run-all build"
   },
   "dependencies": {},
   "devDependencies": {
@@ -47,7 +49,7 @@
     "@types/underscore": "^1.8.1",
     "@types/ws": "^3.0.0",
     "alsatian": "^2.2.1",
-    "alsatian-fluent-assertions": "^1.0.0-alpha002",
+    "alsatian-fluent-assertions": "^1.0.0-alpha008",
     "body-parser": "^1.17.2",
     "chai": "^4.0.2",
     "chai-as-promised": "^7.1.1",

@@ -1,5 +1,5 @@
 // 3rd party imports installed via npm install
-import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown, Expect } from 'alsatian';
+import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown } from 'alsatian';
 import { Command } from "commandpost";
 import * as TypeMoq from "typemoq";
 import { It } from "typemoq";
@@ -14,6 +14,7 @@ import { ErrorReporter } from '../../error-reporter';
 import { TemplateInfo } from './template-info';
 import { TemplateValidator } from '../../template-validator';
 import { UserMessager } from '../../user-messager';
+import { Assert } from 'alsatian-fluent-assertions';
 
 @TestFixture("Template info service tests")
 export class TemplateInfoTests {
@@ -37,15 +38,16 @@ export class TemplateInfoTests {
 
     @Test("should handle empty properties without error")
     public showTemplateInfo_handlesEmptyProps(): void {
-        Expect(() => this.tmplInfo.showTemplateInfo(<any>{}))
-            .not.toThrow();            
+        Assert(() => this.tmplInfo.showTemplateInfo(<any>{}))
+            .not.throws();            
     }
 
     @Test("should handle empty dependency result properties without error")
     public showTemplateInfo_handlesEmptyDependencyResultProperties(): void {
         var mresult = [{ dep: "one", installed: false}, { dep: "two", installed: true }, {}];
         this.tmplInfo["dependencies"] = (): any => mresult;
-        Expect(() => this.tmplInfo.showTemplateInfo(<any>{})).not.toThrow();            
+        Assert(() => this.tmplInfo.showTemplateInfo(<any>{}))
+            .not.throws();            
     }
 
     // TODO: Convert error reporting to separate class.
@@ -57,8 +59,11 @@ export class TemplateInfoTests {
             .returns(() => mresult);
 
         let result = this.tmplInfo.dependencies(<ITemplate>{});
-        Expect(result.length).toEqual(2);
-        Expect(result[0]).toEqual({dep: "one", installed: true });
-        Expect(result[1]).toEqual({dep: "two", installed: false });
+        Assert(result)
+            .has({ length: 2 })
+            .hasElements([
+                { dep: "one", installed: true },
+                { dep: "two", installed: false }
+            ]);
     }
 }

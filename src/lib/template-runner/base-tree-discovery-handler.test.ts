@@ -1,4 +1,4 @@
-import { Test, TestFixture, AsyncTest, TestCase, TestCases, AsyncSetup, AsyncTeardown, Expect, Teardown, Setup } from 'alsatian';
+import { Test, TestFixture, AsyncTest, TestCase, TestCases, AsyncSetup, AsyncTeardown, Teardown, Setup } from 'alsatian';
 import { Mock, IMock, It, Times } from 'typemoq';
 
 import { BaseTreeDiscoveryHandler } from './base-tree-discovery-handler';

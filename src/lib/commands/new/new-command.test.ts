@@ -1,5 +1,5 @@
 // 3rd party imports installed via npm install
-import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown, Expect, Teardown, Setup } from 'alsatian';
+import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown, Teardown, Setup } from 'alsatian';
 import { Command } from "commandpost";
 import * as TypeMoq from "typemoq";
 import { It, Times } from 'typemoq';
@@ -11,6 +11,7 @@ import { ITemplate } from '../../i/template';
 import { mockMessagerFactory } from '../../../spec-lib'
 import { NewCommand } from './new-command';
 import { CommandResult, CommandValidationResult, RunnerResult, CommandErrorType } from '../../models';
+import { Assert } from 'alsatian-fluent-assertions';
 
 
 @TestFixture("New command tests")
@@ -58,7 +59,7 @@ export class NewCommandTests {
 
         this.errRepMock.verify<void>(m => m.reportError(It.isAny()), Times.never());
         this.tmplRunnerMock.verify(m => m.run(It.isAnyString(), It.isAny(), It.isAny()), Times.exactly(timesRun));
-        Expect(actualCmdResult instanceof expectedResult).toBe(true);
+        Assert(actualCmdResult).is(expectedResult);
     }
 
     @Test('buildOptions - survives an empty object.')

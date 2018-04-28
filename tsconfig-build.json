@@ -24,7 +24,8 @@
 		]
 	},
 	"files": [
-		"src/lib/index.ts"
+		"src/lib/index.ts",
+		"src/lib/integrations.ts"
 	],
 	"exclude": [
 		"node_modules",

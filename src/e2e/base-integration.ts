@@ -4,7 +4,8 @@ import tmp = require('tmp');
 import 'reflect-metadata';
 import * as sinon from 'sinon';
 import { Container } from 'inversify';
-import { Test, TestFixture, AsyncTest, AsyncSetup, AsyncTeardown, Expect } from 'alsatian';
+import { Test, TestFixture, AsyncTest, AsyncSetup, AsyncTeardown } from 'alsatian';
+import { Assert } from 'alsatian-fluent-assertions';
 
 import { containerBuilder } from '../lib/di/container';
 import TYPES from '../lib/di/types';
@@ -48,7 +49,7 @@ import { AsyncSetupFixture } from 'alsatian/core/decorators/async-setup-fixture-
         process.exit = <any>sinon.stub();
         let cont = this.buildIntegTestContainer();
         let sp = cont.get<ISettingsProvider>(TYPES.SettingsProvider);
-        Expect(<string>sp["filepath"]).toMatch(/^(?:\/tmp\/|[cC]:\\temp\\)\.neoman-settings$/);
+        Assert(sp["filepath"]).matches(/^(?:\/tmp\/|[cC]:\\temp\\)\.neoman-settings$/);
         this.app = cont.get<IKernel>(TYPES.Kernel);
 
         await 
@@ -93,7 +94,7 @@ import { AsyncSetupFixture } from 'alsatian/core/decorators/async-setup-fixture-
     }
 
     protected assertNoErrors(ex: any) {
-        Expect.fail(`Exception thrown by neoman: ${ex.message} ${ex.stack}`);
+        Assert.fail(`Exception thrown by neoman: ${ex.message} ${ex.stack}`);
     }
 
     protected buildIntegTestContainer(): Container {

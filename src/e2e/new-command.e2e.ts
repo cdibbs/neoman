@@ -2,7 +2,8 @@ import path = require('path');
 import fs = require('fs');
 import 'reflect-metadata';
 import { SinonStub } from 'sinon';
-import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown, Expect } from 'alsatian';
+import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown } from 'alsatian';
+import { Assert } from 'alsatian-fluent-assertions';
 
 import { BaseIntegrationTest } from './base-integration';
 
@@ -18,20 +19,21 @@ import { BaseIntegrationTest } from './base-integration';
     }
 
     protected assertNewHelp() { 
-        Expect(this.intercepted).toMatch(/Generate a project from a Neoman template\./);
-        Expect(this.intercepted).toMatch(/Usage:  new \[options\] \[--\] \[templateId\]/);
-        Expect(this.intercepted).toMatch(/--name.*\n/m);
-        Expect(this.intercepted).toMatch(/--defaults.*\n/m);
-        Expect(this.intercepted).toMatch(/--path.*\n/m);
-        Expect(this.intercepted).toMatch(/--force.*\n/m);
-        Expect(this.intercepted).toMatch(/--show-excluded.*\n/m);
+        Assert(this.intercepted)
+            .matches(/Generate a project from a Neoman template\./)
+            .matches(/Usage:  new \[options\] \[--\] \[templateId\]/)
+            .matches(/--name.*\n/m)
+            .matches(/--defaults.*\n/m)
+            .matches(/--path.*\n/m)
+            .matches(/--force.*\n/m)
+            .matches(/--show-excluded.*\n/m);
     }
 
     @AsyncTest("Informs user of missing templateId argument.")
     public async informsMissingTmplId(args: string[]) {
         await this.run(["node", "neoman", "new"]);
 
-        Expect(this.intercepted).toMatch(/You must specify a template identifier./);
+        Assert(this.intercepted).matches(/You must specify a template identifier./);
     }
 
     @AsyncTest("Can generate a simple project from an example template.")
@@ -39,7 +41,7 @@ import { BaseIntegrationTest } from './base-integration';
         var tmpDir = await this.makeTmpDir();
         await this.run(["node", "neoman", "new", "rootdemo", "--path", tmpDir, "--defaults"]);
 
-        Expect(fs.existsSync(path.join(tmpDir, "index20170709.html"))).toBe(true);
-        Expect(fs.existsSync(path.join(tmpDir, "package.json"))).toBe(true);
+        Assert(fs.existsSync(path.join(tmpDir, "index20170709.html"))).equals(true);
+        Assert(fs.existsSync(path.join(tmpDir, "package.json"))).equals(true);
     }
  }

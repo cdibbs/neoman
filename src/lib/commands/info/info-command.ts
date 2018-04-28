@@ -27,17 +27,21 @@ export class InfoCommand extends BaseCommand<IInfoCmdOpts, IInfoCmdArgs> {
     }
 
     public async run(cmdDef: Command<IInfoCmdOpts, IInfoCmdArgs>, opts: IInfoCmdOpts, args: IInfoCmdArgs): Promise<any> {
-        let promise = this.validate(cmdDef, opts, args)
-            .then(curry.twoOf3(this.runWithValidArgs, this, opts, args))
-            .catch(curry.bindOnly(this.reporter.reportError, this));
-
-        return promise;
+        let result = await this.validate(cmdDef, opts, args);
+        if (result.IsError) {
+            return this.reporter.reportError(result);
+        }
+        
+        return this.runWithValidArgs(opts, args);
     }
 
-    public runWithValidArgs(opts: IInfoCmdOpts, args: IInfoCmdArgs, validationResult: CommandValidationResult): Promise<any> {
-        return this.tmplMgr.info(args.templateId)
-            .then(curry.bindOnly(this.tmplInfo.showTemplateInfo, this))
-            .catch(curry.bindOnly(this.reporter.reportError, this));
+    public async runWithValidArgs(opts: IInfoCmdOpts, args: IInfoCmdArgs): Promise<void> {
+        try {
+            const tmplInfo = await this.tmplMgr.info(args.templateId);
+            this.tmplInfo.showTemplateInfo(tmplInfo);
+        } catch(err) {
+            this.reporter.reportError(err);
+        }
     }
 
     public validate(cmd: Command<IInfoCmdOpts, IInfoCmdArgs>, opts: IInfoCmdOpts, args: IInfoCmdArgs): Promise<CommandValidationResult> {
@@ -46,11 +50,9 @@ export class InfoCommand extends BaseCommand<IInfoCmdOpts, IInfoCmdArgs> {
             var v = new CommandValidationResult();
             v.Messages.push(this.msg.i18n({helptext: cmd.helpText()}).mf("You must specify a template identifier.\n\n{helptext}"));
             v.ErrorType = CommandErrorType.UserError;
-            promise = Promise.reject(v);
-        } else {
-            promise = Promise.resolve(new CommandValidationResult());
-        }
+            return Promise.resolve(v);
+        } 
 
-        return promise.then(curry.threeOf4(super.validate, this, cmd, opts, args));
+        return super.validate(cmd, opts, args);
     }
 }
