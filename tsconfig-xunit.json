@@ -18,9 +18,6 @@
 			"src/lib/types"
 		],
 		"types": [
-			"@types/node",
-			"@types/mocha",
-			"requireg"
 		]
 	},
 	"include": [

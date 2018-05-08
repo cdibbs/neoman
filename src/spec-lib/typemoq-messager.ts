@@ -11,7 +11,9 @@ import * as i18n from 'i18n';
  * 
  * @param echo turn on console echo (mainly for debugging tests). Default: false.
  */
-export let mockMessagerFactory = ( { echo = false }: { echo: boolean } = { echo: false }) => {
+export let mockMessagerFactory = function (
+    {echo = false, out = null}: { echo?: boolean, out?: any } = { echo: false, out: null }
+) {
     // Set it up so we collect/return english strings.
     i18n.configure({
         locales: ['en_US'],
@@ -39,6 +41,9 @@ export let mockMessagerFactory = ( { echo = false }: { echo: boolean } = { echo:
 
     let m = new UserMessager(i18n.__mf);
     m["console"] = mockConsole.object;
+    if (out) {
+        out.mockConsole = mockConsole;
+    }
 
     return m;
 }

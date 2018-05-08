@@ -1,15 +1,14 @@
 import { Command } from "commandpost";
+import { inject } from "inversify";
 
-import { INewCmdArgs, INewCmdOpts, ICommand, ICommandValidator } from "../i";
+import { ICommand, ICommandValidator, IInfoCmdOpts, IInfoCmdArgs } from "../i";
 import { Commands } from '../commands';
 import { CommandValidationResult, CommandErrorType } from '../../models';
 import { BaseCommandValidator } from "../base-command-validator";
-import { inject } from "inversify";
 import { IUserMessager, ISettingsProvider } from "../../i";
 import TYPES from "../../di/types";
-import { ValidatorOptions } from "../validator-options";
 
-export class NewCommandValidator extends BaseCommandValidator<INewCmdOpts, INewCmdArgs> {
+export class InfoCommandValidator extends BaseCommandValidator<IInfoCmdOpts, IInfoCmdArgs> {
     constructor(
         @inject(TYPES.UserMessager) protected msg: IUserMessager,
         @inject(TYPES.SettingsProvider) protected settings: ISettingsProvider

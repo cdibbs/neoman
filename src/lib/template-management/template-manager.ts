@@ -1,12 +1,14 @@
 import { injectable, inject } from 'inversify';
 
-import { EventEmitter, TemplateSearchEmitterType } from './emitters';
-import { COMMANDS, Commands } from './commands';
-import { curry } from './util/curry';
-import TYPES from './di/types';
-import KEYS from './settings-keys';
-import { IFileSystem, IGlob, IPath, IUserMessager, ITemplateManager, ISettingsProvider } from './i';
-import { ITemplate } from './i/template';
+import { EventEmitter, TemplateSearchEmitterType } from '../emitters';
+import { COMMANDS, Commands } from '../commands';
+import { curry } from '../util/curry';
+import TYPES from '../di/types';
+import KEYS from '../settings-keys';
+import { IFileSystem, IGlob, IPath, IUserMessager, ISettingsProvider } from '../i';
+import { ITemplate } from '../i/template';
+import { ITemplateManager } from './i-template-manager';
+import { TemplateManagerError } from './template-manager-error';
 
 @injectable()
 export class TemplateManager implements ITemplateManager {
@@ -24,11 +26,21 @@ export class TemplateManager implements ITemplateManager {
 
 
     // Essentially, this maps a glob-match emitter to an ITemplate emitter
-    list(): EventEmitter<TemplateSearchEmitterType> {
+    list(
+        end?: (templates: ITemplate[]) => void,
+        error?: (terror: TemplateManagerError) => void,
+        match?: (tmpl: ITemplate) => void
+    ): EventEmitter<TemplateSearchEmitterType> {
         let templates: ITemplate[] = [];
         let emitter = new EventEmitter<TemplateSearchEmitterType>();
         // on glob match, the following adds an ITemplate to templates for later return at "end" event:
         emitter.on("match", curry.oneOf2(this.listMatch, this, templates));
+        if (match && match instanceof Function) {
+            emitter.on("match", match);
+        }
+        if (end && end instanceof Function) {
+            emitter.on("end", end);
+        }
 
         let search = new this.glob.Glob("*/.neoman.config/template.json", { cwd: this.tmplDir });
         search.on("match", curry.oneOf2(this.templateMatch, this, emitter))
@@ -118,16 +130,17 @@ export class TemplateManager implements ITemplateManager {
     }
 
     private templateMatch(emitter: EventEmitter<TemplateSearchEmitterType>, file: string): any {
-            let fullPath = this.path.join(this.tmplDir, file);
-            try {
-                let tmpl = JSON.parse(this.fs.readFileSync(fullPath, 'utf8'));
-                let tmplAbsRoot = this.path.join(this.path.dirname(fullPath), '..');
-                tmpl.__tmplPath = this.getTemplateRoot(tmpl, tmplAbsRoot);
-                tmpl.__tmplConfigPath = tmplAbsRoot;
-                emitter.emit("match", tmpl);
-            } catch (ex) {
-                emitter.emit("error", ex);
-            }
+        let fullPath;
+        try {
+            fullPath = this.path.join(this.tmplDir, file);
+            let tmpl = JSON.parse(this.fs.readFileSync(fullPath, 'utf8'));
+            let tmplAbsRoot = this.path.join(this.path.dirname(fullPath), '..');
+            tmpl.__tmplPath = this.getTemplateRoot(tmpl, tmplAbsRoot);
+            tmpl.__tmplConfigPath = tmplAbsRoot;
+            emitter.emit("match", tmpl);
+        } catch (ex) {
+            emitter.emit("error", new TemplateManagerError(ex, fullPath));
+        }
     }
 
     private getTemplateRoot(tmpl: any, absRoot: string): string {

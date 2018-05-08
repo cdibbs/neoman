@@ -5,7 +5,6 @@ export * from './i-path';
 export * from './i-filesystem';
 export * from './i-glob';
 export * from './i-user-messager';
-export * from './i-template-manager';
 export * from './i-template-file';
 export * from './i-template-runner';
 export * from './i-input-manager';

@@ -1,5 +1,11 @@
 export namespace curry {    
 
+    export function bindOnly<TThis, T1, TP1>(
+        fn: (a: TP1) => T1,
+        self: TThis): (a: TP1) => T1;
+    export function bindOnly<TThis, T1, TP1, TP2>(
+        fn: (a: TP1, b: TP2) => T1,
+        self: TThis): (a: TP1, b: TP2) => T1;
     export function bindOnly<TThis, T1>(
         fn: (...args: any[]) => T1,
         self: TThis): () => T1

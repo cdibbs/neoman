@@ -1,13 +1,12 @@
 // 3rd party imports installed via npm install
-import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown, Teardown, Setup } from 'alsatian';
+import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown, Teardown, Setup, Expect, SpyOn } from 'alsatian';
 import { Command } from "commandpost";
 import * as TypeMoq from "typemoq";
 import { It, Times } from 'typemoq';
 import * as _ from "lodash";
+import { Assert } from 'alsatian-fluent-assertions';
 
 // internal imports (always a relative path beginning with a ./ or ../)
-import * as i from '../../i';
-import * as nci from '../i';
 import { ITemplate } from '../../i/template';
 import { mockMessagerFactory } from '../../../spec-lib'
 import { ListCommand } from './list-command';
@@ -18,27 +17,38 @@ import { GlobFactory } from '../../util/glob-factory';
 import { UserMessager } from '../../user-messager';
 import { MockBehavior } from 'typemoq';
 import { CommandValidationResult, CommandErrorType } from "../../models";
+import { ICommandValidator } from '../i';
+import { IErrorReporter, IFileSystem, IPath, IUserMessager } from '../../i';
+import { ITemplateManager } from '../../template-management';
 
 @TestFixture("List command tests")
 export class ListCommandTests {
+    defaultValidationResponse: CommandValidationResult;
     cmdDef: Command<any, any>;
-    globMock: TypeMoq.IMock<glob.IGlob>;
-    globFactoryMock: TypeMoq.IMock<IGlobFactory>;
     c: ListCommand;
-    errRepMock: TypeMoq.IMock<i.IErrorReporter>;
+    errRepMock: TypeMoq.IMock<IErrorReporter>;
+    cmdValidatorMock: TypeMoq.IMock<ICommandValidator<any, any>>;
+    tmplManagerMock: TypeMoq.IMock<ITemplateManager>;
+    messager: IUserMessager;
+    consoleMock: TypeMoq.IMock<Console>;
 
     @AsyncSetup
     public async beforeEach() {
-        this.cmdDef = <any>{ help: () => "" };
-        this.globMock = TypeMoq.Mock.ofInstance(new glob.Glob(""));
-        this.globFactoryMock = TypeMoq.Mock.ofType<IGlobFactory>(GlobFactory);
-        this.globFactoryMock
-            .setup(m => m.build(It.isAnyString(), It.isAny()))
-            .returns(() => this.globMock.object);
-        this.c = new ListCommand(mockMessagerFactory(), <NodeJS.Process>{}, <i.IFileSystem>{ }, <i.IPath>{}, this.globFactoryMock.object);
+        this.cmdDef = <any>{ helpText: () => "" };
+        this.cmdValidatorMock = TypeMoq.Mock.ofType<ICommandValidator<any, any>>();
+        this.defaultValidationResponse = new CommandValidationResult();
+        this.cmdValidatorMock.setup(m => m.validate(It.isAny(), It.isAny(), It.isAny())).returns(async () => this.defaultValidationResponse);
+        this.tmplManagerMock = TypeMoq.Mock.ofType<ITemplateManager>();
+        let out: any = {};
+        this.messager = mockMessagerFactory({ out: out });
+        this.consoleMock = out.mockConsole;
+        
+        
+        this.c = new ListCommand(this.messager, <NodeJS.Process>{}, <IFileSystem>{ },
+            <IPath>{}, this.cmdValidatorMock.object, this.tmplManagerMock.object);
         this.c.tempDir = "/tmp/mytemplates";
 
-        this.errRepMock = TypeMoq.Mock.ofType<i.IErrorReporter>(ErrorReporter);
+        this.errRepMock = TypeMoq.Mock.ofType<IErrorReporter>(ErrorReporter);
         this.cmdDef = <any>{ help: () => "" };
     }
 
@@ -47,16 +57,56 @@ export class ListCommandTests {
 
     }
 
-    @AsyncTest('should set the Glob to use tempDir, and bind match and end')
-    public async runValidated_globShouldUseTempDir() {
-        this.globMock.setup(m => m.on("match", this.c.match));
-        this.globMock.setup(m => m.on("end", this.c.end));
+    @TestCase(CommandErrorType.UserError, 0, true)
+    @TestCase(CommandErrorType.None, 1, false)
+    @AsyncTest("should return any validation error without running.")
+    public async run_reportsAnyValidationError(err: CommandErrorType, n: number, isErr: boolean) {
+        const r = new CommandValidationResult("bogus", err);
+        this.cmdValidatorMock.reset();
+        this.cmdValidatorMock
+            .setup(m => m.validate(It.isAny(), It.isAny(), It.isAny()))
+            .returns(() => Promise.resolve(r));
+        this.tmplManagerMock
+            .setup(m => m.list(It.isAny(), It.isAny(), It.isAny()))
+            .callback((end, error, found) => end([]));
 
-        let opts = {}, args = {};
-        let result = this.c.runValidated(opts, args);
-        this.globFactoryMock.verify(m => m.build(this.c.neomanPath, { cwd: this.c.tempDir }), TypeMoq.Times.once());
-        // FIXME: precisely match second params
-        this.globMock.verify(m => m.on("match", It.isAny()), TypeMoq.Times.once());
-        this.globMock.verify(m => m.on("end",It.isAny()), TypeMoq.Times.once());
+        let result = await this.c.run(this.cmdDef, <any>{}, <any>{ templateId: "none", template: "mytmp" });
+
+        Assert(result).has(r => r.IsError).that.equals(isErr);
+        this.tmplManagerMock.verify(m => m.list(It.isAny(), It.isAny(), It.isAny()), Times.exactly(n));
+        this.errRepMock.verify<void>(x => x.reportError(TypeMoq.It.isAny()), TypeMoq.Times.never());        
+    }
+
+    @Test()
+    public match_OutputsTemplateSummary(): void {
+        this.c.match(<ITemplate><any>{ identity: "human", name: "Homo sapiens sapiens" });
+        this.consoleMock.verify(
+            x => x.log(It.is(s => /human - Homo sapiens sapiens/.test(s))),
+            Times.once());
+    }
+
+    @Test()
+    public error_OutputsAndRejects(): void {
+        const rejectMock = TypeMoq.Mock.ofInstance((e: any) => {});
+        const terr = { file: "something.json", error: new Error("hmm") };
+        this.c.error(rejectMock.object, terr);
+        this.consoleMock.verify(
+            x => x.error(It.is(s => /Error reading template definition file: something\.json/.test(s))),
+            Times.once());
+        rejectMock.verify(m => m(terr), Times.once());
+    }
+
+    @TestCase(["some", "files"], 2)
+    @TestCase(["some", "files", "for", "you"], 4)
+    @TestCase([], 0)
+    @TestCase(null, 0)
+    @Test()
+    public end_reportsSummaryResolvesSuccess(files: ITemplate[], n: number): void {
+        const resolveMock = TypeMoq.Mock.ofInstance((e: any) => {});
+        this.c.end(resolveMock.object, files);
+        this.consoleMock.verify(
+            x => x.log(It.is(s => new RegExp(`${n} template\(s\) found.`).compile().test(s))),
+            Times.once());
+        resolveMock.verify(m => m(It.is((v: CommandValidationResult) => v.ErrorType === CommandErrorType.None)), Times.once());
     }
 }

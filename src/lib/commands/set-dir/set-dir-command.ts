@@ -1,13 +1,13 @@
 import { inject, injectable } from 'inversify';
 let NestedError = require('nested-error-stacks');
 
-import { Commands, COMMANDS } from './commands';
-import { BaseCommand } from './base-command';
-import * as i from '../i';
-import KEYS from '../settings-keys';
-import TYPES from '../di/types';
+import { Commands, COMMANDS } from '../commands';
+import { BaseCommand } from '../base-command';
+import * as i from '../../i';
+import KEYS from '../../settings-keys';
+import TYPES from '../../di/types';
 import Command from 'commandpost/lib/command';
-import { CommandValidationResult } from '../models';
+import { CommandValidationResult } from '../../models';
 
 @injectable()
 export class SetDirCommand extends BaseCommand<any, any> {
@@ -23,7 +23,7 @@ export class SetDirCommand extends BaseCommand<any, any> {
         super(msg, process);
     }
 
-    run(cmdDef: Command<any, any>, opts: any, args: any): Promise<CommandValidationResult> {
+    public async run(cmdDef: Command<any, any>, opts: any, args: any): Promise<CommandValidationResult> {
         let imsg = this.msg.i18n({dir: args.directory});
         imsg.info('Setting directory to {dir}');
 
@@ -33,18 +33,14 @@ export class SetDirCommand extends BaseCommand<any, any> {
         } catch(ex) {
             var nerr = new NestedError(imsg.mf("Error accessing '{dir}'."), ex);
             this.msg.warn(nerr);
-            return Promise.reject(nerr);
+            throw nerr;
         }
 
         if (! stats.isDirectory()) {
-            imsg.warn("Warning: Not a directory: '{dir}'.");
+            imsg.warn("Warning: '{dir}' is not a directory.");
         }
-        
-        this.settings.set(KEYS.tempDirKey, this.path.resolve(args.directory));
-        return Promise.resolve(null);
-    }
 
-    public validate(cmd: Command<any, any>, opts: any, args: any): Promise<CommandValidationResult> {
-        return Promise.resolve(null);
+        this.settings.set(KEYS.tempDirKey, this.path.resolve(args.directory));
+        return new CommandValidationResult();
     }
 }

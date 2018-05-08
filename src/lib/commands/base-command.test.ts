@@ -7,7 +7,7 @@ import * as _ from "lodash";
 
 import { BaseCommand } from './base-command';
 import { mockMessagerFactory } from '../../spec-lib'
-import { CommandValidationResult } from '../models';
+import { CommandValidationResult, CommandResult } from '../models';
 import { Assert } from 'alsatian-fluent-assertions';
 
 @TestFixture("Base command tests")
@@ -26,29 +26,10 @@ export class BaseCommandTests {
     public async afterEach() {
 
     }
-
-    @AsyncTest("validate() returns invalid when no template directory.")
-    public async validate_NoTmplDir_returnsInvalid() {
-        this.c.tempDir = null;
-        let result = await this.c.validator(<Command<any, any>>{}, {}, {});
-        Assert(result).isDefined();
-        Assert(result.IsError).equals(true);
-    }
-
-    @AsyncTest("validate() returns valid when template directory.")
-    public async validate_tmplDir_returnsValid() {
-        let result = await this.c.validator(<Command<any, any>>{}, {}, {});
-        Assert(result).isDefined();
-        Assert(result.IsError).equals(false);
-    }
 }
 
 export class TestCommand extends BaseCommand<any, any> {
-    public validator(cmd: Command<any, any>, opts: any, args: any): Promise<CommandValidationResult> {
-        return this.validate(cmd, opts, args);
+    public async run(cmd: Command<any, any>, opts: any, args: any): Promise<CommandResult> {
+        return new CommandResult();
     }
-
-    public run(cmd: Command<any, any>, opts: any, args: any): Promise<{}> {
-        throw new Error("Method not implemented.");
-    }    
 }

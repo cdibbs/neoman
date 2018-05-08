@@ -28,6 +28,8 @@ let TYPES = {
     ErrorReporter: Symbol("ErrorReporter"),
     TemplateInfo: Symbol("TemplateInfo"),
     NewCommandValidator: Symbol("NewCommandValidator"),
+    InfoCommandValidator: Symbol("InfoCommandValidator"),
+    ListCommandValidator: Symbol("ListCommandValidator"),
     FSTreeProcessor: Symbol("FSTreeProcessor"),
     SimulatedTreeDiscoveryHandler: Symbol("SimulateTreeDiscoveryHandler"),
     RealTreeDiscoveryHandler: Symbol("RealTreeDiscoveryHandler")

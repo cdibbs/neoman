@@ -6,7 +6,7 @@ import { Commands, COMMANDS } from '../commands';
 import { Verbosity, VERBOSITY } from '../../types/verbosity';
 import { RunOptions } from '../../models';
 import { BaseCommand } from '../base-command';
-import { IPath, IUserMessager, ITemplateManager, IGlob, IFileSystem, ITemplateFile, ITemplateRunner, IErrorReporter } from '../../i';
+import { IPath, IUserMessager, IGlob, IFileSystem, ITemplateFile, ITemplateRunner, IErrorReporter } from '../../i';
 import { IEventEmitter } from '../../emitters/i';
 import { TemplateFilesEmitterType, EventEmitter } from '../../emitters';
 import { INewCmdArgs, INewCmdOpts, ICommandValidator } from '../i';
@@ -15,6 +15,7 @@ import Command from 'commandpost/lib/command';
 import { curry } from '../../util/curry';
 import { CommandResult, CommandErrorType } from '../../models';
 import { ErrorReporter } from '../../error-reporter';
+import { ITemplateManager } from '../../template-management';
 
 @injectable()
 export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
@@ -53,7 +54,7 @@ export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {
         let options = new RunOptions();
         options.name = optsName || cdname;
         options.path = (opts.path || [])[0] || cwd;
-        options.verbosity = <Verbosity>(opts.verbosity || [])[0] || options.verbosity;
+        options.verbosity = opts.verbosity || options.verbosity;
         options.showExcluded = (typeof opts.showExcluded !== "boolean") || options.showExcluded;
         options.defaults = !! opts.defaults;
         return options;

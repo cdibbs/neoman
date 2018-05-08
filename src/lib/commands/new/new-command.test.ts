@@ -5,13 +5,14 @@ import * as TypeMoq from "typemoq";
 import { It, Times } from 'typemoq';
 
 // internal imports (always a relative path beginning with a ./ or ../)
-import { IUserMessager, IErrorReporter, ITemplateManager, IPath, ITemplateRunner } from '../../i';
+import { IUserMessager, IErrorReporter, IPath, ITemplateRunner } from '../../i';
 import { INewCmdOpts, INewCmdArgs, ICommandValidator } from '../i';
 import { ITemplate } from '../../i/template';
 import { mockMessagerFactory } from '../../../spec-lib'
 import { NewCommand } from './new-command';
 import { CommandResult, CommandValidationResult, RunnerResult, CommandErrorType } from '../../models';
 import { Assert } from 'alsatian-fluent-assertions';
+import { ITemplateManager } from '../../template-management';
 
 
 @TestFixture("New command tests")
@@ -26,7 +27,7 @@ export class NewCommandTests {
 
     @AsyncSetup
     public async beforeEach() {
-        this.cmdDef = <any>{ help: () => "" };
+        this.cmdDef = <any>{ helpText: () => "" };
         this.msgrMock = TypeMoq.Mock.ofType<IUserMessager>();
         this.tmplMgrMock = TypeMoq.Mock.ofType<ITemplateManager>();
         this.errRepMock = TypeMoq.Mock.ofType<IErrorReporter>();
@@ -45,7 +46,7 @@ export class NewCommandTests {
     @TestCase(CommandErrorType.UserError, CommandValidationResult, 0)
     @TestCase(CommandErrorType.None, RunnerResult, 1)
     @AsyncTest('run - only runs when no validation error.')
-    public async runValidated_globShouldUseTempDir(errorType: CommandErrorType, expectedResult: { new(): CommandResult }, timesRun: number) {
+    public async run_onlyRunsWhenNoValidationError(errorType: CommandErrorType, expectedResult: { new(): CommandResult }, timesRun: number) {
         let validationResult = new CommandValidationResult();
         validationResult.ErrorType = errorType;
         this.cmdValidatorMock
@@ -62,8 +63,33 @@ export class NewCommandTests {
         Assert(actualCmdResult).is(expectedResult);
     }
 
-    @Test('buildOptions - survives an empty object.')
-    public buildOptions_survivesEmpty() {
-        this.c["buildOptions"](<any>{});
+    @Test()
+    public async run_trapsReportsError(): Promise<void> {
+        this.cmdValidatorMock
+            .setup(c => c.validate(It.isAny(), It.isAny(), It.isAny()))
+            .throws(new Error("of mine"));
+        
+        const result = await this.c.run(<any>{}, <any>{}, <any>{});
+
+        this.errRepMock
+            .verify(m => m.reportError(
+                It.is(e => e instanceof Error && /of mine/.test(e.message))),
+                Times.once());    
+    }
+
+    @TestCase({})
+    @TestCase({showExcluded: false})
+    @Test('buildOptions - survives different input objects.')
+    public buildOptions_survivesEmpty(val: any) {
+        const result = this.c["buildOptions"](val);
+        Assert(result).hasAllAsserts({
+            name: a => a.not.isEmpty(),
+            path: a => a.not.isEmpty(),
+            verbosity: /normal|verbose|debug/,
+            showExcluded: a => a.satisfies(e => e === true || e === false),
+            defaults: a => a.satisfies(e => e === true || e === false),
+            force: a => a.satisfies(e => e === true || e === false),
+            simulate: a => a.satisfies(e => e === true || e === false)
+        });
     }
 }

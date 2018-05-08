@@ -6,34 +6,39 @@ import * as TypeMoq from "typemoq";
 import { It, Times } from 'typemoq';
 import * as _ from "lodash";
 
-// internal imports (always a relative path beginning with a ./ or ../)
-import * as i from '../../i';
-import * as nci from '../i';
 import { ITemplateInfo } from './i/i-template-info';
 import { TemplateInfo } from './template-info';
 import { ITemplate } from '../../i/template';
 import { mockMessagerFactory } from '../../../spec-lib'
 import { InfoCommand } from './info-command';
 import { ErrorReporter } from '../../error-reporter';
-import { TemplateManager } from '../../template-manager'
+import { TemplateManager } from '../../template-management/template-manager'
 import { CommandValidationResult, CommandErrorType } from "../../models";
+import { IInfoCmdOpts, IInfoCmdArgs, ICommandValidator } from '../i';
+import { IErrorReporter, IPath } from '../../i';
+import { ITemplateManager } from '../../template-management';
 
 @TestFixture("Info command tests")
 export class InfoCommandTests {
+    defaultValidationResponse: CommandValidationResult;
     ic: InfoCommand;
     cmdDef: Command<any, any>;
-    errRepMock: TypeMoq.IMock<i.IErrorReporter>;
+    errRepMock: TypeMoq.IMock<IErrorReporter>;
     tmplInfoMock: TypeMoq.IMock<ITemplateInfo>;
-    tmplMgrMock: TypeMoq.IMock<i.ITemplateManager>;
+    tmplMgrMock: TypeMoq.IMock<ITemplateManager>;
+    cmdValidatorMock: TypeMoq.IMock<ICommandValidator<IInfoCmdOpts, IInfoCmdArgs>>;
 
     @AsyncSetup
     public async beforeEach() {
-        this.errRepMock = TypeMoq.Mock.ofType<i.IErrorReporter>(ErrorReporter);
+        this.errRepMock = TypeMoq.Mock.ofType<IErrorReporter>(ErrorReporter);
         this.tmplInfoMock = TypeMoq.Mock.ofType<ITemplateInfo>(TemplateInfo);
         this.tmplMgrMock = TypeMoq.Mock.ofType<TemplateManager>();
+        this.cmdValidatorMock = TypeMoq.Mock.ofType<ICommandValidator<IInfoCmdOpts, IInfoCmdArgs>>();
+        this.defaultValidationResponse = new CommandValidationResult();
+        this.cmdValidatorMock.setup(m => m.validate(It.isAny(), It.isAny(), It.isAny())).returns(async () => this.defaultValidationResponse);
         this.cmdDef = <any>{ help: () => "" };
         this.ic = new InfoCommand(this.tmplMgrMock.object, mockMessagerFactory(),
-            <NodeJS.Process>{}, <i.IPath>{}, this.errRepMock.object, this.tmplInfoMock.object);
+            <NodeJS.Process>{}, <IPath>{}, this.errRepMock.object, this.tmplInfoMock.object, this.cmdValidatorMock.object);
     
         this.ic["tempDir"] = "noop";
     }
@@ -48,41 +53,34 @@ export class InfoCommandTests {
         let info = <ITemplate><any>{ interesting: false };
         this.tmplMgrMock.setup(m => m.info(It.isAnyString())).returns(() => Promise.resolve(info));
 
-        let results = this.ic.run(this.cmdDef, <nci.IInfoCmdOpts>{}, <nci.IInfoCmdArgs>{ templateId: "none", template: "mytmp" });
-        return results 
-            .then(() => {
-                this.errRepMock.verify<void>(x => x.reportError(TypeMoq.It.isAny()), TypeMoq.Times.never());
-                this.tmplInfoMock.verify<void>(t => t.showTemplateInfo(It.is(v => _.isEqual(info, v))), Times.once());
-                //sinon.assert.calledWith(this.infoNoop, info);
-            });
+        let results = await this.ic.run(this.cmdDef, <IInfoCmdOpts>{}, <IInfoCmdArgs>{ templateId: "none", template: "mytmp" });
+
+        this.errRepMock.verify<void>(x => x.reportError(TypeMoq.It.isAny()), TypeMoq.Times.never());
+        this.tmplInfoMock.verify<void>(t => t.showTemplateInfo(It.is(v => _.isEqual(info, v))), Times.once());
     }
 
     @AsyncTest("should report any error.")
     public async run_reportsAnyError() {
         this.tmplMgrMock.setup(m => m.info(It.isAnyString())).returns(() => Promise.reject("bad"));
 
-        let results = this.ic.run(this.cmdDef, <nci.IInfoCmdOpts>{}, <nci.IInfoCmdArgs>{ templateId: "none", template: "mytmp" });
-        return results 
-            .then(() => {
-                this.tmplInfoMock.verify<void>(t => t.showTemplateInfo(It.isAny()), Times.never());
-                this.errRepMock.verify<void>(x => x.reportError(TypeMoq.It.isAny()), TypeMoq.Times.once());
-            });
+        let results = await this.ic.run(this.cmdDef, <IInfoCmdOpts>{}, <IInfoCmdArgs>{ templateId: "none", template: "mytmp" });
+
+        this.tmplInfoMock.verify<void>(t => t.showTemplateInfo(It.isAny()), Times.never());
+        this.errRepMock.verify<void>(x => x.reportError(TypeMoq.It.isAny()), TypeMoq.Times.once());
     }
 
-    @AsyncTest('validate should return an error result when templateId is not defined.')
-    public async validate_invalidWhenNoTemplateId() {
-        //try {
-        var result = await this.ic.validate(<any>{ helpText: () => "test help text" }, {}, <any>{});
-        Assert(result)
-            .is(CommandValidationResult)
-            .has({
-                ErrorType: CommandErrorType.UserError,
-                Messages: m => Assert(m).hasElements([
-                    /You must specify a template identifier\.[\n\r]+test help text/,
-                ])
-            });
-        /*} catch(ex) {
-            console.log(ex);
-        }*/
+    @TestCase(CommandErrorType.UserError, 0, true)
+    @TestCase(CommandErrorType.None, 1, false)
+    @AsyncTest("should return any validation error without running.")
+    public async run_reportsAnyValidationError(err: CommandErrorType, n: number, isErr: boolean) {
+        const r = new CommandValidationResult("bogus", err);
+        this.cmdValidatorMock.reset();
+        this.cmdValidatorMock.setup(m => m.validate(It.isAny(), It.isAny(), It.isAny())).returns(async () => r);
+
+        let result = await this.ic.run(this.cmdDef, <IInfoCmdOpts>{}, <IInfoCmdArgs>{ templateId: "none", template: "mytmp" });
+
+        Assert(result).has(r => r.IsError).that.equals(isErr);
+        this.tmplInfoMock.verify<void>(t => t.showTemplateInfo(It.isAny()), Times.exactly(n));
+        this.errRepMock.verify<void>(x => x.reportError(TypeMoq.It.isAny()), TypeMoq.Times.never());        
     }
 }

@@ -15,9 +15,9 @@ import { ErrorReporter } from '../error-reporter';
 import { TemplateValidator } from '../template-validator';
 import { HandlerService } from '../handler-service';
 import { InputManager, BrowserInputManager, CustomInputManager, PromptInputManager, DefaultsInputManager } from '../input-managers';
-import { Kernel, SettingsProvider, TemplateManager } from "./entities";
+import { Kernel, SettingsProvider } from "./entities";
 import { CommandFactory, SetDirCommand, NewCommand, ListCommand, InfoCommand } from '../commands';
-import { ICommand, ICommandFactory } from "../commands/i";
+import { ICommand, ICommandFactory, IInfoCmdOpts, IInfoCmdArgs } from "../commands/i";
 import { MapperService, IMapperService } from 'simple-mapper';
 import * as i from '../i';
 import * as it from '../transformers/i';
@@ -29,6 +29,9 @@ import { GlobFactory } from "../util/glob-factory";
 import { NewCommandValidator, ICommandValidator, INewCmdArgs, INewCmdOpts } from "../commands";
 import { IFSTreeProcessor, ITreeDiscoveryEventHandler } from "../template-runner/i";
 import { FSTreeProcessor, SimulatedTreeDiscoveryHandler, RealTreeDiscoveryHandler } from "../template-runner";
+import { InfoCommandValidator } from "../commands/info/info-command-validator";
+import { ITemplateManager, TemplateManager } from "../template-management";
+import { ListCommandValidator } from "../commands/list/list-command-validator";
 
 export let containerBuilder = (packageJson: any = null, localesPath?: string): Container => {
     let json = packageJson || require(path.join(path.dirname(__filename), "../../package.json"));
@@ -41,7 +44,7 @@ export let containerBuilder = (packageJson: any = null, localesPath?: string): C
     container.bind<i.ISettingsProvider>(TYPES.SettingsProvider).to(SettingsProvider);
     container.bind<i.IHandlerService>(TYPES.HandlerService).to(HandlerService);
     container.bind<i.IUserMessager>(TYPES.UserMessager).to(UserMessager);
-    container.bind<i.ITemplateManager>(TYPES.TemplateManager).to(TemplateManager);
+    container.bind<ITemplateManager>(TYPES.TemplateManager).to(TemplateManager);
     container.bind<it.ITransformManager>(TYPES.TransformManager).to(TransformManager);
     container.bind<it.IPathTransformManager>(TYPES.PathTransformManager).to(PathTransformManager);
     container.bind<i.ITemplateValidator>(TYPES.TemplateValidator).to(TemplateValidator);
@@ -73,9 +76,11 @@ export let containerBuilder = (packageJson: any = null, localesPath?: string): C
     container.bind<ICommand<any, any>>(TYPES.Commands).to(NewCommand);
     container.bind<ICommand<any, any>>(TYPES.Commands).to(ListCommand);
     container.bind<ICommand<any, any>>(TYPES.Commands).to(InfoCommand);
-    container.bind<ICommandFactory>(TYPES.CommandFactory).to(CommandFactory)
+    container.bind<ICommandFactory>(TYPES.CommandFactory).to(CommandFactory);
 
     container.bind<ICommandValidator<INewCmdOpts, INewCmdArgs>>(TYPES.NewCommandValidator).to(NewCommandValidator);
+    container.bind<ICommandValidator<IInfoCmdOpts, IInfoCmdArgs>>(TYPES.InfoCommandValidator).to(InfoCommandValidator);
+    container.bind<ICommandValidator<any, any>>(TYPES.ListCommandValidator).to(ListCommandValidator);
 
     container.bind<i.IPath>(TYPES.Path).toConstantValue(path);
     container.bind<i.IFileSystem>(TYPES.FS).toConstantValue(fs);
