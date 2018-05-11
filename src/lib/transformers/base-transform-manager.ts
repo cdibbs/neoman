@@ -44,32 +44,39 @@ export class BaseTransformManager {
             config.ignore = tconfig.ignore;
             config.plugin = tconfig.plugin;
             config.pluginOptions = tconfig.pluginOptions;
-
-            let pluginName = `neoman-plugin-${config.plugin}`;
-            let PluginClass: { new(): any };
-            try {
-                PluginClass = this.requireg(pluginName);
-            } catch(ex) {
-                throw new NestedError(this.msg.i18n({pluginName}).mf("Error loading plugin '{pluginName}'."), ex);
-            }
-
-            try {
-                config.pluginInstance = new PluginClass();
-            } catch(ex) {
-                throw new NestedError(this.msg.i18n({pluginName}).mf("Error instantiating plugin '{pluginName}'."), ex);
-            }
-
-            try {
-                config.pluginInstance.configure(config.pluginOptions);
-            } catch(ex) {
-                throw new NestedError(this.msg.i18n({pluginName}).mf("Error when calling .configure(pluginOptions) on '{pluginName}' instance."), ex);
-            }
+            this.loadPlugin(config, tconfig);
 
             this.configs[key] = config;
         }
     }
 
     requireg = requireg;
+
+    loadPlugin(config: TemplateConfiguration, tconfigs: ir.IConfiguration): void {
+        if (! config.plugin) {
+            return; // plugin-less configurations can validly be used to organize settings.
+        }
+
+        let pluginName = `neoman-plugin-${config.plugin}`;
+        let PluginClass: { new(): any };
+        try {
+            PluginClass = this.requireg(pluginName);
+        } catch(ex) {
+            throw new NestedError(this.msg.i18n({pluginName}).mf("Error loading plugin '{pluginName}'."), ex);
+        }
+
+        try {
+            config.pluginInstance = new PluginClass();
+        } catch(ex) {
+            throw new NestedError(this.msg.i18n({pluginName}).mf("Error instantiating plugin '{pluginName}'."), ex);
+        }
+
+        try {
+            config.pluginInstance.configure(config.pluginOptions);
+        } catch(ex) {
+            throw new NestedError(this.msg.i18n({pluginName}).mf("Error when calling .configure(pluginOptions) on '{pluginName}' instance."), ex);
+        }
+    }
     
     applyReplace(original: string, tdef: ir.ITransform | ir.IPathTransform, path: string):  string {
         // Minimally, we want fast, internal regex replacement. It should be overridable within the configurations section of a template.json.
