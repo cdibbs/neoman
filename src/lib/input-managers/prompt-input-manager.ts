@@ -21,7 +21,7 @@ export class PromptInputManager extends BaseInputManager {
         let count = this.countQuestions(config.define);
         let current = 0;
         for(let key in config.define) {
-            let q = `(${current + 1}/${count}) ${config.define[key]}`;
+            let q = `(${current + 1}/${count}) ${config.define[key]} `;
             if (promise === null) {
                 promise = this.askNextQuestion(key, q, {});
             } else {

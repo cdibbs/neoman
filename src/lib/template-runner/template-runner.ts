@@ -42,12 +42,11 @@ export class TemplateRunner implements ITemplateRunner {
         return result;
     }
 
-    protected finishRun(result: RunnerResult): RunnerResult {
+    protected finishRun(result: RunnerResult): void {
         this.msg.i18n(result)
             .info('{processed} file(s) considered.')
             .info('{excluded} file(s) excluded.')
             .info('{totalFiles} file(s) copied.');
-        return result;
     }
 
     protected destinationEmpty(path: string): boolean {
