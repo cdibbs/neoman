@@ -65,7 +65,7 @@ describe(Kernel.name, () => {
 
     describe('#handleError', () => {
         it('should wrap the error to ensure the user gets something', () => {
-            k.handleError(new Error())
+            k["handleError"](new Error())
                 .catch((ex) => {
                     expect(ex).to.equal(ex);
                     sinon.assert.calledWith(errStub, sinon.match.instanceOf(NestedError));
@@ -73,7 +73,7 @@ describe(Kernel.name, () => {
         });
 
         it('should exit', () => {
-            k.handleError(new Error());
+            k["handleError"](new Error());
             sinon.assert.calledWith(exitStub, 1);
         });
     });

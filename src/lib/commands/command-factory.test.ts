@@ -17,7 +17,7 @@ export class CommandFactoryTests {
 
     @Setup
     public beforeEach() {
-        let out = {};
+        let out = <any>{ mockConsole: null };
         let msg = mockMessagerFactory({ out: out });
         this.c = new CommandFactory(msg, [<any>{type: "one"}, <any>{type: "two"}]);
     }
