@@ -1,18 +1,18 @@
 import path = require('path');
 import fs = require('fs');
 import tmp = require('tmp');
-import 'reflect-metadata';
-import * as sinon from 'sinon';
-import { Container } from 'inversify';
-import { Test, TestFixture, AsyncTest, AsyncSetup, AsyncTeardown } from 'alsatian';
+import { AsyncSetup, AsyncSetupFixture, AsyncTeardown } from 'alsatian';
 import { Assert } from 'alsatian-fluent-assertions';
+import { Container } from 'inversify';
+import 'reflect-metadata';
+import { Mock, IMock } from 'typemoq';
 
 import { containerBuilder } from '../lib/di/container';
 import TYPES from '../lib/di/types';
-import { UserMessager } from '../lib/user-messager';
-import { IKernel, ISettingsProvider, IFileSystem, IUserMessager } from '../lib/i';
+import { IKernel, ISettingsProvider, IUserMessager } from '../lib/i';
 import { mockMessagerFactory } from '../spec-lib';
-import { AsyncSetupFixture } from 'alsatian/core/decorators/async-setup-fixture-decorator';
+
+
 
 /**
  * List of integration tests to write:
@@ -36,6 +36,7 @@ import { AsyncSetupFixture } from 'alsatian/core/decorators/async-setup-fixture-
     protected msgr: IUserMessager;
     protected realProcessExit: (c?: number) => never;
     protected realWrite: (...args: any[]) => void;
+    protected exitMock: IMock<Function>;
 
     @AsyncSetupFixture
     public async setupFixture() {
@@ -46,7 +47,8 @@ import { AsyncSetupFixture } from 'alsatian/core/decorators/async-setup-fixture-
     @AsyncSetup
     public async beforeEach() {
         this.realProcessExit = process.exit;
-        process.exit = <any>sinon.stub();
+        this.exitMock = Mock.ofInstance(() => {});
+        process.exit = <any>this.exitMock.object;
         let cont = this.buildIntegTestContainer();
         let sp = cont.get<ISettingsProvider>(TYPES.SettingsProvider);
         Assert(sp["filepath"]).matches(/^(?:\/tmp\/|[cC]:\\temp\\)\.neoman-settings$/);
@@ -73,7 +75,8 @@ import { AsyncSetupFixture } from 'alsatian/core/decorators/async-setup-fixture-
     protected async captureOutput() {
         this.realWrite = process.stdout.write;
         this.intercepted = "";
-        process.stdout.write = <any>sinon.spy((w: string) => {
+        //this.stdoutWriteMock = 
+        process.stdout.write = <any>((w: string) => {
             if (typeof w === "string")
                 this.intercepted += w.replace( /\n$/ , '' ) + (w && (/\n$/).test( w ) ? '\n' : '');
         });

@@ -1,17 +1,12 @@
 import path = require('path');
 import fs = require('fs');
-import 'reflect-metadata';
-import { SinonStub } from 'sinon';
-import { Container } from 'inversify';
-import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown } from 'alsatian';
-
-import { containerBuilder } from '../lib/di/container';
-import TYPES from '../lib/di/types';
-import { UserMessager } from '../lib/user-messager';
-import { IKernel, ISettingsProvider, IFileSystem, IUserMessager } from '../lib/i';
-import { mockMessagerFactory } from '../spec-lib';
-import { BaseIntegrationTest } from './base-integration';
+import { AsyncTest, TestCase, TestFixture } from 'alsatian';
 import { Assert } from 'alsatian-fluent-assertions';
+import 'reflect-metadata';
+import { Times } from 'typemoq';
+import { BaseIntegrationTest } from './base-integration';
+
+
 
 /**
  * List of integration tests to write:
@@ -68,6 +63,6 @@ import { Assert } from 'alsatian-fluent-assertions';
 
     protected assertVersion() {
         Assert(this.intercepted).matches(/1\.2\.3/);
-        Assert((<SinonStub><any>process.exit).called).equals(true);
+        this.exitMock.verify(m => m(), Times.atLeast(1));
     }
  }

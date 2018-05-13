@@ -14,10 +14,11 @@ import { UserMessager } from '../user-messager';
 import { ErrorReporter } from '../error-reporter';
 import { TemplateValidator } from '../template-validator';
 import { HandlerService } from '../handler-service';
-import { InputManager, BrowserInputManager, CustomInputManager, PromptInputManager, DefaultsInputManager } from '../input-managers';
+import { InputManager, BrowserInputManager, CustomInputManager, PromptInputManager, DefaultsInputManager, Duplexer } from '../input-managers';
 import { Kernel, SettingsProvider } from "./entities";
 import { CommandFactory, SetDirCommand, NewCommand, ListCommand, InfoCommand } from '../commands';
 import { ICommand, ICommandFactory, IInfoCmdOpts, IInfoCmdArgs } from "../commands/i";
+import { IDuplexer } from "../input-managers";
 import { MapperService, IMapperService } from 'simple-mapper';
 import * as i from '../i';
 import * as it from '../transformers/i';
@@ -61,6 +62,7 @@ export let containerBuilder = (packageJson: any = null, localesPath?: string): C
     container.bind<IFSTreeProcessor>(TYPES.FSTreeProcessor).to(FSTreeProcessor);
     container.bind<ITreeDiscoveryEventHandler>(TYPES.RealTreeDiscoveryHandler).to(RealTreeDiscoveryHandler);
     container.bind<ITreeDiscoveryEventHandler>(TYPES.SimulatedTreeDiscoveryHandler).to(SimulatedTreeDiscoveryHandler);
+    container.bind<IDuplexer>(TYPES.BrowserClientDuplexer).to(Duplexer);
 
     let lobj = <typeof i18n>{};
     i18n.configure({

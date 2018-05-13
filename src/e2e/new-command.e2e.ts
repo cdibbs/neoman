@@ -1,11 +1,10 @@
 import path = require('path');
 import fs = require('fs');
-import 'reflect-metadata';
-import { SinonStub } from 'sinon';
-import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown } from 'alsatian';
+import { AsyncTest, TestCase, TestFixture } from 'alsatian';
 import { Assert } from 'alsatian-fluent-assertions';
-
+import 'reflect-metadata';
 import { BaseIntegrationTest } from './base-integration';
+
 
 @TestFixture("New command tests")
  export class NewCommandTests extends BaseIntegrationTest {

@@ -32,7 +32,8 @@ let TYPES = {
     ListCommandValidator: Symbol("ListCommandValidator"),
     FSTreeProcessor: Symbol("FSTreeProcessor"),
     SimulatedTreeDiscoveryHandler: Symbol("SimulateTreeDiscoveryHandler"),
-    RealTreeDiscoveryHandler: Symbol("RealTreeDiscoveryHandler")
+    RealTreeDiscoveryHandler: Symbol("RealTreeDiscoveryHandler"),
+    BrowserClientDuplexer: Symbol("BrowserClientDuplexer")
 }
 
 export default TYPES;
