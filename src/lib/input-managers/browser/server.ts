@@ -7,6 +7,7 @@ import { IInputConfig } from "../../i/template";
 import { Client } from "./client";
 import { curry } from '../../util/curry';
 
+// FIXME Could improve SoC, here. Use DI for express, etc.
 export class Server {
     serverInstance: http.Server;
     express: typeof express = express;
@@ -25,7 +26,7 @@ export class Server {
         staticContentPath: string,
         inputConfig: IInputConfig,
         client: Client
-    ) {
+    ): void {
         var app = this.express(); 
         app.use(this.bodyParser.json());
         app.use('/', this.express.static(staticContentPath));

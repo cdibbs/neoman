@@ -9,7 +9,6 @@
         "keywords": [ ], 
         "language": "HTML", "#": "The dominant language in this solution."
     },
-    "root": "./",
 
     "identity": "bpd", "#": "A unique ID for the project template. Used when creating a project from a template.",
 

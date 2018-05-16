@@ -33,7 +33,9 @@ let TYPES = {
     FSTreeProcessor: Symbol("FSTreeProcessor"),
     SimulatedTreeDiscoveryHandler: Symbol("SimulateTreeDiscoveryHandler"),
     RealTreeDiscoveryHandler: Symbol("RealTreeDiscoveryHandler"),
-    BrowserClientDuplexer: Symbol("BrowserClientDuplexer")
+    BrowserClientDuplexer: Symbol("BrowserClientDuplexer"),
+    BIMClientFactory: Symbol("BIMClientFactory"),
+    BIMServerFactory: Symbol("BIMServerFactory")
 }
 
 export default TYPES;
