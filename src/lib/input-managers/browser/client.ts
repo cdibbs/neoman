@@ -31,14 +31,14 @@ export class Client {
             launcher(
                 "http://localhost:3638",
                 <launchpad.LaunchOptions>{ browser: "chrome", args: "--new-window" },
-                curry.oneOf3(this.handleLaunchResult, this, this.reject)
+                curry.bindOnly(this.handleLaunchResult, this)
             );
         }
     }
 
-    protected handleLaunchResult(reject: (error?: any) => void, error: any, inst: launchpad.Instance): void {
+    protected handleLaunchResult(error: any, inst: launchpad.Instance): void {
         if (error) {
-            reject(error);
+            this.reject(error);
         } else {
             this.browserInstance = inst;
         }

@@ -35,7 +35,8 @@ let TYPES = {
     RealTreeDiscoveryHandler: Symbol("RealTreeDiscoveryHandler"),
     BrowserClientDuplexer: Symbol("BrowserClientDuplexer"),
     BIMClientFactory: Symbol("BIMClientFactory"),
-    BIMServerFactory: Symbol("BIMServerFactory")
+    BIMServerFactory: Symbol("BIMServerFactory"),
+    BIMWebSocketFactory: Symbol("BIMWebSocketFactory")
 }
 
 export default TYPES;

@@ -46,7 +46,7 @@
     "@types/underscore": "^1.8.8",
     "@types/ws": "^3.2.1",
     "alsatian": "^2.2.1",
-    "alsatian-fluent-assertions": "^1.0.0-alpha013",
+    "alsatian-fluent-assertions": "^1.0.0-alpha020",
     "body-parser": "^1.18.2",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",

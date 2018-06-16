@@ -5,3 +5,5 @@ export * from "./server-factory";
 export * from "./i-server-factory";
 export * from "./client-factory";
 export * from "./i-client-factory";
+export * from "./websocket-factory";
+export * from "./i-websocket-factory";

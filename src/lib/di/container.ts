@@ -1,38 +1,36 @@
-import { Container } from "inversify";
-import 'reflect-metadata';
-import * as glob from 'glob';
-import * as path from 'path';
 import * as fs from 'fs';
+import * as glob from 'glob';
 import * as i18n from 'i18n';
+import { Container } from "inversify";
 import * as osLocale from 'os-locale';
-
-import TYPES from "./types";
-import { TransformManager, PathTransformManager } from '../transformers';
-import { TemplateRunner } from '../template-runner/template-runner';
-import { FilePatterns } from '../file-patterns';
-import { UserMessager } from '../user-messager';
-import { ErrorReporter } from '../error-reporter';
-import { TemplateValidator } from '../template-validator';
-import { HandlerService } from '../handler-service';
-import { InputManager, BrowserInputManager, CustomInputManager, PromptInputManager, DefaultsInputManager, Duplexer, IServerFactory, IClientFactory, ServerFactory, ClientFactory } from '../input-managers';
-import { Kernel, SettingsProvider } from "./entities";
-import { CommandFactory, SetDirCommand, NewCommand, ListCommand, InfoCommand } from '../commands';
-import { ICommand, ICommandFactory, IInfoCmdOpts, IInfoCmdArgs } from "../commands/i";
-import { IDuplexer } from "../input-managers";
-import { MapperService, IMapperService } from 'simple-mapper';
-import * as i from '../i';
-import * as it from '../transformers/i';
-import * as m from '../models';
+import * as path from 'path';
+import 'reflect-metadata';
+import { IMapperService, MapperService } from 'simple-mapper';
+import { CommandFactory, ICommandValidator, INewCmdArgs, INewCmdOpts, InfoCommand, ListCommand, NewCommand, NewCommandValidator, SetDirCommand } from '../commands';
+import { ICommand, ICommandFactory, IInfoCmdArgs, IInfoCmdOpts } from "../commands/i";
 import { ITemplateInfo } from "../commands/info/i/i-template-info";
-import { TemplateInfo } from "../commands/info/template-info";
-import { IGlobFactory } from "../util/i-glob-factory";
-import { GlobFactory } from "../util/glob-factory";
-import { NewCommandValidator, ICommandValidator, INewCmdArgs, INewCmdOpts } from "../commands";
-import { IFSTreeProcessor, ITreeDiscoveryEventHandler } from "../template-runner/i";
-import { FSTreeProcessor, SimulatedTreeDiscoveryHandler, RealTreeDiscoveryHandler } from "../template-runner";
 import { InfoCommandValidator } from "../commands/info/info-command-validator";
-import { ITemplateManager, TemplateManager } from "../template-management";
+import { TemplateInfo } from "../commands/info/template-info";
 import { ListCommandValidator } from "../commands/list/list-command-validator";
+import { ErrorReporter } from '../error-reporter';
+import { FilePatterns } from '../file-patterns';
+import { HandlerService } from '../handler-service';
+import * as i from '../i';
+import { BrowserInputManager, ClientFactory, CustomInputManager, DefaultsInputManager, Duplexer, IClientFactory, IDuplexer, IServerFactory, IWebSocketFactory, InputManager, PromptInputManager, ServerFactory, WebSocketFactory } from '../input-managers';
+import * as m from '../models';
+import { ITemplateManager, TemplateManager } from "../template-management";
+import { FSTreeProcessor, RealTreeDiscoveryHandler, SimulatedTreeDiscoveryHandler } from "../template-runner";
+import { IFSTreeProcessor, ITreeDiscoveryEventHandler } from "../template-runner/i";
+import { TemplateRunner } from '../template-runner/template-runner';
+import { TemplateValidator } from '../template-validator';
+import { PathTransformManager, TransformManager } from '../transformers';
+import * as it from '../transformers/i';
+import { UserMessager } from '../user-messager';
+import { GlobFactory } from "../util/glob-factory";
+import { IGlobFactory } from "../util/i-glob-factory";
+import { Kernel, SettingsProvider } from "./entities";
+import TYPES from "./types";
+
 
 export let containerBuilder = (packageJson: any = null, localesPath?: string): Container => {
     let json = packageJson || require(path.join(path.dirname(__filename), "../../package.json"));
@@ -65,6 +63,7 @@ export let containerBuilder = (packageJson: any = null, localesPath?: string): C
     container.bind<IDuplexer>(TYPES.BrowserClientDuplexer).to(Duplexer);
     container.bind<IServerFactory>(TYPES.BIMServerFactory).to(ServerFactory);
     container.bind<IClientFactory>(TYPES.BIMClientFactory).to(ClientFactory);
+    container.bind<IWebSocketFactory>(TYPES.BIMWebSocketFactory).to(WebSocketFactory);
 
     let lobj = <typeof i18n>{};
     i18n.configure({
