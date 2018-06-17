@@ -1,6 +1,7 @@
 import { Test, Setup } from "alsatian";
 import { Express, Handler } from "express";
 import { json, OptionsJson } from "body-parser";
+import { Server as HttpServer } from "http";
 import { Server } from "./server";
 import { IWebSocketFactory } from "./i-websocket-factory";
 import { IMock, Mock, It, Times } from "typemoq";
@@ -10,6 +11,7 @@ import { mockMessagerFactory } from "../../../spec-lib/typemoq-messager";
 import { Assert } from "alsatian-fluent-assertions";
 import { IClient } from "./i-client";
 import _ = require("underscore");
+import { IServer } from "./i-server";
 
 export class ServerTest {
     wsFactoryMock: IMock<IWebSocketFactory>;
@@ -106,26 +108,53 @@ export class ServerTest {
 
     @Test()
     public launch_listensOn3638() {
+        let actualClientLauncher: Function; 
 
-    }
+        this.server.launch("/some/path", {}, this.clientMock.object);
 
-    @Test()
-    public launch_callsBrowserClientAfterServerLaunched() {
-
+        this.appMock.verify(x => x.listen(3638, It.is(f => { actualClientLauncher = <any>f; return x instanceof Function; })), Times.once());
+        actualClientLauncher();
+        this.clientMock.verify(x => x.launch(), Times.once());
     }
 
     @Test()
     public launch_bindsWebSocket() {
+        const serverInstMock = Mock.ofType<HttpServer>();
+        this.appMock
+            .setup(x => x.listen(It.isAnyNumber(), It.is((f: any) => f instanceof Function)))
+            .returns((x: any) => serverInstMock.object);
+        this.server.launch("/some/path", {}, this.clientMock.object);
 
+        this.wsFactoryMock
+            .verify(x => x.buildAndBind(serverInstMock.object, this.resolveMock.object, this.rejectMock.object), Times.once());
     }
 
     @Test()
     public stop_stopsServerIffExists() {
+        const serverInstMock = Mock.ofType<HttpServer>();
+        Assert(() => this.server.stop())
+            .not.throws();
 
+        this.server["serverInstance"] = serverInstMock.object;
+        Assert(() => this.server.stop())
+            .not.throws();
+        serverInstMock.verify(x => x.close(), Times.once());
     }
 
     @Test()
     public handleUserInput_attemptsResolutionWithReqBodyOtherwiseRejects() {
-        
+        const testReq = { body: "something" };
+        this.server["handleUserInput"](<any>testReq, null);
+        this.rejectMock.verify(x => x(It.isAny()), Times.never());
+        this.resolveMock.verify(x => x(testReq.body), Times.once());
+    }
+
+    @Test()
+    public handleUserInput_rejectsOnBodyError() {
+        const err = new Error();
+        const erroringTestReq = { get body() { throw err; } };
+        this.server["handleUserInput"](<any>erroringTestReq, null);
+        this.resolveMock.verify(x => x(It.isAny()), Times.never());
+        this.rejectMock.verify(x => x(err), Times.once());
     }
 }
