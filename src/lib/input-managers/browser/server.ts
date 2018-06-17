@@ -37,7 +37,7 @@ export class Server {
         app.post('/', curry.bindOnly(this.handleUserInput, this));
         this.serverInstance = app.listen(3638, curry.bindOnly(client.launch, client));
         // The webSocket will close automatically when the http server shuts down.
-        this.wsFactory.buildAndBind(this.serverInstance, this.resolve, this.reject);
+        this.wsFactory.build(this.serverInstance, this.resolve, this.reject);
     }
 
     stop(): void {

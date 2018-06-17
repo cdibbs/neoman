@@ -126,7 +126,7 @@ export class ServerTest {
         this.server.launch("/some/path", {}, this.clientMock.object);
 
         this.wsFactoryMock
-            .verify(x => x.buildAndBind(serverInstMock.object, this.resolveMock.object, this.rejectMock.object), Times.once());
+            .verify(x => x.build(serverInstMock.object, this.resolveMock.object, this.rejectMock.object), Times.once());
     }
 
     @Test()
