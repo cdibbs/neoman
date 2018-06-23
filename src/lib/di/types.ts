@@ -21,6 +21,7 @@ let TYPES = {
     CustomInputManager: Symbol("CustomInputManager"),
     PromptInputManager: Symbol("PromptInputManager"),
     DefaultsInputManager: Symbol("DefaultsInputManager"),
+    DefaultsAnswerer: Symbol("DefaultsAnswerer"),
     HandlerService: Symbol("HandlerService"),
     i18n: Symbol("i18n"),
     Mapper: Symbol("Mapper"),
