@@ -1,11 +1,14 @@
-import { IUserMessager } from "../../i";
-import { WebSocket } from "./websocket";
 import { Server as HttpServer } from "http";
+import { inject, injectable } from "inversify";
+import TYPES from "../../di/types";
+import { IUserMessager } from "../../i";
 import { IWebSocket } from "./i-websocket";
+import { WebSocket } from "./websocket";
 
+@injectable()
 export class WebSocketFactory {
     constructor(
-        protected msg: IUserMessager
+        @inject(TYPES.UserMessager) protected msg: IUserMessager
     ) {
     }
     

@@ -3,7 +3,9 @@ import { Server as HttpServer } from "http";
 import { IUserMessager } from "../../i";
 import { curry } from "../../util/curry";
 import { IWebSocket } from "./i-websocket";
+import { injectable } from "inversify";
 
+@injectable()
 export class WebSocket implements IWebSocket {
     protected ws: { new(opts: ServerOptions): WebSocketServer } = WebSocketServer;
     protected wss: WebSocketServer;

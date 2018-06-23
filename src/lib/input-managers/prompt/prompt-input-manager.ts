@@ -1,11 +1,11 @@
 import { injectable, inject } from 'inversify';
-import TYPES from '../di/types';
+import TYPES from '../../di/types';
 
-import { BaseInputManager } from './base-input-manager';
-import { curry } from '../util/curry';
-import * as i from '../i';
-import * as it from '../i/template';
-import { RunOptions } from '../models';
+import { BaseInputManager } from '../base-input-manager';
+import { curry } from '../../util/curry';
+import * as i from '../../i';
+import * as it from '../../i/template';
+import { RunOptions } from '../../models';
 
 @injectable()
 export class PromptInputManager extends BaseInputManager {

@@ -1,6 +1,13 @@
 import { TapBark } from "tap-bark";
 import { TestSet, TestRunner } from "alsatian";
 
+process.on('unhandledRejection', (reason, p) => {
+    console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+    if (reason) {
+        console.log(reason.stack);
+    }
+});
+
 (async () =>
 {
     const testSet = TestSet.create();

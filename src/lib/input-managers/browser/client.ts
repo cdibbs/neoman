@@ -1,7 +1,9 @@
 import { IUserMessager } from "../../i";
 import { curry } from '../../util/curry';
 import * as launchpad from 'launchpad';
+import { injectable } from "inversify";
 
+@injectable()
 export class Client {
     launchpad: typeof launchpad = launchpad;
     browserInstance: launchpad.Instance;

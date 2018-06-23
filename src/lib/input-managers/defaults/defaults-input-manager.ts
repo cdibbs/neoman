@@ -1,11 +1,11 @@
 import { injectable, inject } from 'inversify';
 var NestedError = require('nested-error-stacks');
 
-import { BaseInputManager } from './base-input-manager';
-import TYPES from '../di/types';
-import * as i from '../i';
-import * as it from '../i/template';
-import { RunOptions, Question} from '../models';
+import { BaseInputManager } from '../base-input-manager';
+import TYPES from '../../di/types';
+import * as i from '../../i';
+import * as it from '../../i/template';
+import { RunOptions, Question} from '../../models';
 
 @injectable()
 export class DefaultsInputManager extends BaseInputManager {

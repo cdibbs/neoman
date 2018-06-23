@@ -7,8 +7,10 @@ import { IInputConfig } from "../../i/template";
 import { curry } from '../../util/curry';
 import { IWebSocketFactory } from '.';
 import { IClient } from './i-client';
+import { injectable } from 'inversify';
 
 // FIXME Could improve SoC, here. Use DI for express, etc.
+@injectable()
 export class Server {
     serverInstance: http.Server;
     express: () => express.Express = express;
