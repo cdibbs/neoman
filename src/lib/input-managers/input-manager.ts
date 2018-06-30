@@ -19,43 +19,42 @@ export class InputManager extends BaseInputManager {
         super();
     }
 
-    ask(config: it.IInputConfig, options: RunOptions): Promise<{ [key: string]: any }> {
-        if (typeof config === 'undefined') {
-            return Promise.resolve({});
+    async ask(config: it.IInputConfig, options: RunOptions): Promise<{ [key: string]: any }> {
+        if (typeof config === 'undefined' || config === null) {
+            return {};
         }
 
-        console.log(options);
-        if (options.defaults) {
-            return this.defaultsMgr.ask(config, options);
+        if (options && options.defaults) {
+            return await this.defaultsMgr.ask(config, options);
         }
-        
+
+        let use: it.ICustomInputInterface | string = config.use;        
         try {
-            let use: it.ICustomInputInterface | string = config.use;
 
             if (typeof config.use === "undefined") {
                 // assume prompt
-                return this.promptMgr.ask(config, options);
+                return await this.promptMgr.ask(config, options);
             } else if (typeof config.use === "string") {
                 use = this.generateDefaults(config.use);
             }
             
             if (typeof use === "object") {
                 switch(use.type) {
-                    case "browser": return this.browserMgr.ask(config, options);
-                    case "prompt": return this.promptMgr.ask(config, options);
+                    case "browser": return await this.browserMgr.ask(config, options);
+                    case "prompt": return await this.promptMgr.ask(config, options);
                     default:
                         this.customMgr.configure(this.tmplRootPath);
-                        return this.customMgr.ask(config, options);
+                        return await this.customMgr.ask(config, options);
                 }
             }
-
-            return Promise.reject(`Unrecognized input section format: ${use}.`);
-        } catch(err) {
-            return Promise.reject(new NestedError(`Unexpected error asking for ${config.use} input`, err));
+        } catch (err) {
+            throw new NestedError(`Unexpected error asking for ${config.use} input`, err);
         }
+
+        throw new Error(`Unrecognized input section format: ${use}.`);
     }
 
-    generateDefaults(use: string): it.ICustomInputInterface {
+    protected generateDefaults(use: string): it.ICustomInputInterface {
         return <it.ICustomInputInterface>{
             type: use,
             handler: null,
