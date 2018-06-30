@@ -68,5 +68,7 @@
 	"Excluded implicitly because 'files' inclusion rules exist, yet none match.": "Excluded implicitly because 'files' inclusion rules exist, yet none match.",
 	"There was an unexpected error:": "There was an unexpected error:",
 	"Template configuration not valid.": "Template configuration not valid.",
-	"Force things you maybe shouldn't force.": "Force things you maybe shouldn't force."
+	"Force things you maybe shouldn't force.": "Force things you maybe shouldn't force.",
+	"Unrecognized input section format.": "Unrecognized input section format.",
+	"Question definition for key '{key}' erroneous or not supported, yet.": "Question definition for key '{key}' erroneous or not supported, yet."
 }

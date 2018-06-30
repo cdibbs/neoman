@@ -16,62 +16,42 @@ export class PromptInputManager extends BaseInputManager {
         super();
     }
 
-    ask(config: it.IInputConfig, options: RunOptions): Promise<{ [key: string]: any }> {
-        let promise: Promise<{ [key: string]: any }> = null;
-        let count = this.countQuestions(config.define);
-        let current = 0;
+    async ask(config: it.IInputConfig, options: RunOptions): Promise<{ [key: string]: any }> {
+        const count = this.countQuestions(config.define);
+        let current = 1;
+        let answers = {};
         for(let key in config.define) {
-            let q = `(${current + 1}/${count}) ${config.define[key]} `;
-            if (promise === null) {
-                promise = this.askNextQuestion(key, q, {});
-            } else {
-                promise = promise.then(curry.twoOf3(this.askNextQuestion, this, key, q));
-            }
+            const qtext = `(${current}/${count}) ${config.define[key]} `;
+            // Wrap the NodeJS callback stuff with a promise.
+            answers[key] = await new Promise(curry.twoOf4(this.promptWithCallback, this, key, qtext));
+            current = current + 1;
         }
 
-        return promise || Promise.resolve({});
+        return answers;
     }
 
-    protected askNextQuestion(key: string, q: string, answers: { [key: string]: any }): Promise<{ [key: string]: any }>
-    {
-        return this.prompt(q).then(curry.twoOf3(this.acceptInput, this, answers, key));
-    }
-
-    protected acceptInput(answers: { [key: string]: any }, key: string, answer: any): { [key: string]: any }
-    {
-        answers[key] = answer;
-        return answers
-    }
-
-    protected prompt(question: string | it.ITemplateTypedInput | it.ITemplateScriptedInput ): Promise<string>
-    {
-        return new Promise(curry.oneOf3(this.promptCallback, this, question));
-    }
-
-    protected promptCallback(
+    protected promptWithCallback(
+        key: string,
         question: string | it.ITemplateTypedInput | it.ITemplateScriptedInput,
         callback: (data: any) => void,
         errorCallback: (e: Error) => void): void
     {
         try {
             if (typeof question !== "string")
-                throw new Error(this.msg.i18n().mf("Not supported, yet."));
+                throw new Error(this.msg.i18n({key}).mf("Question definition for key '{key}' erroneous or not supported, yet."));
 
             this.process.stdin.resume();
             this.process.stdout.write(question, () => {});
-            this.process.stdin.once('data', curry.oneOf2(this.awaitInput, this, callback));
+            this.process.stdin.once('data', (data: any) => callback(data.toString().trim()));
         } catch(err) {
             errorCallback(err);
         }
     }
 
-    protected awaitInput(callback: (data: any) => void, data: any): void
-    {
-        callback(data.toString().trim());
-    }
-
     protected countQuestions(inputs: it.ITemplateInputs): number {
-        if (typeof inputs === "object") {
+        if (inputs === null || inputs === undefined) {
+            return 0;
+        } else if (typeof inputs === "object") {
             return Object.keys(inputs).length;
         }
 

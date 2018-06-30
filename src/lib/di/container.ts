@@ -30,6 +30,8 @@ import { GlobFactory } from "../util/glob-factory";
 import { IGlobFactory } from "../util/i-glob-factory";
 import { Kernel, SettingsProvider } from "./entities";
 import TYPES from "./types";
+import { IDefaultsAnswerer } from '../input-managers/defaults/i-defaults-answerer';
+import { DefaultsAnswerer } from '../input-managers/defaults/defaults-answerer';
 
 
 export let containerBuilder = (packageJson: any = null, localesPath?: string): Container => {
@@ -53,6 +55,7 @@ export let containerBuilder = (packageJson: any = null, localesPath?: string): C
     container.bind<i.IInputManager>(TYPES.CustomInputManager).to(CustomInputManager);
     container.bind<i.IInputManager>(TYPES.PromptInputManager).to(PromptInputManager);
     container.bind<i.IInputManager>(TYPES.DefaultsInputManager).to(DefaultsInputManager);
+    container.bind<IDefaultsAnswerer>(TYPES.DefaultsAnswerer).to(DefaultsAnswerer);
     container.bind<IMapperService>(TYPES.Mapper).to(MapperService);
     container.bind<i.IErrorReporter>(TYPES.ErrorReporter).to(ErrorReporter);
     container.bind<ITemplateInfo>(TYPES.TemplateInfo).to(TemplateInfo);

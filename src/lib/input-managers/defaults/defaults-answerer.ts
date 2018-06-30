@@ -1,6 +1,8 @@
 import { ITemplateTypedInput, ITemplateScriptedInput } from "../../i/template";
 import { IDefaultsAnswerer } from "./i-defaults-answerer";
+import { injectable } from "inversify";
 
+@injectable()
 export class DefaultsAnswerer implements IDefaultsAnswerer {
     protected autoInc: number = 1;
 
