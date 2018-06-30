@@ -5,6 +5,7 @@ import { IMock, Mock, Times, It } from "typemoq";
 import { mockMessagerFactory } from "../../spec-lib";
 import { UserMessager } from "../integrations";
 import { IInputConfig } from "../i/template";
+import { RunOptions } from "../models";
 var NestedError = require('nested-error-stacks');
 
 export class InputManagerTests {
@@ -63,6 +64,20 @@ export class InputManagerTests {
         this.bimMock.verify(m => m.ask(ic, null), Times.once());
         this.cimMock.verify(p => p.ask(It.isAny(), It.isAny()), Times.never());
         this.dimMock.verify(p => p.ask(It.isAny(), It.isAny()), Times.never());
+        this.pimMock.verify(p => p.ask(It.isAny(), It.isAny()), Times.never());
+    }
+
+    @AsyncTest("ask() should use defaults when specified by run options")
+    async ask_useDefaultsByDefault() {
+        const ic = {}; const runOpts = { defaults: true };
+        const testData = { whoa: 123 };
+        this.dimMock.setup(m => m.ask(It.isAny(), It.isAny())).returns(async () => testData);
+        const result = await this.im.ask(ic, <RunOptions> runOpts);
+
+        Assert(result).deeplyEquals(<any>testData);
+        this.dimMock.verify(m => m.ask(ic, <RunOptions>runOpts), Times.once());
+        this.cimMock.verify(p => p.ask(It.isAny(), It.isAny()), Times.never());
+        this.bimMock.verify(p => p.ask(It.isAny(), It.isAny()), Times.never());
         this.pimMock.verify(p => p.ask(It.isAny(), It.isAny()), Times.never());
     }
     
