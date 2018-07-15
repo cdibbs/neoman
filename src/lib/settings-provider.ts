@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { ISettingsProvider, IPath, IFileSystem } from './i';
 import TYPES from './di/types';
-import { MapperService } from 'simple-mapper';
+import { IMapperService } from 'simple-mapper';
 
 /**
  * Just a wrapper around the user-settings module, for now.
@@ -10,38 +10,37 @@ import { MapperService } from 'simple-mapper';
 export class SettingsProvider<T> implements ISettingsProvider {
     private filename: string = ".neoman-settings";
     private filepath: string;
-    private mapper: MapperService;
 
     constructor(
         @inject(TYPES.SettingsType) private TSettings: { new (): T },
         @inject(TYPES.Process) private process: NodeJS.Process,
+        @inject(TYPES.Mapper) private mapper: IMapperService,
         @inject(TYPES.FS) private fs: IFileSystem,
         @inject(TYPES.Path) private path: IPath
     ) {
-        this.mapper = new MapperService();
-        var homedir = process.env.HOME || process.env.USERPROFILE;
-        this.filepath = path.join(homedir, this.filename);
+        const homedir = this.process.env.HOME || this.process.env.USERPROFILE;
+        this.filepath = this.path.join(homedir, this.filename);
     }
 
     get(key: string): T {
-        var settings = this.readSettings();
+        const settings = this.readSettings();
         return settings[key];
     }
 
     set(key: string, value: any): void {
-        var settings = this.readSettings();
+        const settings = this.readSettings();
         settings[key] = value;
         this.fs.writeFileSync(this.filepath, JSON.stringify(settings, null, 2));
     }
 
     readSettings(): T {
-        let raw = this.readFileJSON(this.filepath);
-        let mapped = this.mapper.map<T>(this.TSettings, raw);
-        return mapped;
+        const raw = this.readFileJSON(this.filepath);
+        return this.mapper.map<T>(this.TSettings, raw);
     }
 
     readFileJSON(filepath: string): any {
-        var rawData = '{}';
+        let rawData = '{}' /* default data */;
+        let options: any = {};
         try {
             rawData = this.fs.readFileSync(filepath, "ascii");
         } catch (err) {
@@ -53,7 +52,7 @@ export class SettingsProvider<T> implements ISettingsProvider {
         }
 
         try {
-            var options = JSON.parse(rawData);
+            options = JSON.parse(rawData);
         } catch (err) {
             err.filepath = filepath;
             throw err;

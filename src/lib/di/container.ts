@@ -56,7 +56,7 @@ export let containerBuilder = (packageJson: any = null, localesPath?: string): C
     container.bind<i.IInputManager>(TYPES.PromptInputManager).to(PromptInputManager);
     container.bind<i.IInputManager>(TYPES.DefaultsInputManager).to(DefaultsInputManager);
     container.bind<IDefaultsAnswerer>(TYPES.DefaultsAnswerer).to(DefaultsAnswerer);
-    container.bind<IMapperService>(TYPES.Mapper).to(MapperService);
+    container.bind<IMapperService>(TYPES.Mapper).toDynamicValue(() => new MapperService());
     container.bind<i.IErrorReporter>(TYPES.ErrorReporter).to(ErrorReporter);
     container.bind<ITemplateInfo>(TYPES.TemplateInfo).to(TemplateInfo);
     container.bind(TYPES.SettingsType).toDynamicValue(() => m.Settings);
