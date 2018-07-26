@@ -1,11 +1,12 @@
 import { injectable } from 'inversify';
 
-import * as glob from 'glob';
+import { Glob, IOptions, IGlob } from 'glob';
 import { IGlobFactory } from './i-glob-factory';
 
 @injectable()
 export class GlobFactory implements IGlobFactory {
-    public build(pattern: string, options: glob.IOptions): glob.IGlob {
-        return new glob.Glob(pattern, options);
+    protected globClass: { new(ptrn: string, opts: IOptions): IGlob } = Glob;
+    public build(pattern: string, options: IOptions): IGlob {
+        return new this.globClass(pattern, options);
     }
 }

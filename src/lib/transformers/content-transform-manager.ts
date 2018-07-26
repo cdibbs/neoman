@@ -11,7 +11,7 @@ import { RuleMatchResult } from '../models';
 import { IUserMessager } from '../i';
 
 @injectable()
-export class TransformManager extends BaseTransformManager implements i.ITransformManager{
+export class ContentTransformManager extends BaseTransformManager implements i.ITransformManager{
 
     constructor(
         @inject(TYPES.FilePatterns) filePatterns: bi.IFilePatterns,

@@ -6,11 +6,11 @@ import * as sinon from 'sinon';
 import 'mocha';
 
 import { mockMessagerFactory } from '../../spec-lib'
-import { TransformManager } from './index';
+import { ContentTransformManager } from './index';
 import * as i from '../i';
 
 describe('TransformManager', () => {
-    var tm: TransformManager;
+    var tm: ContentTransformManager;
     var hnd: i.IHandlerService;
 
     beforeEach(() => {
@@ -20,7 +20,7 @@ describe('TransformManager', () => {
                 return [];
             }
         };
-        tm = new TransformManager(filePatterns, mockMessagerFactory(), hnd);
+        tm = new ContentTransformManager(filePatterns, mockMessagerFactory(), hnd);
     })
 
     describe('#applyTransforms', () => {

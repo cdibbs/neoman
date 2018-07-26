@@ -23,7 +23,7 @@ import { FSTreeProcessor, RealTreeDiscoveryHandler, SimulatedTreeDiscoveryHandle
 import { IFSTreeProcessor, ITreeDiscoveryEventHandler } from "../template-runner/i";
 import { TemplateRunner } from '../template-runner/template-runner';
 import { TemplateValidator } from '../template-validator';
-import { PathTransformManager, TransformManager } from '../transformers';
+import { PathTransformManager, ContentTransformManager } from '../transformers';
 import * as it from '../transformers/i';
 import { UserMessager } from '../user-messager';
 import { GlobFactory } from "../util/glob-factory";
@@ -46,7 +46,7 @@ export let containerBuilder = (packageJson: any = null, localesPath?: string): C
     container.bind<i.IHandlerService>(TYPES.HandlerService).to(HandlerService);
     container.bind<i.IUserMessager>(TYPES.UserMessager).to(UserMessager);
     container.bind<ITemplateManager>(TYPES.TemplateManager).to(TemplateManager);
-    container.bind<it.ITransformManager>(TYPES.TransformManager).to(TransformManager);
+    container.bind<it.ITransformManager>(TYPES.TransformManager).to(ContentTransformManager);
     container.bind<it.IPathTransformManager>(TYPES.PathTransformManager).to(PathTransformManager);
     container.bind<i.ITemplateValidator>(TYPES.TemplateValidator).to(TemplateValidator);
     container.bind<i.IFilePatterns>(TYPES.FilePatterns).to(FilePatterns);
