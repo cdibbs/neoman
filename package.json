@@ -48,6 +48,7 @@
     "alsatian": "^2.2.1",
     "alsatian-fluent-assertions": "^1.0.0-beta.3",
     "body-parser": "^1.18.2",
+    "browserstack": "^1.5.1",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "codecov": "^3.0.2",
