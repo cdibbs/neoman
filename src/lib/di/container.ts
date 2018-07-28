@@ -32,6 +32,8 @@ import { Kernel, SettingsProvider } from "./entities";
 import TYPES from "./types";
 import { IDefaultsAnswerer } from '../input-managers/defaults/i-defaults-answerer';
 import { DefaultsAnswerer } from '../input-managers/defaults/defaults-answerer';
+import { IPluginManager } from '../plugin-manager/i-plugin-manager';
+import { PluginManager } from '../plugin-manager/plugin-manager';
 
 
 export let containerBuilder = (packageJson: any = null, localesPath?: string): Container => {
@@ -67,6 +69,7 @@ export let containerBuilder = (packageJson: any = null, localesPath?: string): C
     container.bind<IServerFactory>(TYPES.BIMServerFactory).to(ServerFactory);
     container.bind<IClientFactory>(TYPES.BIMClientFactory).to(ClientFactory);
     container.bind<IWebSocketFactory>(TYPES.BIMWebSocketFactory).to(WebSocketFactory);
+    container.bind<IPluginManager>(TYPES.PluginManager).to(PluginManager);
 
     let lobj = <typeof i18n>{};
     i18n.configure({

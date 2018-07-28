@@ -1,84 +1,37 @@
 import { injectable, inject } from 'inversify';
 import * as _ from 'underscore';
 let NestedError = require('nested-error-stacks');
-let requireg = require('requireg');
 
 import { curry } from '../util/curry';
 import { RuleMatchResult } from '../models';
 import TYPES from '../di/types';
-import * as i from './i';
-import * as ir from '../i/template';
-import * as bi from '../i';
 import { TemplateConfiguration } from './models/configuration';
+import { IFilePatterns, IUserMessager, IHandlerService } from '../i';
+import { ITemplate, IConfigurations, IConfiguration, IPathTransform, ITransform } from '../i/template';
+import { IPluginManager } from '../plugin-manager/i-plugin-manager';
 
 @injectable()
 export class BaseTransformManager {
     protected splitter: RegExp = new RegExp(/^\/(.*(?!\\))\/(.*)\/([gimuy]*)$/);
-
-    protected configs: { [key: string]: TemplateConfiguration };
     protected inputs: { [key: string]: any };
     protected tconfigBasePath: string;
 
     constructor(
-        @inject(TYPES.FilePatterns) protected filePatterns: bi.IFilePatterns,
-        @inject(TYPES.UserMessager) protected msg: bi.IUserMessager,
-        @inject(TYPES.HandlerService) protected hnd: bi.IHandlerService
+        @inject(TYPES.FilePatterns) protected filePatterns: IFilePatterns,
+        @inject(TYPES.UserMessager) protected msg: IUserMessager,
+        @inject(TYPES.HandlerService) protected hnd: IHandlerService,
+        @inject(TYPES.PluginManager) protected plugMgr: IPluginManager
     ) {
         
     }
 
-    configure(tmpl: ir.ITemplate, inputs: { [key: string]: any }) {
+    configure(tmpl: ITemplate, inputs: { [key: string]: any }) {
         this.inputs = inputs;
-        this.preparePlugins(tmpl.configurations);
+        this.plugMgr.preparePlugins(tmpl.configurations);
         this.tconfigBasePath = tmpl.__tmplConfigPath;
     }
 
-    //FIXME Need to cover plugin loading with better tests
-    preparePlugins(tconfigs: ir.IConfigurations): void {
-        this.configs = {};
-        for (let key in tconfigs) {
-            let tconfig = tconfigs[key];
-            let config = new TemplateConfiguration();
-            config.key = key;
-            config.files = tconfig.files;
-            config.ignore = tconfig.ignore;
-            config.plugin = tconfig.plugin;
-            config.pluginOptions = tconfig.pluginOptions;
-            this.loadPlugin(config, tconfig);
-
-            this.configs[key] = config;
-        }
-    }
-
-    requireg = requireg;
-
-    loadPlugin(config: TemplateConfiguration, tconfigs: ir.IConfiguration): void {
-        if (! config.plugin) {
-            return; // plugin-less configurations can validly be used to organize settings.
-        }
-
-        let pluginName = `neoman-plugin-${config.plugin}`;
-        let PluginClass: { new(): any };
-        try {
-            PluginClass = this.requireg(pluginName);
-        } catch(ex) {
-            throw new NestedError(this.msg.i18n({pluginName}).mf("Error loading plugin '{pluginName}'."), ex);
-        }
-
-        try {
-            config.pluginInstance = new PluginClass();
-        } catch(ex) {
-            throw new NestedError(this.msg.i18n({pluginName}).mf("Error instantiating plugin '{pluginName}'."), ex);
-        }
-
-        try {
-            config.pluginInstance.configure(config.pluginOptions);
-        } catch(ex) {
-            throw new NestedError(this.msg.i18n({pluginName}).mf("Error when calling .configure(pluginOptions) on '{pluginName}' instance."), ex);
-        }
-    }
-    
-    applyReplace(original: string, tdef: ir.ITransform | ir.IPathTransform, path: string):  string {
+    applyReplace(original: string, tdef: ITransform | IPathTransform, path: string):  string {
         // Minimally, we want fast, internal regex replacement. It should be overridable within the configurations section of a template.json.
         let engine = this.chooseReplaceEngine(tdef);
 
@@ -92,7 +45,7 @@ export class BaseTransformManager {
         }
     }
 
-    applyReplaceRegex(original: string, tdef: ir.ITransform | ir.IPathTransform, path: string): string
+    applyReplaceRegex(original: string, tdef: ITransform | IPathTransform, path: string): string
     {
         if (typeof tdef.with === "string")
             return original.replace(new RegExp(<string>tdef.subject, tdef.regexFlags || ""), this.preprocess(tdef.with));
@@ -100,7 +53,7 @@ export class BaseTransformManager {
             return original.replace(new RegExp(<string>tdef.subject, tdef.regexFlags || ""), this.buildReplacer(tdef));
     }
 
-    applyReplaceSimple(original: string, tdef: ir.ITransform | ir.IPathTransform, path: string): string
+    applyReplaceSimple(original: string, tdef: ITransform | IPathTransform, path: string): string
     {
         if (typeof tdef.with === "string")
             return original.split(<string>tdef.subject).join(this.preprocess(tdef.with));
@@ -108,10 +61,10 @@ export class BaseTransformManager {
             return original.split(<string>tdef.subject).join(this.buildReplacer(tdef)(<string>tdef.subject));
     }
 
-    applyReplacePlugin(original: string, tdef: ir.ITransform | ir.IPathTransform, path: string): string
+    applyReplacePlugin(original: string, tdef: ITransform | IPathTransform, path: string): string
     {
         try {
-            let config = this.configs[tdef.using];
+            let config = this.plugMgr.getConfig(tdef.using);
             if (typeof tdef.with === "string") {
                 return config.pluginInstance.transform(path, original, tdef.subject, this.preprocess(tdef.with), _.extend({}, config.pluginOptions, tdef.params));
             } else {
@@ -125,17 +78,17 @@ export class BaseTransformManager {
         }
     }
 
-    chooseReplaceEngine(tdef: ir.ITransform | ir.IPathTransform) {
+    chooseReplaceEngine(tdef: ITransform | IPathTransform) {
         if (! tdef)
             throw new Error(this.msg.i18n().mf("Malformed transform definition."));
         
         if (! tdef.using || tdef.using === "regex") {
-            if (this.configs.hasOwnProperty("regex")) // Then, the user wants to override the default.
+            if (this.plugMgr.isPluginDefined("regex")) // Then, the user wants to override the default.
                 return "plugin";
             
             return "regex";
         } else if (tdef.using === "simple") {
-            if (this.configs.hasOwnProperty("simple"))
+            if (this.plugMgr.isPluginDefined("simple"))
                 return "plugin";
 
             return "simple";
@@ -144,7 +97,7 @@ export class BaseTransformManager {
         return "plugin";
     }
 
-    buildReplacer(tdef: ir.ITransform): (substr: string) => string {
+    buildReplacer(tdef: ITransform): (substr: string) => string {
         //TODO FIXME not truly implemented
         if (typeof tdef.with === 'object' && tdef.with.handler)
         {
@@ -164,7 +117,7 @@ export class BaseTransformManager {
      * @param original value matching transform definition's subject
      * @throws i18n NestedError wrapping any errors in the user handler
      */
-    replacerWrapper(tdef: ir.ITransform, hndName: string, handler: Function, original: string): any {
+    replacerWrapper(tdef: ITransform, hndName: string, handler: Function, original: string): any {
         try {
             let replacement = tdef.with["value"]; // if any...
             return handler(original, replacement, tdef);
@@ -183,7 +136,7 @@ export class BaseTransformManager {
         return result;
     }
 
-    regexToTransform<T extends ir.ITransform | ir.IPathTransform>(def: string): T {
+    regexToTransform<T extends ITransform | IPathTransform>(def: string): T {
         let components: string[] = def.match(this.splitter);
         if (!components || components.length < 4) {
             throw new Error(this.msg.i18n().mf("Must be a valid javascript replace regular expression: /pattern/replace/[opts]"));
@@ -252,8 +205,8 @@ export class BaseTransformManager {
      * @param configKey The key of the config containing include/ignore globs to lookup.
      */
     configDoesApply(path: string, configKey: string): RuleMatchResult {
-        if (this.configs.hasOwnProperty(configKey)) {
-            let c = this.configs[configKey];
+        if (this.plugMgr.isPluginDefined(configKey)) {
+            let c = this.plugMgr.getConfig(configKey);
             let result = this.replaceDoesApply(path, c.files, c.ignore, undefined);
             return result;
         } else {

@@ -17,7 +17,7 @@ export const LEVELS: UnionKeyToValue<Levels> = {
 }
 
 export interface IUserMessager {
-    mf(message: any): string;
+    mf(message: any, mfDict?: any): string;
 
     debug(message: any, indent?: number): IUserMessager
     info(message: any, indent?: number): IUserMessager

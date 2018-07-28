@@ -32,8 +32,10 @@ export class UserMessager implements IUserMessager {
         return this;
     }
 
-    mf(message: any): string {
-        return this.__mf(message, this.mfDict);
+    mf(message: any, mfDict?: any): string {
+        let newDict = {};
+        Object.assign(newDict, this.mfDict || {}, mfDict);
+        return this.__mf(message, newDict);
     }
 
     write(message: string, indent: number = 0, level: Levels = LEVELS.Debug): IUserMessager {

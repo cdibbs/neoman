@@ -37,7 +37,8 @@ let TYPES = {
     BrowserClientDuplexer: Symbol("BrowserClientDuplexer"),
     BIMClientFactory: Symbol("BIMClientFactory"),
     BIMServerFactory: Symbol("BIMServerFactory"),
-    BIMWebSocketFactory: Symbol("BIMWebSocketFactory")
+    BIMWebSocketFactory: Symbol("BIMWebSocketFactory"),
+    PluginManager: Symbol("PluginManager")
 }
 
 export default TYPES;

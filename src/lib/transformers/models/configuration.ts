@@ -1,8 +1,9 @@
 import { IConfiguration } from '../../i/template';
+import { IPlugin } from '../../plugin-manager/i-plugin';
 
 export class TemplateConfiguration implements IConfiguration {
     key: string;
-    pluginInstance: any;
+    pluginInstance: IPlugin;
 
     files: string[];
     ignore: string[];

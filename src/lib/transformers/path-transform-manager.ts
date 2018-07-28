@@ -8,6 +8,7 @@ import * as ir from '../i/template';
 import * as bi from '../i';
 import { BaseTransformManager } from './base-transform-manager';
 import { TemplateConfiguration } from './models/configuration';
+import { IPluginManager } from '../plugin-manager/i-plugin-manager';
 
 @injectable()
 export class PathTransformManager extends BaseTransformManager implements i.IPathTransformManager{
@@ -17,9 +18,10 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
     constructor(
         @inject(TYPES.FilePatterns) filePatterns: bi.IFilePatterns,
         @inject(TYPES.UserMessager) msg: bi.IUserMessager,
-        @inject(TYPES.HandlerService) hnd: bi.IHandlerService
+        @inject(TYPES.HandlerService) hnd: bi.IHandlerService,
+        @inject(TYPES.PluginManager) protected plugMgr: IPluginManager
     ) {
-        super(filePatterns, msg, hnd);
+        super(filePatterns, msg, hnd, plugMgr);
     }
 
     applyTransforms(path: string, tdef: ir.PathTransforms): string {

@@ -9,6 +9,7 @@ import { BaseTransformManager } from './base-transform-manager';
 import { TemplateConfiguration } from './models/configuration';
 import { RuleMatchResult } from '../models';
 import { IUserMessager } from '../i';
+import { IPluginManager } from '../plugin-manager/i-plugin-manager';
 
 @injectable()
 export class ContentTransformManager extends BaseTransformManager implements i.ITransformManager{
@@ -16,9 +17,10 @@ export class ContentTransformManager extends BaseTransformManager implements i.I
     constructor(
         @inject(TYPES.FilePatterns) filePatterns: bi.IFilePatterns,
         @inject(TYPES.UserMessager) msg: bi.IUserMessager,
-        @inject(TYPES.HandlerService) hnd: bi.IHandlerService
+        @inject(TYPES.HandlerService) hnd: bi.IHandlerService,
+        @inject(TYPES.PluginManager) protected plugMgr: IPluginManager
     ) {
-        super(filePatterns, msg, hnd);
+        super(filePatterns, msg, hnd, plugMgr);
     }
 
     applyTransforms(path: string, content: string, rdef: ir.Transforms): string {

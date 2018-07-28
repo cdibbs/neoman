@@ -82,11 +82,29 @@ export class UserMessagerTests {
         a.hasProperty(<any>"usei18n").that.isTruthy();
     }
 
+    @TestCase(null)
+    @TestCase(undefined)
+    @TestCase({'msg': 'something'})
     @Test("mf - should pass correct state to i18n __mf library call.")
-    public mf_passesCorrectState() {
+    public mf_passesCorrectState(bag: any) {
         let mybag = { "new": "state" };
         let imsgr = this.msgr.i18n(mybag);
         imsgr.mf("some thing");
         this.i18nMock.verify(i => i("some thing", mybag), Times.once());
     }
+
+    @TestCase(null, {one: 'two'})
+    @TestCase(undefined, {one: 'two'})
+    @TestCase({'msg': 'something'}, { 'msg': 'something', one: 'two'})
+    @Test("mf - should pass correct state to i18n __mf library call.")
+    public mf_passesOptionalBagArgument(bag: any, expectedBag: any) {
+        let mybag = { one: 'two' };
+        let imsgr = this.msgr.i18n(mybag);
+        imsgr.mf("some thing", bag);
+        this.i18nMock.verify(i => i(
+                'some thing',
+                It.is(b => { Assert(b).deeplyEquals(expectedBag); return true; })),
+            Times.once());
+    }
+
 }
