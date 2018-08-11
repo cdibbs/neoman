@@ -1,11 +1,11 @@
-import { Setup, Test, TestCase, AsyncTest } from "alsatian";
+import { AsyncTest, Setup, Test, TestCase } from "alsatian";
 import { Assert } from "alsatian-fluent-assertions";
-import { InputManager, PromptInputManager, DefaultsInputManager, BrowserInputManager, CustomInputManager } from ".";
-import { IMock, Mock, Times, It } from "typemoq";
+import { IMock, It, Mock, Times } from "typemoq";
+import { BrowserInputManager, CustomInputManager, DefaultsInputManager, InputManager, PromptInputManager } from ".";
 import { mockMessagerFactory } from "../../spec-lib";
 import { UserMessager } from "../integrations";
-import { IInputConfig } from "../i/template";
 import { RunOptions } from "../models";
+import { IInputConfig } from "../user-extensibility";
 var NestedError = require('nested-error-stacks');
 
 export class InputManagerTests {

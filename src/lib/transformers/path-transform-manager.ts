@@ -24,7 +24,7 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
         super(filePatterns, msg, hnd, plugMgr);
     }
 
-    applyTransforms(path: string, tdef: ir.PathTransforms): string {
+    async applyTransforms(path: string, tdef: ir.PathTransforms): Promise<string> {
         if (typeof tdef === "undefined") {
             return path;
         } else if (tdef instanceof Array) {
@@ -38,7 +38,7 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
         throw new Error(`Replace definition not understood. Type found: ${typeof tdef}.`);
     }
 
-    transformAll(path: string, transforms: ir.IPathTransform[] | string[]): string {
+    async transformAll(path: string, transforms: ir.IPathTransform[] | string[]): Promise<string> {
         let processing = path;
 
         for (let i=0; i<transforms.length; i++) {
@@ -48,7 +48,7 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
             }
 
             if (typeof t === "object") {
-                processing = this.transformOne(processing, t, i);
+                processing = await this.transformOne(processing, t, i);
             } else {
                 throw new Error(`I do not understand format of path transform #${i + 1}, type ${typeof t}.`);
             }
@@ -57,10 +57,10 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
         return processing;
     }
 
-    transformOne(processing: string, t: ir.IPathTransform, i: number): string {
+    async transformOne(processing: string, t: ir.IPathTransform, i: number): Promise<string> {
         let check = this.replaceDoesApply(processing, t.files, t.ignore, t.using);
         if (check.matches) {
-            processing = this.applyIfMatch(t, processing, i);
+            processing = await this.applyIfMatch(t, processing, i);
         } else {
             this.msg.i18n({i, subject: t.subject}).debug('Skipping path transform def #{i}, "{subject}" (no match: config or globs).', 2);
         }
@@ -68,10 +68,10 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
         return processing;
     }
 
-    applyIfMatch(t: ir.IPathTransform, path: string, i: number): string {
+    async applyIfMatch(t: ir.IPathTransform, path: string, i: number): Promise<string> {
         if (path.match(t.subject)) {
             this.msg.i18n({subject: t.subject}).debug('Applying path transform for "{subject}".', 2);
-            path = this.applyReplace(path, t, path);
+            path = await this.applyReplace(path, t, path);
             this.msg.i18n({path}).debug('Int. result: {path}', 3);
         } else {
             this.msg.i18n({i, subject: t.subject}).debug('Skipping path transform def #{i} (no match: "{subject}").', 2);

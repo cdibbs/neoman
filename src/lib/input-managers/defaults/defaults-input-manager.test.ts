@@ -1,10 +1,9 @@
-import { Test, Setup, Expect, AsyncTest, TestCase } from "alsatian";
-import { DefaultsInputManager } from "./defaults-input-manager";
-import { IHandlerService } from "../../i";
-import { IMock, Mock, Times, It } from "typemoq";
-import { RunOptions } from "../../models";
-import { IInputConfig, ITemplateTypedInput } from "../../i/template";
+import { AsyncTest, Setup, TestCase } from "alsatian";
 import { Assert } from "alsatian-fluent-assertions";
+import { IMock, Mock } from "typemoq";
+import { RunOptions } from "../../models";
+import { IInputConfig, ITemplateTypedInput } from "../../user-extensibility";
+import { DefaultsInputManager } from "./defaults-input-manager";
 import { IDefaultsAnswerer } from "./i-defaults-answerer";
 var NestedError = require('nested-error-stacks');
 

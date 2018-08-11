@@ -31,7 +31,7 @@ export class BaseTransformManager {
         this.tconfigBasePath = tmpl.__tmplConfigPath;
     }
 
-    applyReplace(original: string, tdef: ITransform | IPathTransform, path: string):  string {
+    async applyReplace(original: string, tdef: ITransform | IPathTransform, path: string):  Promise<string> {
         // Minimally, we want fast, internal regex replacement. It should be overridable within the configurations section of a template.json.
         let engine = this.chooseReplaceEngine(tdef);
 
@@ -45,30 +45,45 @@ export class BaseTransformManager {
         }
     }
 
-    applyReplaceRegex(original: string, tdef: ITransform | IPathTransform, path: string): string
+    async applyReplaceRegex(original: string, tdef: ITransform | IPathTransform, path: string): Promise<string>
     {
-        if (typeof tdef.with === "string")
-            return original.replace(new RegExp(<string>tdef.subject, tdef.regexFlags || ""), this.preprocess(tdef.with));
-        else
-            return original.replace(new RegExp(<string>tdef.subject, tdef.regexFlags || ""), this.buildReplacer(tdef));
+        const pattern = new RegExp(<string>tdef.subject, tdef.regexFlags || "");
+        if (typeof tdef.with === "string") {
+            return original.replace(pattern, this.preprocess(tdef.with));
+        } else {
+            const replacer = await this.buildReplacer(tdef);
+            return original.replace(pattern, replacer);
+        }
     }
 
-    applyReplaceSimple(original: string, tdef: ITransform | IPathTransform, path: string): string
+    async applyReplaceSimple(original: string, tdef: ITransform | IPathTransform, path: string): Promise<string>
     {
-        if (typeof tdef.with === "string")
-            return original.split(<string>tdef.subject).join(this.preprocess(tdef.with));
-        else
-            return original.split(<string>tdef.subject).join(this.buildReplacer(tdef)(<string>tdef.subject));
+        if (typeof tdef.with === "string") {
+            return original
+                .split(<string>tdef.subject)
+                .join(this.preprocess(tdef.with));
+        } else {
+            const replacer = await this.buildReplacer(tdef);
+            return original
+                .split(<string>tdef.subject)
+                .join(replacer(<string>tdef.subject));
+        }
     }
 
-    applyReplacePlugin(original: string, tdef: ITransform | IPathTransform, path: string): string
+    async applyReplacePlugin(original: string, tdef: ITransform | IPathTransform, path: string): Promise<string>
     {
         try {
-            let config = this.plugMgr.getConfig(tdef.using);
+            const plugin = this.plugMgr.getConfig(tdef.using);
+            const options = _.extend({}, plugin.pluginOptions, tdef.params);
             if (typeof tdef.with === "string") {
-                return config.pluginInstance.transform(path, original, tdef.subject, this.preprocess(tdef.with), _.extend({}, config.pluginOptions, tdef.params));
+                return plugin
+                    .pluginInstance
+                    .transform(path, original, tdef.subject, this.preprocess(tdef.with), options);
             } else {
-                return config.pluginInstance.transform(path, original, tdef.subject, this.buildReplacer(tdef), _.extend({}, config.pluginOptions, tdef.params));
+                const replacer = await this.buildReplacer(tdef);
+                return plugin
+                    .pluginInstance
+                    .transform(path, original, tdef.subject, replacer, options);
             }
         } catch (err) {
             this.msg.i18n({using: tdef.using}).error('Error running plugin from "{using}" configuration:', 3);
@@ -97,12 +112,12 @@ export class BaseTransformManager {
         return "plugin";
     }
 
-    buildReplacer(tdef: ITransform): (substr: string) => string {
+    async buildReplacer(tdef: ITransform): Promise<(substr: string) => string> {
         //TODO FIXME not truly implemented
         if (typeof tdef.with === 'object' && tdef.with.handler)
         {
-            let hndName = tdef.with.handler;
-            let handler = this.hnd.resolveAndLoadSync(this.tconfigBasePath, hndName);
+            const hndName = tdef.with.handler;
+            const handler = await this.hnd.resolveAndLoad(this.tconfigBasePath, hndName);
             return curry.threeOf4(this.replacerWrapper, this, tdef, hndName, handler);
         }
 
@@ -122,7 +137,7 @@ export class BaseTransformManager {
             let replacement = tdef.with["value"]; // if any...
             return handler(original, replacement, tdef);
         } catch (ex) {
-            let errorMsg = this.msg.i18n({hndName}).mf("Error while running user handler '{hndName}'");
+            let errorMsg = this.msg.mf("Error while running user handler '{hndName}'", {hndName});
             throw new NestedError(errorMsg, ex);
         }
     }

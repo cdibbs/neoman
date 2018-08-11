@@ -5,4 +5,3 @@ export * from './path-transforms';
 export * from './i-template';
 export * from './i-configurations';
 export * from './i-configuration';
-export * from './i-input-config';

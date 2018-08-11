@@ -3,8 +3,8 @@ import { CustomInputManager } from "..";
 import { IHandlerService } from "../../i";
 import { IMock, Mock, Times, It } from "typemoq";
 import { RunOptions } from "../../models";
-import { IInputConfig } from "../../i/template";
 import { Assert } from "alsatian-fluent-assertions";
+import { IInputConfig } from "../../user-extensibility";
 var NestedError = require('nested-error-stacks');
 
 export class CustomInputManagerTests {

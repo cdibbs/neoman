@@ -1,6 +1,5 @@
-import { IInputConfig } from './template';
-import * as it from './template';
 import { RunOptions } from '../models';
+import { IInputConfig } from '../user-extensibility';
 
 export interface IInputManager {
     configure(tmplRootPath: string): void;

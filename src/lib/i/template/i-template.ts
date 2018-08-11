@@ -1,4 +1,4 @@
-import { IInputConfig } from './i-input-config';
+import { IInputConfig } from '../../user-extensibility/i-input-config';
 import { IConfigurations } from './i-configurations';
 import { Transforms } from './transforms';
 import { PathTransforms } from './path-transforms';

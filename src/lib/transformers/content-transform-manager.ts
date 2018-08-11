@@ -23,7 +23,7 @@ export class ContentTransformManager extends BaseTransformManager implements i.I
         super(filePatterns, msg, hnd, plugMgr);
     }
 
-    applyTransforms(path: string, content: string, rdef: ir.Transforms): string {
+    async applyTransforms(path: string, content: string, rdef: ir.Transforms): Promise<string> {
         if (typeof rdef === "undefined") {
             return content;
         } else if (rdef instanceof Array) {
@@ -37,7 +37,7 @@ export class ContentTransformManager extends BaseTransformManager implements i.I
         throw new Error(`Replace definition not understood. Type found: ${typeof rdef}.`);
     }
 
-    replaceInFile(path: string, content: string, rdefs: ir.ITransform[] | string[]): string {
+    async replaceInFile(path: string, content: string, rdefs: ir.ITransform[] | string[]): Promise<string> {
         for (let i=0; i<rdefs.length; i++) {
             let rdef = rdefs[i];
             if (typeof rdef === "string") {              
@@ -45,7 +45,7 @@ export class ContentTransformManager extends BaseTransformManager implements i.I
             }
             
             if (typeof rdef === "object") {
-                content = this.replaceOne(path, content, rdef);
+                content = await this.replaceOne(path, content, rdef);
             } else {
                 throw new Error(`Unrecognized replacement definition ${i}, type: ${typeof rdef}.`);
             }
@@ -54,7 +54,7 @@ export class ContentTransformManager extends BaseTransformManager implements i.I
         return content;
     }
 
-    replaceOne(path: string, content: string, rdef: ir.ITransform): string {
+    async replaceOne(path: string, content: string, rdef: ir.ITransform): Promise<string> {
         let src: string = this.formatSource(rdef);
 
         let msgCtxt = this.msg.i18n({subject: rdef.subject, src });
@@ -62,7 +62,7 @@ export class ContentTransformManager extends BaseTransformManager implements i.I
         let check = this.replaceDoesApply(path, rdef.files, rdef.ignore, rdef.using);
         if (check.matches) {
             msgCtxt.debug('Applying transform definition for "{subject}"{src}.', 2)
-            content = this.applyReplace(content, rdef, path);
+            content = await this.applyReplace(content, rdef, path);
         } else {
             let nest = msgCtxt.debug('Skipping transform definition for "{subject}"{src}.', 2);
             this.displaySkipReason(msgCtxt, check);

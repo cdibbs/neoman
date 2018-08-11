@@ -1,8 +1,8 @@
 import { inject, injectable } from 'inversify';
 import TYPES from '../../di/types';
 import * as i from '../../i';
-import { IInputConfig } from '../../i/template';
 import { RunOptions } from '../../models';
+import { IInputConfig } from '../../user-extensibility';
 import { BaseInputManager } from '../base-input-manager';
 var NestedError = require('nested-error-stacks');
 

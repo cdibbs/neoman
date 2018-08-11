@@ -1,16 +1,13 @@
-import { Test, TestFixture, AsyncTest, TestCase, TestCases, AsyncSetup,
-    AsyncTeardown, Teardown, Setup
-} from 'alsatian';
-import { Mock, IMock, It, Times } from 'typemoq';
-import * as c from 'commandpost';
-
-import { IFSTreeProcessor } from './i';
-import { Levels, LEVELS, Ii18nFunction, IUserMessager, IFileSystem, ITemplateValidator, IInputManager } from '../i';
-import { TemplateRunner } from './template-runner';
-import { CommandErrorType, RunnerResult, RunOptions } from "../models";
-import { mockMessagerFactory } from '../../spec-lib';
+import { AsyncTest, Setup, Test, TestCase, TestFixture } from 'alsatian';
 import { Assert } from 'alsatian-fluent-assertions';
-import { ITemplate, IInputConfig } from '../i/template';
+import { IMock, It, Mock, Times } from 'typemoq';
+import { mockMessagerFactory } from '../../spec-lib';
+import { IFileSystem, Ii18nFunction, IInputManager, ITemplateValidator, IUserMessager, Levels } from '../i';
+import { ITemplate } from '../i/template';
+import { CommandErrorType, RunnerResult, RunOptions } from "../models";
+import { IInputConfig } from '../user-extensibility';
+import { IFSTreeProcessor } from './i';
+import { TemplateRunner } from './template-runner';
 
 @TestFixture("Template Runner Tests")
 export class TemplateRunnerTests {

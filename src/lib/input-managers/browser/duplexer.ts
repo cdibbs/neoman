@@ -1,12 +1,12 @@
 import { inject, injectable } from "inversify";
 import TYPES from "../../di/types";
 import { IPath, IUserMessager } from "../../i";
-import { IInputConfig } from "../../i/template";
-import { IDuplexer } from "./i-duplexer";
+import { IInputConfig } from "../../user-extensibility";
 import { IClient } from "./i-client";
+import { IClientFactory } from "./i-client-factory";
+import { IDuplexer } from "./i-duplexer";
 import { IServer } from "./i-server";
 import { IServerFactory } from "./i-server-factory";
-import { IClientFactory } from "./i-client-factory";
 
 @injectable()
 export class Duplexer implements IDuplexer {

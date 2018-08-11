@@ -1,13 +1,17 @@
 import { ISubjectDefinition } from "../i/template/i-subject-definition";
+import { ICapabilities } from "./i-capabilities";
+import { INeedy } from "./i-needy";
 
-export interface IPlugin {
+export interface ITransformPlugin extends INeedy {
     /**
      * Method called shortly after instantiation with user-provided, plugin-defined options.
      * Called before any calls to transform(...).
+     * @param {ICapabilities} capabilities An object describing tool version, all available
+     *              plugins, etc.
      * @param {any} pluginOptions plugin-defined options. Provided in template.json with the
      *              key path '$.configurations.{some-config}.pluginConfig'
      */
-    configure(pluginOptions: any): void;
+    configure(capabilities: ICapabilities, pluginOptions?: any): Promise<void>;
 
     /**
      * Method to perform transform of original content/path. Returns whole content, not only
@@ -27,5 +31,5 @@ export interface IPlugin {
         original: string,
         subject: string | ISubjectDefinition,
         transformOrTransformer: string | ((subj: string) => string),
-        pluginOptions: any): string;
+        pluginOptions: any): Promise<string>;
 }

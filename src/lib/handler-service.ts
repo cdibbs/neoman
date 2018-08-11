@@ -1,45 +1,45 @@
 import { injectable, inject } from 'inversify';
 let NestedError = require('nested-error-stacks');
 import * as fse from 'fs-extra';
-
-import { curry } from './util/curry';
 import TYPES from './di/types';
-import * as i from './i';
+import { IHandlerService, IPath, IUserMessager } from './i';
 
 @injectable()
-export class HandlerService implements i.IHandlerService {
+export class HandlerService implements IHandlerService {
     constructor(
-        @inject(TYPES.Path) private path: i.IPath,
-        @inject(TYPES.UserMessager) private msg: i.IUserMessager
+        @inject(TYPES.Path) private path: IPath,
+        @inject(TYPES.UserMessager) private msg: IUserMessager
     ) {
 
     }
 
-    resolveAndLoadSync(tmplConfigRootPath: string, handlerid: string): Function {
-        let handlerPath = this.path.join(tmplConfigRootPath, '.neoman.config', 'handlers', this.formatPath(handlerid));
+    // TODO FIXME Manually test file error scenarios to learn if this is the right approach...
+    async resolveAndLoad(tmplConfigRootPath: string, handlerid: string): Promise<Function> {
+        const handlerPath = this.path.join(tmplConfigRootPath, '.neoman.config', 'handlers');
+        const handlerFile = this.ensureSupportedFormat(handlerPath, handlerid);
+        const handlerFilePath = this.path.join(handlerPath, handlerFile);
+        return this.resolveAndLoadFromPath(handlerFilePath);
+    }
+
+    protected async resolveAndLoadFromPath(handlerPath: string) {
         try {
-            this.accessSync(handlerPath, fse.constants.R_OK);
-            let hnd = this.requireNative(handlerPath);
-            if (typeof hnd !== 'function') {
-                let errorMessage = this.msg.i18n({handlerPath}).mf('Handler definition at {handlerPath} was not a function.');
-                throw new Error(errorMessage);
-            }
-            return hnd;
-        } catch(ex) {
-            let errorMessage = this.msg.i18n({handlerPath}).mf('Could not access user-defined handler at {handlerPath}.');
-            throw new NestedError(errorMessage, ex);
+            await this.access(handlerPath, fse.constants.R_OK);
+        } catch (err) {
+            const errorMessage = this.msg.mf('Could not access user-defined handler at {handlerPath}.', {handlerPath});
+            throw new NestedError(errorMessage, err);
         }
+
+        const hnd = this.requireNative(handlerPath);
+        if (typeof hnd !== 'function') {
+            const errorMessage = this.msg.mf('Handler definition at {handlerPath} was not a function.', {handlerPath});
+            throw new Error(errorMessage);
+        }
+        return hnd;
     }
 
-    // We'll probably ditch the async, but we'll see...
-    resolveAndLoad(tmplConfigRootPath: string, handlerid: string): Promise<Function> {
-        let handlerPath = this.path.join(tmplConfigRootPath, '.neoman.config', 'handlers', this.formatPath(handlerid));
-        return this
-            .checkAndRequire(handlerPath)
-            .then(curry.oneOf2(this.validateHandler, this, handlerPath));
-    }
+    private ensureSupportedFormat(handlerPath: string, id: string): string { // formatPath
+        // For now, kis...
 
-    formatPath(id: string): string {
         if (! id.endsWith(".js")) {
             return id + ".js";
         }
@@ -47,30 +47,6 @@ export class HandlerService implements i.IHandlerService {
         return id;
     }
 
-    checkAndRequire(path: string): Promise<Function> {
-        return this.access(path, fse.constants.R_OK)
-            .then<Function>(curry.oneOf1(this.require, this, path))
-            .catch(curry.oneOf2(this.noAccess, this, path));
-    }
-
     private requireNative = require;
-    protected require(path: string): Promise<Function> {
-        return Promise.resolve<Function>(this.requireNative(path));
-    }
-
-    private accessSync = fse.accessSync;
     private access = fse.access;
-    protected noAccess(handlerPath: string, ex: Error): Promise<Function> {
-        let errorMessage = this.msg.i18n({handlerPath}).mf('Could not access user-defined handler at {handlerPath}.');
-        return Promise.reject<Function>(new NestedError(errorMessage, ex));
-    }
-
-    protected validateHandler(handlerPath: string, handler: Function): Promise<Function> {
-        if (typeof handler !== 'function') {
-            let errorMessage = this.msg.i18n({handlerPath}).mf('Handler definition at {handlerPath} was not a function.');
-            return Promise.reject(new Error(errorMessage));
-        }
-
-        return Promise.resolve<Function>(handler);
-    }
 }

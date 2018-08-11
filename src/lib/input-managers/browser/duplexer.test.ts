@@ -8,7 +8,7 @@ import { IClientFactory } from "./i-client-factory";
 import { IServer } from "./i-server";
 import { IClient } from "./i-client";
 import { Assert } from "alsatian-fluent-assertions";
-import { IInputConfig } from "../../i/template";
+import { IInputConfig } from "../../user-extensibility";
 
 export class DuplexerTest {
     msgr: IUserMessager;

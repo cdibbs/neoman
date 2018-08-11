@@ -1,14 +1,10 @@
 import { inject, injectable } from 'inversify';
 import TYPES from '../../di/types';
-import { IPath, IUserMessager } from '../../i';
-import { IInputConfig } from '../../i/template';
+import { IUserMessager } from '../../i';
 import { RunOptions } from '../../models';
-import { curry } from '../../util/curry';
 import { BaseInputManager } from '../base-input-manager';
-import { Client } from './client';
-import { Server } from './server';
 import { IDuplexer } from './i-duplexer';
-import { Duplexer } from './duplexer';
+import { IInputConfig } from '../../user-extensibility';
 
 @injectable()
 export class BrowserInputManager extends BaseInputManager {

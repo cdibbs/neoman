@@ -1,8 +1,8 @@
 import { Test } from "alsatian";
-import { BaseInputManager } from "./base-input-manager";
-import { IInputConfig } from "../i/template";
-import { RunOptions } from "../models";
 import { Assert } from "alsatian-fluent-assertions";
+import { RunOptions } from "../models";
+import { IInputConfig } from "../user-extensibility";
+import { BaseInputManager } from "./base-input-manager";
 
 export class BaseInputManagerTests {
     @Test()

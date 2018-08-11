@@ -1,6 +1,6 @@
-import { ITemplateTypedInput, ITemplateScriptedInput } from "../../i/template";
 import { IDefaultsAnswerer } from "./i-defaults-answerer";
 import { injectable } from "inversify";
+import { ITemplateTypedInput, ITemplateScriptedInput } from "../../user-extensibility";
 
 @injectable()
 export class DefaultsAnswerer implements IDefaultsAnswerer {

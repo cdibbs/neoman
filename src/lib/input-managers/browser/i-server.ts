@@ -1,5 +1,5 @@
 import { IClient } from "./i-client";
-import { IInputConfig } from "../../i/template";
+import { IInputConfig } from "../../user-extensibility";
 
 export interface IServer {
     launch(

@@ -1,7 +1,7 @@
 import { Setup, Test, TestCase } from "alsatian";
 import { Assert } from "alsatian-fluent-assertions";
-import { ITemplateTypedInput, ITemplate } from "../../i/template";
 import { DefaultsAnswerer } from "./defaults-answerer";
+import { ITemplateTypedInput } from "../../user-extensibility";
 var NestedError = require('nested-error-stacks');
 
 export class DefaultsAnswererTests {

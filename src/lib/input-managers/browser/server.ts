@@ -1,13 +1,13 @@
-import * as http from 'http';
-import { IUserMessager } from "../../i";
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
-import * as WebSocket from 'ws';
-import { IInputConfig } from "../../i/template";
-import { curry } from '../../util/curry';
-import { IWebSocketFactory } from '.';
-import { IClient } from './i-client';
+import * as http from 'http';
 import { injectable } from 'inversify';
+import * as WebSocket from 'ws';
+import { IWebSocketFactory } from '.';
+import { IUserMessager } from "../../i";
+import { IInputConfig } from '../../user-extensibility';
+import { curry } from '../../util/curry';
+import { IClient } from './i-client';
 
 // FIXME Could improve SoC, here. Use DI for express, etc.
 @injectable()

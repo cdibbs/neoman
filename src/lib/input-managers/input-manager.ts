@@ -1,25 +1,25 @@
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
+import TYPES from '../di/types';
+import { RunOptions } from '../models';
+import { ICustomInputInterface, IInputConfig } from '../user-extensibility';
+import { BaseInputManager } from './base-input-manager';
+import { IInputManager, IUserMessager } from '../i';
 var NestedError = require('nested-error-stacks');
 
-import { BaseInputManager } from './base-input-manager';
-import TYPES from '../di/types';
-import * as i from '../i';
-import * as it from '../i/template';
-import { RunOptions } from '../models';
 
 @injectable()
 export class InputManager extends BaseInputManager {
     constructor(
-        @inject(TYPES.PromptInputManager) private promptMgr: i.IInputManager,
-        @inject(TYPES.BrowserInputManager) private browserMgr: i.IInputManager,
-        @inject(TYPES.CustomInputManager) private customMgr: i.IInputManager,
-        @inject(TYPES.DefaultsInputManager) private defaultsMgr: i.IInputManager,
-        @inject(TYPES.UserMessager) private msg: i.IUserMessager
+        @inject(TYPES.PromptInputManager) private promptMgr: IInputManager,
+        @inject(TYPES.BrowserInputManager) private browserMgr: IInputManager,
+        @inject(TYPES.CustomInputManager) private customMgr: IInputManager,
+        @inject(TYPES.DefaultsInputManager) private defaultsMgr: IInputManager,
+        @inject(TYPES.UserMessager) private msg: IUserMessager
     ) {
         super();
     }
 
-    async ask(config: it.IInputConfig, options: RunOptions): Promise<{ [key: string]: any }> {
+    async ask(config: IInputConfig, options: RunOptions): Promise<{ [key: string]: any }> {
         if (typeof config === 'undefined' || config === null) {
             return {};
         }
@@ -28,7 +28,7 @@ export class InputManager extends BaseInputManager {
             return await this.defaultsMgr.ask(config, options);
         }
 
-        let use: it.ICustomInputInterface | string = config.use;        
+        let use: ICustomInputInterface | string = config.use;        
         try {
 
             if (typeof config.use === "undefined") {
@@ -54,8 +54,8 @@ export class InputManager extends BaseInputManager {
         throw new Error(`Unrecognized input section format: ${use}.`);
     }
 
-    protected generateDefaults(use: string): it.ICustomInputInterface {
-        return <it.ICustomInputInterface>{
+    protected generateDefaults(use: string): ICustomInputInterface {
+        return <ICustomInputInterface>{
             type: use,
             handler: null,
             handlerConfig: null

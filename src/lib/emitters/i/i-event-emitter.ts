@@ -1,6 +1,6 @@
 import * as Rx from 'rxjs';
 
-export interface IEventEmitter<EventTypes extends { [key: string]: any }> {
-    emit<Event extends keyof EventTypes>(type: Event, data: EventTypes[Event]): void;
-    on<Event extends keyof EventTypes>(type: Event, fn: (value: EventTypes[Event]) => any): Rx.Subscription;
+export interface IEventEmitter<ET extends { [key: string]: any }> {
+    emit<EK extends keyof ET>(type: EK, data: ET[EK]): void;
+    on<EK extends keyof ET>(type: EK, fn: (value: ET[EK]) => any): Rx.Subscription;
 }

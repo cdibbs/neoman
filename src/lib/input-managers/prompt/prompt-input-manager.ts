@@ -1,22 +1,22 @@
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
 import TYPES from '../../di/types';
-
-import { BaseInputManager } from '../base-input-manager';
-import { curry } from '../../util/curry';
-import * as i from '../../i';
-import * as it from '../../i/template';
+import { IUserMessager } from '../../i';
 import { RunOptions } from '../../models';
+import { IInputConfig, ITemplateInputs, ITemplateScriptedInput, ITemplateTypedInput } from '../../user-extensibility';
+import { curry } from '../../util/curry';
+import { BaseInputManager } from '../base-input-manager';
+
 
 @injectable()
 export class PromptInputManager extends BaseInputManager {
     constructor(
         @inject(TYPES.Process) private process: NodeJS.Process,
-        @inject(TYPES.UserMessager) private msg: i.IUserMessager
+        @inject(TYPES.UserMessager) private msg: IUserMessager
     ) {
         super();
     }
 
-    async ask(config: it.IInputConfig, options: RunOptions): Promise<{ [key: string]: any }> {
+    async ask(config: IInputConfig, options: RunOptions): Promise<{ [key: string]: any }> {
         const count = this.countQuestions(config.define);
         let current = 1;
         let answers = {};
@@ -32,7 +32,7 @@ export class PromptInputManager extends BaseInputManager {
 
     protected promptWithCallback(
         key: string,
-        question: string | it.ITemplateTypedInput | it.ITemplateScriptedInput,
+        question: string | ITemplateTypedInput | ITemplateScriptedInput,
         callback: (data: any) => void,
         errorCallback: (e: Error) => void): void
     {
@@ -48,7 +48,7 @@ export class PromptInputManager extends BaseInputManager {
         }
     }
 
-    protected countQuestions(inputs: it.ITemplateInputs): number {
+    protected countQuestions(inputs: ITemplateInputs): number {
         if (inputs === null || inputs === undefined) {
             return 0;
         } else if (typeof inputs === "object") {
