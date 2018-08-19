@@ -3,6 +3,8 @@ import { Commands, COMMANDS } from './commands';
 import { ICommandFactory, ICommand } from './i';
 import { IUserMessager } from '../i';
 import TYPES from '../di/types';
+import { Command } from 'commandpost/lib';
+import { curry } from '../util/curry';
 
 @injectable()
 export class CommandFactory implements ICommandFactory {
@@ -15,10 +17,13 @@ export class CommandFactory implements ICommandFactory {
         this.cmdDict = this.commands.reduce((p, c) => { p[c.type] = c; return p; }, {});
     }
 
-    build(type: Commands, tempDir: string): ICommand<any, any> {
+    build<TOpts, TArgs>(type: Commands, tempDir: string, cmd: Command<TOpts, TArgs>): ICommand<any, any> {
         if (this.cmdDict.hasOwnProperty(type)) {
             let c = this.cmdDict[type];
             c.tempDir = tempDir;
+
+            // bind action to command.run
+            cmd.action(curry.oneOf3(c.run, c, cmd));
             return c;
         }
 

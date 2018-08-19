@@ -1,5 +1,5 @@
 import { injectable, inject } from 'inversify';
-import * as commandpost from 'commandpost';
+import { create, exec, CommandpostError } from 'commandpost';
 import * as i18n from 'i18n';
 let NestedError = require('nested-error-stacks');
 
@@ -18,7 +18,8 @@ import { CommandResult, CommandValidationResult, CommandErrorType } from './mode
 @injectable()
 export class Kernel implements IKernel {
     private tempDir: string;
-    private commandpost = commandpost;
+    private cpCreate = create;
+    private exec = exec;
 
     public constructor(
         @inject(TYPES.UserMessager) private msg: IUserMessager,
@@ -34,17 +35,11 @@ export class Kernel implements IKernel {
     public async Go(argv: string[] = this.process.argv): Promise<{}> {
         try {
             let imsg = this.msg.i18n();
-            let root = commandpost
-                .create<any, any>("")
+            let root = this.cpCreate<any, any>("")
                 .version(this.pkg.version, "-v, --version")
                 .description(imsg.mf("Manage and run Neoman project templates. Use: `neoman help [command]` for more help."));
-                /*.action((opts, args) => {
-                    this.msg.write("Manage and run Neoman project templates.\n", 1);
-                    this.msg.write(root.helpText());
-                })*/
 
-            let newCmd = this.commandFactory.build(COMMANDS.NewProject, this.tempDir);
-            let newTemp = root
+            const newTmpl = root
                 .subCommand<INewCmdOpts, INewCmdArgs>("new [templateId]")
                 .description(imsg.mf("Generate a project from a Neoman template."))
                 .option("-n, --name <name>", imsg.mf("The project name to use. Default: current directory name."))
@@ -53,40 +48,39 @@ export class Kernel implements IKernel {
                 .option("-f, --force", imsg.mf("Force things you maybe shouldn't force."))
                 .option("-v, --verbosity <verbosity>", imsg.mf("The verbosity of neoman's output. Can be normal, verbose, debug."))
                 .option("-x, --show-excluded", imsg.mf("Show files excluded by template configuration."));
-            newTemp.action(curry.oneOf3(newCmd.run, newCmd, newTemp));
+            this.commandFactory.build(COMMANDS.NewProject, this.tempDir, newTmpl);
 
-            let listCmd = this.commandFactory.build(COMMANDS.ListTemplates, this.tempDir);
-            let list = root
+            const list = root
                 .subCommand<{}, {}>("list")
-                .description(imsg.i18n({ dir: this.tempDir }).mf('List available templates. Template source directory: {dir}'));
-            list.action(curry.oneOf3(listCmd.run, listCmd, list));
+                .description(imsg.mf('List available templates. Template source directory: {dir}', { dir: this.tempDir }));
+            this.commandFactory.build(COMMANDS.ListTemplates, this.tempDir, list);
 
-            let setdirCmd = this.commandFactory.build(COMMANDS.SetDir, this.tempDir);
-            let config = root
+            
+            const setdir = root
                 .subCommand<{}, { directory: string }>("setdir <directory>")
                 .description(imsg.mf("Set your template source base directory. All first-level subdirectories will be scanned for templates."));
-            config.action(curry.oneOf3(setdirCmd.run, setdirCmd, config));
+            this.commandFactory.build(COMMANDS.SetDir, this.tempDir, setdir);
 
-            let infoCmd = this.commandFactory.build(COMMANDS.Info, this.tempDir);
-            let info = root
+            const info = root
                 .subCommand<IInfoCmdOpts, IInfoCmdArgs>("info [templateId]")
                 .description(imsg.mf("Get detailed information for a given template identifier."));
+            this.commandFactory.build(COMMANDS.Info, this.tempDir, info);
 
-            info.action(curry.oneOf3(infoCmd.run, infoCmd, info));
-
-            let result = <CommandResult>await this.commandpost.exec(root, argv);
+            let result = <CommandResult>await this.exec(root, argv);
             this.handleCommandResult(result);
         } catch (ex) {
             return this.handleError(ex);
         }
     }
 
-    protected handleCommandResult(result: CommandResult) {
+    // FIXME TODO handle errors better (different CommandErrorTypes, etc)
+    protected async handleCommandResult(result: CommandResult): Promise<{}> {
         if (result instanceof CommandValidationResult && result.ErrorType === CommandErrorType.UserError) {
             this.msg.info("The following validation errors occured:\n\n");
             for (let msg of result.Messages) {
                 this.msg.info(" - " + msg);
             }
+            this.process.exit(2);
         } else if (result instanceof Error) {
             let nerr = new NestedError(this.msg.mf("There was an unexpected error."), result);
             this.msg.error(nerr.stack);
@@ -95,15 +89,15 @@ export class Kernel implements IKernel {
         }
 
         this.process.exit();
-        return Promise.resolve(null);
     }
 
-    protected handleError(err: Error): Promise<{}> {
-        if (err instanceof this.commandpost.CommandpostError) {
+    protected async handleError(err: Error): Promise<{}> {
+        if (err instanceof CommandpostError) {
             this.msg.error(cmdErrors[err.params.reason](err));
-            this.process.exit(1);
+            this.process.exit(2);
         } else {
             this.msg.error(err)
+            this.process.exit(1);
         }
 
         return Promise.reject(err);

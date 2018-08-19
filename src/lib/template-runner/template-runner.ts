@@ -36,7 +36,7 @@ export class TemplateRunner implements ITemplateRunner {
             return new RunnerResult(this.msg.i18n({destPath}).mf('The destination directory is not empty ({path}).'), CommandErrorType.SystemState);
         }
 
-        let answers = await this.inputManager.ask(tmpl.input, options);
+        let answers = await this.inputManager.ask(tmpl.inputs, options);
         let result = await this.fsTreeProcessor.process(tmpl.__tmplPath, destPath, options, answers, tmpl);
         this.finishRun(result);
         return result;

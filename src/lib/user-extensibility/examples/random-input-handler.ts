@@ -29,7 +29,6 @@ namespace RandomInputHandler {
 }
 
 /**
- * Exporting the result of an immediate, anonymous factory call
- * affords us type safety with IInputHandler.
+ * The "as IInputHandler" affords us some type safety.
  */
-export = (): IInputHandler => { return RandomInputHandler; };
+export = RandomInputHandler as IInputHandler;

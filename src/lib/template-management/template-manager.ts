@@ -1,14 +1,13 @@
-import { injectable, inject } from 'inversify';
-
-import { EventEmitter, TemplateSearchEmitterType } from '../emitters';
-import { COMMANDS, Commands } from '../commands';
-import { curry } from '../util/curry';
+import { inject, injectable } from 'inversify';
 import TYPES from '../di/types';
-import KEYS from '../settings-keys';
-import { IFileSystem, IGlob, IPath, IUserMessager, ISettingsProvider } from '../i';
+import { EventEmitter, TemplateSearchEmitterType } from '../emitters';
+import { IFileSystem, IGlob, IPath, ISettingsProvider, IUserMessager } from '../i';
 import { ITemplate } from '../i/template';
+import KEYS from '../settings-keys';
+import { curry } from '../util/curry';
 import { ITemplateManager } from './i-template-manager';
 import { TemplateManagerError } from './template-manager-error';
+import { ITemplatePreprocessor } from './i-template-preprocessor';
 
 @injectable()
 export class TemplateManager implements ITemplateManager {
@@ -19,13 +18,20 @@ export class TemplateManager implements ITemplateManager {
         @inject(TYPES.UserMessager) protected msg: IUserMessager,
         @inject(TYPES.FS) private fs: IFileSystem,
         @inject(TYPES.Path) private path: IPath,
-        @inject(TYPES.Glob) private glob: IGlob
+        @inject(TYPES.Glob) private glob: IGlob,
+        @inject(TYPES.TemplatePreprocessor) private tmplPrep: ITemplatePreprocessor
     ) {
         this.tmplDir = this.settings.get(KEYS.tempDirKey);
     }
 
 
     // Essentially, this maps a glob-match emitter to an ITemplate emitter
+    /**
+     * Builds an emitter to list templates in the template directory.
+     * @param end A function accepting an ITemplate[] array to pre-bind to the returned emitter's "end" event.
+     * @param error A function accepting a TemplateManagerError to pre-bind to the returned emitter's "error" event.
+     * @param match A function accepting an ITemplate instance to pre-bind to the returned emitter's "match" event.
+     */
     list(
         end?: (templates: ITemplate[]) => void,
         error?: (terror: TemplateManagerError) => void,
@@ -41,6 +47,9 @@ export class TemplateManager implements ITemplateManager {
         if (end && end instanceof Function) {
             emitter.on("end", end);
         }
+        if (error && error instanceof Function) {
+            emitter.on("error", error);
+        }
 
         let search = new this.glob.Glob("*/.neoman.config/template.json", { cwd: this.tmplDir });
         search.on("match", curry.oneOf2(this.templateMatch, this, emitter))
@@ -49,8 +58,12 @@ export class TemplateManager implements ITemplateManager {
         return emitter;
     }
 
-    info(tmplId: string): Promise<ITemplate> {
-        return new Promise((resolve, reject) => {
+    /**
+     * Get info about the given template, if it exists.
+     * @param tmplId Template identifier
+     */
+    async info(tmplId: string): Promise<ITemplate> {
+        return new Promise<ITemplate>((resolve, reject) => {
             let emitter = this.list();
             emitter.on('end', curry.threeOf4(this.infoFound, this, resolve, reject, tmplId));
             emitter.on('error', curry.oneOf2(this.infoError, this, reject));
@@ -71,7 +84,7 @@ export class TemplateManager implements ITemplateManager {
         if (typeof result === "undefined") {
             reject(`Template with templateId "${tmplId}" was not found.`);
         } else {
-            resolve(this.mapToViewModel(result));
+            resolve(result);
         }
     }
 
@@ -83,58 +96,13 @@ export class TemplateManager implements ITemplateManager {
         emitter.emit('end', templatesRef);
     }
 
-    // For the moment, this exists only to eliminate comments from the JSON.
-    // Later, we should look into mapper frameworks. None of them look great, atm (2017-06-24).
-    private mapToViewModel(tmpl: ITemplate): ITemplate {
-        return this.stripComments(tmpl);
-    }
-
-    private stripComments(obj: any, parent?: any, curKey?: string | number): any {        
-        if (obj instanceof Array) {
-            return this.stripArrayComments(obj, parent, curKey);
-        } else if (typeof obj === "object") {
-            return this.stripObjectComments(obj, parent, curKey);
-        }
-
-        return obj;
-    }
-
-    // Co-recursive with stripComments
-    private stripObjectComments(obj: any, parent?: any, curKey?: string | number): any {
-        for(var key in obj) {
-            if (key === "#") {
-                delete obj[key];
-            } else if (typeof obj[key] === "object") {
-                obj[key] = this.stripComments(obj[key], obj, key);
-            }
-        }
-
-        return obj;
-    }
-
-    // Co-recursive with stripComments
-    private stripArrayComments(obj: any, parent?: any, curKey?: string | number): any {
-        if (!parent) {
-            throw new Error(this.msg.i18n().mf("Root-level configuration element cannot be an array."));
-        }
-
-        let stripped = [];
-        for(var i=0; i<obj.length; i++) {
-            if (typeof obj[i] !== "string" || obj[i].substr(0, 1) !== "#")
-            {
-                stripped.push(this.stripComments(obj[i], obj, i));
-            }
-        }
-
-        return stripped;
-    }
-
-    private templateMatch(emitter: EventEmitter<TemplateSearchEmitterType>, file: string): any {
+    private templateMatch(emitter: EventEmitter<TemplateSearchEmitterType>, file: string): void {
         let fullPath;
         try {
             fullPath = this.path.join(this.tmplDir, file);
-            let tmpl = JSON.parse(this.fs.readFileSync(fullPath, 'utf8'));
-            let tmplAbsRoot = this.path.join(this.path.dirname(fullPath), '..');
+            const rawTmpl = JSON.parse(this.fs.readFileSync(fullPath, 'utf8'));
+            const tmpl = this.tmplPrep.preprocess(rawTmpl);
+            const tmplAbsRoot = this.path.join(this.path.dirname(fullPath), '..');
             tmpl.__tmplPath = this.getTemplateRoot(tmpl, tmplAbsRoot);
             tmpl.__tmplConfigPath = tmplAbsRoot;
             emitter.emit("match", tmpl);

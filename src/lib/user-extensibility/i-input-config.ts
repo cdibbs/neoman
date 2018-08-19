@@ -1,4 +1,6 @@
-export interface ITemplateTypedInput {
+import { ITemplateComments } from "../i/template/i-template-comments";
+
+export interface ITemplateTypedInput extends ITemplateComments {
     prompt: string;
 
     /** A javascript type. */
@@ -11,22 +13,22 @@ export interface ITemplateTypedInput {
     validation?: string | any;
 }
 
-export interface ITemplateScriptedInput {
+export interface ITemplateScriptedInput extends ITemplateComments {
     handler: string;
     params?: any;
 }
 
-export interface ITemplateInputs {
+export interface ITemplateInputs extends ITemplateComments {
     [key: string]: string | ITemplateTypedInput | ITemplateScriptedInput;
 }
 
-export interface ICustomInputInterface {
+export interface ICustomInputInterface extends ITemplateComments {
     type: "prompt" | "browser" | "custom";
     handler: string;
     handlerConfig: any;
 }
 
-export interface IInputConfig {
+export interface IInputConfig extends ITemplateComments {
     use?: "prompt" | "browser" | ICustomInputInterface;
 
     /**

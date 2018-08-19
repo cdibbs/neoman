@@ -5,3 +5,5 @@ export * from './path-transforms';
 export * from './i-template';
 export * from './i-configurations';
 export * from './i-configuration';
+export * from './i-raw-template';
+export * from './i-strict-raw-template';

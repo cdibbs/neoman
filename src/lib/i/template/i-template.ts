@@ -1,41 +1,24 @@
-import { IInputConfig } from '../../user-extensibility/i-input-config';
-import { IConfigurations } from './i-configurations';
-import { Transforms } from './transforms';
-import { PathTransforms } from './path-transforms';
+import { IRawTemplate } from './i-raw-template';
+import { IStrictRawTemplate } from './i-strict-raw-template';
 
-export interface ITemplate {
+/**
+ * A preprocessed template, as used by Neoman internals. Does not
+ * necessarily follow structure of template.json file. For that, see
+ * files matching i*-raw-template.ts, or see the rawTemplate property,
+ * in this file.
+ */
+export interface ITemplate extends IStrictRawTemplate {
+    rawTemplate: IRawTemplate;
+
+    /**
+     * __tmplConfigPath joined with template.json's $.root specifier, if present.
+     * This is the root directory where Neoman will look for files when
+     * running the template. Will always be a directory.
+     */
     __tmplPath: string;
 
-    identity: string;
-    
-    name: string;
-
-    description?: string;
-
-    author?: string;
-
-    classifications?: string[];
-
-    shortName?: string;
-
-    tags?: {
-        keywords: string[];
-        language: string;
-
-        [key: string]: string | string[];
-    };
-
-    inputs?: IInputConfig;
-
-    transform?: Transforms;
-
-    pathTransform?: PathTransforms;
-
-    files?: string[];
-
-    ignore?: string[];
-
-    configurations?: IConfigurations;
-
-    [key: string]: any;
+    /**
+     * The directory containing the .neoman.config folder.
+     */
+    __tmplConfigPath: string;
 }
