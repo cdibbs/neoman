@@ -18,7 +18,7 @@ import { HandlerService } from '../handler-service';
 import * as i from '../i';
 import { BrowserInputManager, ClientFactory, CustomInputManager, DefaultsInputManager, Duplexer, IClientFactory, IDuplexer, IServerFactory, IWebSocketFactory, InputManager, PromptInputManager, ServerFactory, WebSocketFactory } from '../input-managers';
 import * as m from '../models';
-import { ITemplateManager, TemplateManager } from "../template-management";
+import { ITemplateManager, TemplateManager, ITemplatePreprocessor } from "../template-management";
 import { FSTreeProcessor, RealTreeDiscoveryHandler, SimulatedTreeDiscoveryHandler } from "../template-runner";
 import { IFSTreeProcessor, ITreeDiscoveryEventHandler } from "../template-runner/i";
 import { TemplateRunner } from '../template-runner/template-runner';
@@ -34,9 +34,12 @@ import { IDefaultsAnswerer } from '../input-managers/defaults/i-defaults-answere
 import { DefaultsAnswerer } from '../input-managers/defaults/defaults-answerer';
 import { IPluginManager } from '../plugin-manager/i-plugin-manager';
 import { PluginManager } from '../plugin-manager/plugin-manager';
+import { TemplatePreprocessor } from '../template-management/template-preprocessor';
+import { ISearchHandlerFactory } from '../template-management/i-search-handler-factory';
+import { SearchHandlerFactory } from '../template-management/search-handler-factory';
 
 
-export let containerBuilder = (packageJson: any = null, localesPath?: string): Container => {
+export const containerBuilder = (packageJson: any = null, localesPath?: string): Container => {
     let json = packageJson || require(path.join(path.dirname(__filename), "../../package.json"));
 
     var container = new Container();
@@ -70,6 +73,8 @@ export let containerBuilder = (packageJson: any = null, localesPath?: string): C
     container.bind<IClientFactory>(TYPES.BIMClientFactory).to(ClientFactory);
     container.bind<IWebSocketFactory>(TYPES.BIMWebSocketFactory).to(WebSocketFactory);
     container.bind<IPluginManager>(TYPES.PluginManager).to(PluginManager);
+    container.bind<ITemplatePreprocessor>(TYPES.TemplatePreprocessor).to(TemplatePreprocessor);
+    container.bind<ISearchHandlerFactory>(TYPES.SearchHandlerFactory).to(SearchHandlerFactory);
 
     let lobj = <typeof i18n>{};
     i18n.configure({

@@ -1,5 +1,5 @@
-import { IRawTemplate } from './i-raw-template';
-import { IStrictRawTemplate } from './i-strict-raw-template';
+import { IRawTemplate } from '../user-extensibility/template/i-raw-template';
+import { IStrictRawTemplate } from '../user-extensibility/template/i-strict-raw-template';
 
 /**
  * A preprocessed template, as used by Neoman internals. Does not
@@ -21,4 +21,10 @@ export interface ITemplate extends IStrictRawTemplate {
      * The directory containing the .neoman.config folder.
      */
     __tmplConfigPath: string;
+
+
+    /**
+     * The template repository that contained this template.
+     */
+    __tmplRepo: string;
 }

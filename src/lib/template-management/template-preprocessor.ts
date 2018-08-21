@@ -1,14 +1,15 @@
-import { inject } from "inversify";
-import TYPES from "../di/types";
-import { IFileSystem, IPath, IUserMessager } from "../i";
-import { ITemplate, IRawTemplate } from "../i/template";
-import { ITemplatePreprocessor } from "./i-template-preprocessor";
+import { inject, injectable } from "inversify";
 import * as _ from "lodash";
+import TYPES from "../di/types";
+import { IUserMessager, ITemplate } from "../i";
+import { ITemplatePreprocessor } from "./i-template-preprocessor";
+import { IRawTemplate } from "../user-extensibility/template";
 
 // For the moment, this exists only to eliminate comments from the JSON.
 // TODO FIXME:
 //  - we should look into mapper frameworks. None of them look great, atm (2017-06-24).
 //  - we should move all template validation to live under the "preprocess" call.
+@injectable()
 export class TemplatePreprocessor implements ITemplatePreprocessor {
     constructor(
         @inject(TYPES.UserMessager) protected msg: IUserMessager

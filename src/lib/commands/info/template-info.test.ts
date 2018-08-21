@@ -1,20 +1,15 @@
 // 3rd party imports installed via npm install
-import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown } from 'alsatian';
-import { Command } from "commandpost";
+import { AsyncSetup, AsyncTeardown, Test, TestFixture } from 'alsatian';
+import { Assert } from 'alsatian-fluent-assertions';
 import * as TypeMoq from "typemoq";
 import { It } from "typemoq";
-
+import { ErrorReporter } from '../../error-reporter';
 // internal imports (always a relative path beginning with a ./ or ../)
 import * as i from '../../i';
-import * as nci from '../i';
-import { ITemplate } from '../../i/template';
-import { mockMessagerFactory } from '../../../spec-lib'
-import { InfoCommand } from './info-command';
-import { ErrorReporter } from '../../error-reporter';
-import { TemplateInfo } from './template-info';
 import { TemplateValidator } from '../../template-validator';
 import { UserMessager } from '../../user-messager';
-import { Assert } from 'alsatian-fluent-assertions';
+import { TemplateInfo } from './template-info';
+import { ITemplate } from '../../i';
 
 @TestFixture("Template info service tests")
 export class TemplateInfoTests {

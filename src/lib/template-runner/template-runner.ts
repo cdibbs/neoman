@@ -1,18 +1,9 @@
-import { injectable, inject } from 'inversify';
-import * as fse from 'fs-extra';
-
-import { EventEmitter, TemplateFilesEmitterType } from '../emitters';
-import { COMMANDS, Commands } from '../commands';
-import { VERBOSITY, Verbosity } from '../types/verbosity';
-import { RunOptions, RunnerResult, CommandErrorType } from '../models';
+import { inject, injectable } from 'inversify';
 import TYPES from '../di/types';
-import KEYS from '../settings-keys';
-import * as iemitters from '../emitters/i';
-import { ITemplate, Transforms, PathTransforms } from '../i/template';
-import * as it from '../transformers/i';
-import { curry } from '../util/curry';
+import { IFileSystem, IInputManager, ITemplateRunner, ITemplateValidator, IUserMessager, ITemplate } from "../i";
+import { CommandErrorType, RunnerResult, RunOptions } from '../models';
 import { IFSTreeProcessor } from "./i";
-import { ITemplateValidator, IUserMessager, IFileSystem, IPath, IFilePatterns, IInputManager, ITemplateRunner } from "../i";
+
 
 @injectable()
 export class TemplateRunner implements ITemplateRunner {
@@ -36,7 +27,7 @@ export class TemplateRunner implements ITemplateRunner {
             return new RunnerResult(this.msg.i18n({destPath}).mf('The destination directory is not empty ({path}).'), CommandErrorType.SystemState);
         }
 
-        let answers = await this.inputManager.ask(tmpl.inputs, options);
+        let answers = await this.inputManager.ask(tmpl.input, options);
         let result = await this.fsTreeProcessor.process(tmpl.__tmplPath, destPath, options, answers, tmpl);
         this.finishRun(result);
         return result;

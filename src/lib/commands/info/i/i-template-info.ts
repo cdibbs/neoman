@@ -1,4 +1,4 @@
-import { ITemplate } from "../../../i/template";
+import { ITemplate } from "../../../i";
 
 export interface ITemplateInfo {
     showTemplateInfo(tmpl: ITemplate): void;

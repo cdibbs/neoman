@@ -1,22 +1,20 @@
 // 3rd party imports installed via npm install
-import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown } from 'alsatian';
-import { Assert, MatchMode } from 'alsatian-fluent-assertions';
+import { AsyncSetup, AsyncTeardown, AsyncTest, TestCase, TestFixture } from 'alsatian';
+import { Assert } from 'alsatian-fluent-assertions';
 import { Command } from "commandpost";
+import * as _ from "lodash";
 import * as TypeMoq from "typemoq";
 import { It, Times } from 'typemoq';
-import * as _ from "lodash";
-
-import { ITemplateInfo } from './i/i-template-info';
-import { TemplateInfo } from './template-info';
-import { ITemplate } from '../../i/template';
-import { mockMessagerFactory } from '../../../spec-lib'
-import { InfoCommand } from './info-command';
+import { mockMessagerFactory } from '../../../spec-lib';
 import { ErrorReporter } from '../../error-reporter';
-import { TemplateManager } from '../../template-management/template-manager'
-import { CommandValidationResult, CommandErrorType } from "../../models";
-import { IInfoCmdOpts, IInfoCmdArgs, ICommandValidator } from '../i';
-import { IErrorReporter, IPath } from '../../i';
+import { IErrorReporter, IPath, ITemplate } from '../../i';
+import { CommandErrorType, CommandValidationResult } from "../../models";
 import { ITemplateManager } from '../../template-management';
+import { TemplateManager } from '../../template-management/template-manager';
+import { ICommandValidator, IInfoCmdArgs, IInfoCmdOpts } from '../i';
+import { ITemplateInfo } from './i/i-template-info';
+import { InfoCommand } from './info-command';
+import { TemplateInfo } from './template-info';
 
 @TestFixture("Info command tests")
 export class InfoCommandTests {

@@ -1,10 +1,10 @@
 import { inject, injectable } from "inversify";
 import TYPES from "../di/types";
-import { IUserMessager, IPackage } from "../i";
-import { IConfiguration, IConfigurations } from "../i/template";
+import { IPackage, IUserMessager } from "../i";
 import { TemplateConfiguration } from "../transformers/models/configuration";
-import { IPluginManager } from "./i-plugin-manager";
 import { ICapabilities } from "../user-extensibility";
+import { IPluginManager } from "./i-plugin-manager";
+import { IConfigurations } from "../user-extensibility/template";
 let NestedError = require('nested-error-stacks');
 let requireg = require('requireg');
 

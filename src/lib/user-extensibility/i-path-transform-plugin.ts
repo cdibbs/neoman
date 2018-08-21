@@ -2,7 +2,7 @@ import { ISubjectDefinition } from "./template/i-subject-definition";
 import { ICapabilities } from "./i-capabilities";
 import { INeedy } from "./i-needy";
 
-export interface ITransformPlugin extends INeedy {
+export interface IPathTransformPlugin extends INeedy {
     /**
      * Method called shortly after instantiation with user-provided, plugin-defined options.
      * Called before any calls to transform(...).

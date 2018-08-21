@@ -2,8 +2,8 @@ import { FocusTests, Setup, Test, TestFixture } from 'alsatian';
 import { Assert } from 'alsatian-fluent-assertions';
 import { mockMessagerFactory } from '../../spec-lib';
 import { IUserMessager } from '../i';
-import { IRawTemplate } from '../i/template';
 import { TemplatePreprocessor } from './template-preprocessor';
+import { IRawTemplate } from '../user-extensibility/template';
 
 @TestFixture("Template preprocessor tests")
 export class TemplateRunnerTests {
@@ -39,7 +39,7 @@ export class TemplateRunnerTests {
             "#": "This is my template",
             identity: "somekey",
             name: "A Template",
-            inputs: { 
+            input: { 
                 "#": "Another user comments about inputs"
             },
             transform: [
@@ -64,7 +64,7 @@ export class TemplateRunnerTests {
                 .satisfies(arr => arr.length == 1)
                 .allSatisfy((e: string) => typeof e !== "string" || ! e.startsWith("#"))
                 .kThx
-            .has(o => o.inputs)
+            .has(o => o.input)
                 .that.not.has(o => o["#"]);
 
     }

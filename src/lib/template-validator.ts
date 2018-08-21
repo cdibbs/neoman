@@ -1,23 +1,20 @@
-import { injectable, inject } from 'inversify';
-
-import { EventEmitter, TemplateSearchEmitterType } from './emitters';
-import TYPES from './di/types';
-import KEYS from './settings-keys';
-import * as i from './i';
-import * as it from './i/template';
+import { injectable } from 'inversify';
 import { PLUGIN_PREFIX } from './constants';
-let requireg = require('requireg');
+import { ITemplateValidator, ITemplate } from './i';
+import { IConfigurations, IConfiguration } from './user-extensibility/template';
+
+const requireg = require('requireg');
 
 @injectable()
-export class TemplateValidator implements i.ITemplateValidator {
+export class TemplateValidator implements ITemplateValidator {
     requireg = requireg;
 
-    dependenciesInstalled(tmpl: it.ITemplate): { [key: string]: boolean } {
-        let configs: it.IConfigurations = tmpl.configurations;
-        let installed: { [key: string]: boolean } = {};
+    dependenciesInstalled(tmpl: ITemplate): { [key: string]: boolean } {
+        const configs: IConfigurations = tmpl.configurations;
+        const installed: { [key: string]: boolean } = {};
         for(var key in configs) {
-            let config: it.IConfiguration = configs[key];
-            let fullname: string = PLUGIN_PREFIX + config.plugin;
+            const config: IConfiguration = configs[key];
+            const fullname: string = PLUGIN_PREFIX + config.plugin;
             try {
                 this.requireg.resolve(PLUGIN_PREFIX + config.plugin);
                 installed[fullname] = true;

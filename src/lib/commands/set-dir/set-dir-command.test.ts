@@ -1,22 +1,14 @@
 // 3rd party imports installed via npm install
-import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown, Teardown, Setup } from 'alsatian';
+import { AsyncSetup, AsyncTest, Teardown, TestCase, TestFixture } from 'alsatian';
+import { Assert } from 'alsatian-fluent-assertions';
 import { Command } from "commandpost";
 import * as TypeMoq from "typemoq";
 import { It, Times } from 'typemoq';
-let NestedError = require('nested-error-stacks');
-
 // internal imports (always a relative path beginning with a ./ or ../)
-import { IUserMessager, IErrorReporter, IPath, ITemplateRunner, ISettingsProvider, IFileSystem } from '../../i';
-import { INewCmdOpts, INewCmdArgs, ICommandValidator } from '../i';
-import { ITemplate } from '../../i/template';
-import { mockMessagerFactory } from '../../../spec-lib'
-import { SetDirCommand } from './set-dir-command';
-import { CommandResult, CommandValidationResult, RunnerResult, CommandErrorType } from '../../models';
-import { Assert } from 'alsatian-fluent-assertions';
-import { MethodCallReturn } from 'typemoq/MethodCallReturn';
-import { IReturnsResult } from 'typemoq/_all';
+import { IFileSystem, IPath, ISettingsProvider, IUserMessager } from '../../i';
 import KEYS from '../../settings-keys';
-
+import { SetDirCommand } from './set-dir-command';
+let NestedError = require('nested-error-stacks');
 
 @TestFixture("Setdir command tests")
 export class SetdirCommandTests {

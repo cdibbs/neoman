@@ -1,33 +1,29 @@
-import { injectable, inject } from 'inversify';
-let requireg = require('requireg');
-
+import { inject, injectable } from 'inversify';
 import TYPES from '../di/types';
-import * as i from './i';
-import * as ir from '../i/template';
-import * as bi from '../i';
-import { BaseTransformManager } from './base-transform-manager';
-import { TemplateConfiguration } from './models/configuration';
+import { IFilePatterns, IHandlerService, IUserMessager } from '../i';
 import { RuleMatchResult } from '../models';
-import { IUserMessager } from '../i';
 import { IPluginManager } from '../plugin-manager/i-plugin-manager';
+import { ITransform, Transforms } from '../user-extensibility/template';
+import { BaseTransformManager } from './base-transform-manager';
+import { ITransformManager } from './i';
 
 @injectable()
-export class ContentTransformManager extends BaseTransformManager implements i.ITransformManager{
+export class ContentTransformManager extends BaseTransformManager implements ITransformManager{
 
     constructor(
-        @inject(TYPES.FilePatterns) filePatterns: bi.IFilePatterns,
-        @inject(TYPES.UserMessager) msg: bi.IUserMessager,
-        @inject(TYPES.HandlerService) hnd: bi.IHandlerService,
+        @inject(TYPES.FilePatterns) filePatterns: IFilePatterns,
+        @inject(TYPES.UserMessager) msg: IUserMessager,
+        @inject(TYPES.HandlerService) hnd: IHandlerService,
         @inject(TYPES.PluginManager) protected plugMgr: IPluginManager
     ) {
         super(filePatterns, msg, hnd, plugMgr);
     }
 
-    async applyTransforms(path: string, content: string, rdef: ir.Transforms): Promise<string> {
+    async applyTransforms(path: string, content: string, rdef: Transforms): Promise<string> {
         if (typeof rdef === "undefined") {
             return content;
         } else if (rdef instanceof Array) {
-            return this.replaceInFile(path, content, <ir.ITransform[]>rdef);
+            return this.replaceInFile(path, content, <ITransform[]>rdef);
         } else if (typeof rdef === "string") { // simple regexp
             return this.replaceInFile(path, content, [this.regexToTransform(rdef)]);
         } else if (typeof rdef === "object") { // single replacement? treat as rdef
@@ -37,7 +33,7 @@ export class ContentTransformManager extends BaseTransformManager implements i.I
         throw new Error(`Replace definition not understood. Type found: ${typeof rdef}.`);
     }
 
-    async replaceInFile(path: string, content: string, rdefs: ir.ITransform[] | string[]): Promise<string> {
+    async replaceInFile(path: string, content: string, rdefs: ITransform[] | string[]): Promise<string> {
         for (let i=0; i<rdefs.length; i++) {
             let rdef = rdefs[i];
             if (typeof rdef === "string") {              
@@ -54,7 +50,7 @@ export class ContentTransformManager extends BaseTransformManager implements i.I
         return content;
     }
 
-    async replaceOne(path: string, content: string, rdef: ir.ITransform): Promise<string> {
+    async replaceOne(path: string, content: string, rdef: ITransform): Promise<string> {
         let src: string = this.formatSource(rdef);
 
         let msgCtxt = this.msg.i18n({subject: rdef.subject, src });
@@ -83,7 +79,7 @@ export class ContentTransformManager extends BaseTransformManager implements i.I
         }
     }
 
-    protected formatSource(rdef: ir.ITransform): string {
+    protected formatSource(rdef: ITransform): string {
         let srcs = [];
         if (rdef.using) {
             srcs.push(`using: ${rdef.using}`);

@@ -1,4 +1,4 @@
-import { ITemplateComments } from "../i/template/i-template-comments";
+import { ITemplateComments } from "./i-template-comments";
 
 export interface ITemplateTypedInput extends ITemplateComments {
     prompt: string;

@@ -1,6 +1,6 @@
 import { ICapabilities } from "../i-capabilities";
 import { IInputHandler } from "../i-input-handler";
-import { IInputConfig } from "../i-input-config";
+import { IInputConfig } from "../template/i-input-config";
 
 function RandomInputHandler(capabilities: ICapabilities, config?: IInputConfig): { [key: string]: any} {
     const answers = {};
@@ -8,7 +8,7 @@ function RandomInputHandler(capabilities: ICapabilities, config?: IInputConfig):
         return answers;
     }
 
-    for(let k in config) {
+    for(const k in config) {
         answers[k] = Math.random();
     }
 
@@ -28,7 +28,4 @@ namespace RandomInputHandler {
     };
 }
 
-/**
- * The "as IInputHandler" affords us some type safety.
- */
-export = RandomInputHandler as IInputHandler;
+export = RandomInputHandler as IInputHandler /* type safety */;

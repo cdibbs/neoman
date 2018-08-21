@@ -1,10 +1,8 @@
 import { injectable, inject } from 'inversify';
-
 import { VERBOSITY, Verbosity } from '../types/verbosity';
-import { PathTransforms, Transforms } from "../i/template";
 import { ITemplateFile } from "../i";
 import { BaseTreeDiscoveryHandler } from "./base-tree-discovery-handler";
-
+import { PathTransforms, Transforms } from '../user-extensibility/template';
 
 @injectable()
 export class SimulatedTreeDiscoveryHandler extends BaseTreeDiscoveryHandler {

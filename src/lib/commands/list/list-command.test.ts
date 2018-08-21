@@ -1,25 +1,17 @@
 // 3rd party imports installed via npm install
-import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown, Teardown, Setup, Expect, SpyOn } from 'alsatian';
+import { AsyncSetup, AsyncTest, Teardown, Test, TestCase, TestFixture } from 'alsatian';
+import { Assert } from 'alsatian-fluent-assertions';
 import { Command } from "commandpost";
 import * as TypeMoq from "typemoq";
 import { It, Times } from 'typemoq';
-import * as _ from "lodash";
-import { Assert } from 'alsatian-fluent-assertions';
-
-// internal imports (always a relative path beginning with a ./ or ../)
-import { ITemplate } from '../../i/template';
-import { mockMessagerFactory } from '../../../spec-lib'
-import { ListCommand } from './list-command';
+import { mockMessagerFactory } from '../../../spec-lib';
 import { ErrorReporter } from '../../error-reporter';
-import * as glob from 'glob';
-import { IGlobFactory } from '../../util/i-glob-factory';
-import { GlobFactory } from '../../util/glob-factory';
-import { UserMessager } from '../../user-messager';
-import { MockBehavior } from 'typemoq';
-import { CommandValidationResult, CommandErrorType } from "../../models";
-import { ICommandValidator } from '../i';
-import { IErrorReporter, IFileSystem, IPath, IUserMessager } from '../../i';
+import { IErrorReporter, IFileSystem, IPath, IUserMessager, ITemplate } from '../../i';
+import { CommandErrorType, CommandValidationResult } from "../../models";
 import { ITemplateManager } from '../../template-management';
+import { ICommandValidator } from '../i';
+import { ListCommand } from './list-command';
+
 
 @TestFixture("List command tests")
 export class ListCommandTests {

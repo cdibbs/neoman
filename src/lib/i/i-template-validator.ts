@@ -1,5 +1,5 @@
-import * as it from './template';
+import { ITemplate } from "./i-template";
 
 export interface ITemplateValidator {
-    dependenciesInstalled(tmpl: it.ITemplate): { [key: string]: boolean };
+    dependenciesInstalled(tmpl: ITemplate): { [key: string]: boolean };
 }

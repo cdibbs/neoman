@@ -1,5 +1,5 @@
 import { TemplateConfiguration } from "../transformers/models/configuration";
-import { IConfigurations } from "../i/template";
+import { IConfigurations } from "../user-extensibility/template";
 
 export interface IPluginManager {
     getConfig(key: string): TemplateConfiguration;

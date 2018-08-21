@@ -1,36 +1,35 @@
-import { injectable, inject } from 'inversify';
-import * as _ from 'underscore';
-let requireg = require('requireg');
-
+import { inject, injectable } from 'inversify';
 import TYPES from '../di/types';
-import * as i from './i';
-import * as ir from '../i/template';
-import * as bi from '../i';
+import { IPluginManager } from '../plugin-manager/i-plugin-manager';
 import { BaseTransformManager } from './base-transform-manager';
 import { TemplateConfiguration } from './models/configuration';
-import { IPluginManager } from '../plugin-manager/i-plugin-manager';
+import { IPathTransformManager } from './i';
+import { IFilePatterns, IUserMessager, IHandlerService } from '../i';
+import { PathTransforms, IPathTransform } from '../user-extensibility/template';
+let requireg = require('requireg');
+
 
 @injectable()
-export class PathTransformManager extends BaseTransformManager implements i.IPathTransformManager{
+export class PathTransformManager extends BaseTransformManager implements IPathTransformManager{
     configs: { [key: string]: TemplateConfiguration };
     inputs: { [key: string]: any };
 
     constructor(
-        @inject(TYPES.FilePatterns) filePatterns: bi.IFilePatterns,
-        @inject(TYPES.UserMessager) msg: bi.IUserMessager,
-        @inject(TYPES.HandlerService) hnd: bi.IHandlerService,
+        @inject(TYPES.FilePatterns) filePatterns: IFilePatterns,
+        @inject(TYPES.UserMessager) msg: IUserMessager,
+        @inject(TYPES.HandlerService) hnd: IHandlerService,
         @inject(TYPES.PluginManager) protected plugMgr: IPluginManager
     ) {
         super(filePatterns, msg, hnd, plugMgr);
     }
 
-    async applyTransforms(path: string, tdef: ir.PathTransforms): Promise<string> {
+    async applyTransforms(path: string, tdef: PathTransforms): Promise<string> {
         if (typeof tdef === "undefined") {
             return path;
         } else if (tdef instanceof Array) {
-            return this.transformAll(path, <ir.IPathTransform[]>tdef);
+            return this.transformAll(path, <IPathTransform[]>tdef);
         } else if (typeof tdef === "string") { // simple regexp?
-            return this.transformAll(path, [this.regexToTransform<ir.IPathTransform>(tdef)]);
+            return this.transformAll(path, [this.regexToTransform<IPathTransform>(tdef)]);
         } else if (typeof tdef === "object") { // single replacement? treat as rdef
             return this.transformAll(path, [tdef]);
         }
@@ -38,13 +37,13 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
         throw new Error(`Replace definition not understood. Type found: ${typeof tdef}.`);
     }
 
-    async transformAll(path: string, transforms: ir.IPathTransform[] | string[]): Promise<string> {
+    async transformAll(path: string, transforms: IPathTransform[] | string[]): Promise<string> {
         let processing = path;
 
         for (let i=0; i<transforms.length; i++) {
             let t = transforms[i];
             if (typeof t === "string") {              
-                t = this.regexToTransform<ir.IPathTransform>(t);
+                t = this.regexToTransform<IPathTransform>(t);
             }
 
             if (typeof t === "object") {
@@ -57,7 +56,7 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
         return processing;
     }
 
-    async transformOne(processing: string, t: ir.IPathTransform, i: number): Promise<string> {
+    async transformOne(processing: string, t: IPathTransform, i: number): Promise<string> {
         let check = this.replaceDoesApply(processing, t.files, t.ignore, t.using);
         if (check.matches) {
             processing = await this.applyIfMatch(t, processing, i);
@@ -68,7 +67,7 @@ export class PathTransformManager extends BaseTransformManager implements i.IPat
         return processing;
     }
 
-    async applyIfMatch(t: ir.IPathTransform, path: string, i: number): Promise<string> {
+    async applyIfMatch(t: IPathTransform, path: string, i: number): Promise<string> {
         if (path.match(t.subject)) {
             this.msg.i18n({subject: t.subject}).debug('Applying path transform for "{subject}".', 2);
             path = await this.applyReplace(path, t, path);

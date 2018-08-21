@@ -1,14 +1,12 @@
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
 import * as _ from 'underscore';
-let NestedError = require('nested-error-stacks');
-
-import { curry } from '../util/curry';
-import { RuleMatchResult } from '../models';
 import TYPES from '../di/types';
-import { TemplateConfiguration } from './models/configuration';
-import { IFilePatterns, IUserMessager, IHandlerService } from '../i';
-import { ITemplate, IConfigurations, IConfiguration, IPathTransform, ITransform } from '../i/template';
+import { IFilePatterns, IHandlerService, ITemplate, IUserMessager } from '../i';
+import { RuleMatchResult } from '../models';
 import { IPluginManager } from '../plugin-manager/i-plugin-manager';
+import { IPathTransform, ITransform } from '../user-extensibility/template';
+import { curry } from '../util/curry';
+let NestedError = require('nested-error-stacks');
 
 @injectable()
 export class BaseTransformManager {

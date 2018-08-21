@@ -1,13 +1,13 @@
 import { inject, injectable } from 'inversify';
 import TYPES from '../di/types';
 import { EventEmitter, TemplateSearchEmitterType } from '../emitters';
-import { IFileSystem, IGlob, IPath, ISettingsProvider, IUserMessager } from '../i';
-import { ITemplate } from '../i/template';
+import { IFileSystem, IGlob, IPath, ISettingsProvider, IUserMessager, ITemplate } from '../i';
 import KEYS from '../settings-keys';
 import { curry } from '../util/curry';
 import { ITemplateManager } from './i-template-manager';
-import { TemplateManagerError } from './template-manager-error';
 import { ITemplatePreprocessor } from './i-template-preprocessor';
+import { TemplateManagerError } from './template-manager-error';
+import { ISearchHandlerFactory } from './i-search-handler-factory';
 
 @injectable()
 export class TemplateManager implements ITemplateManager {
@@ -16,10 +16,9 @@ export class TemplateManager implements ITemplateManager {
     constructor(
         @inject(TYPES.SettingsProvider) protected settings: ISettingsProvider,
         @inject(TYPES.UserMessager) protected msg: IUserMessager,
-        @inject(TYPES.FS) private fs: IFileSystem,
-        @inject(TYPES.Path) private path: IPath,
+        @inject(TYPES.Process) private process: NodeJS.Process,
         @inject(TYPES.Glob) private glob: IGlob,
-        @inject(TYPES.TemplatePreprocessor) private tmplPrep: ITemplatePreprocessor
+        @inject(TYPES.SearchHandlerFactory) private searchHandlerFactory: ISearchHandlerFactory
     ) {
         this.tmplDir = this.settings.get(KEYS.tempDirKey);
     }
@@ -37,25 +36,30 @@ export class TemplateManager implements ITemplateManager {
         error?: (terror: TemplateManagerError) => void,
         match?: (tmpl: ITemplate) => void
     ): EventEmitter<TemplateSearchEmitterType> {
-        let templates: ITemplate[] = [];
-        let emitter = new EventEmitter<TemplateSearchEmitterType>();
+        const templates: ITemplate[] = [];
+        const userEmitter = new EventEmitter<TemplateSearchEmitterType>();
         // on glob match, the following adds an ITemplate to templates for later return at "end" event:
-        emitter.on("match", curry.oneOf2(this.listMatch, this, templates));
-        if (match && match instanceof Function) {
-            emitter.on("match", match);
-        }
-        if (end && end instanceof Function) {
-            emitter.on("end", end);
-        }
-        if (error && error instanceof Function) {
-            emitter.on("error", error);
+        userEmitter.on("match", curry.oneOf2(this.listMatch, this, templates));
+        userEmitter.on("match", match);
+        userEmitter.on("end", end);
+        userEmitter.on("error", error);
+
+        // Setup proxy emitters between the template repo globs and the userEmitter.
+        // The user emitter serves to collate the different sources, and the proxy
+        // methods also grant more desirable behavior (error handling, returning all
+        // results at the end, etc).
+        const locations = {
+            "*/.neoman.config/template.json": this.tmplDir,
+            ".neoman/**/.neoman.config/template.json": this.process.cwd()
+        };
+        const searchHandler = this.searchHandlerFactory.build(locations);
+        for (const path in locations) {
+            const search = new this.glob.Glob(path, { cwd: locations[path] });
+            search.on("match", curry.twoOf3(searchHandler.templateMatch, searchHandler, userEmitter, locations[path]));
+            search.on("end", curry.threeOf4(searchHandler.endList, searchHandler, templates, userEmitter, path));
         }
 
-        let search = new this.glob.Glob("*/.neoman.config/template.json", { cwd: this.tmplDir });
-        search.on("match", curry.oneOf2(this.templateMatch, this, emitter))
-        search.on("end", curry.twoOf3(this.endList, this, templates, emitter));
-
-        return emitter;
+        return userEmitter;
     }
 
     /**
@@ -82,7 +86,7 @@ export class TemplateManager implements ITemplateManager {
     {
         let result: ITemplate = list.find(tmpl => tmpl.identity === tmplId);
         if (typeof result === "undefined") {
-            reject(`Template with templateId "${tmplId}" was not found.`);
+            reject(this.msg.mf('Template with templateId "{tmplId}" was not found.', {tmplId}));
         } else {
             resolve(result);
         }
@@ -92,37 +96,5 @@ export class TemplateManager implements ITemplateManager {
         templatesRef.push(tmpl);
     }
 
-    private endList(templatesRef: ITemplate[], emitter: EventEmitter<TemplateSearchEmitterType>): void {
-        emitter.emit('end', templatesRef);
-    }
 
-    private templateMatch(emitter: EventEmitter<TemplateSearchEmitterType>, file: string): void {
-        let fullPath;
-        try {
-            fullPath = this.path.join(this.tmplDir, file);
-            const rawTmpl = JSON.parse(this.fs.readFileSync(fullPath, 'utf8'));
-            const tmpl = this.tmplPrep.preprocess(rawTmpl);
-            const tmplAbsRoot = this.path.join(this.path.dirname(fullPath), '..');
-            tmpl.__tmplPath = this.getTemplateRoot(tmpl, tmplAbsRoot);
-            tmpl.__tmplConfigPath = tmplAbsRoot;
-            emitter.emit("match", tmpl);
-        } catch (ex) {
-            emitter.emit("error", new TemplateManagerError(ex, fullPath));
-        }
-    }
-
-    private getTemplateRoot(tmpl: any, absRoot: string): string {
-        let root = absRoot;
-        if (typeof tmpl.root === "string") {
-            root = this.path.join(absRoot, tmpl.root);
-        } else if (typeof tmpl.root !== "undefined") {
-            throw new Error(this.msg.i18n().mf("Element 'root' (JsonPath: $.root) within template.json must be a string."));
-        }
-
-        if (! this.fs.statSync(root).isDirectory) {
-            throw new Error(this.msg.i18n({root}).mf("Template root is not a directory: {root}."));
-        }
-
-        return root;        
-    }
 }

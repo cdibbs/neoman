@@ -5,7 +5,7 @@ import { mockMessagerFactory } from "../../spec-lib";
 import { Assert, MatchMode, LocationMode } from "alsatian-fluent-assertions";
 import { IMock, Mock, Times, It } from "typemoq";
 import { TemplateConfiguration } from "../transformers/models/configuration";
-import { ISubjectDefinition } from "../i/template/i-subject-definition";
+import { ISubjectDefinition } from "../user-extensibility/template/i-subject-definition";
 import { ITransformPlugin } from "../user-extensibility";
 
 export class PluginManagerTests {

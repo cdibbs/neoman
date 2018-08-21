@@ -38,7 +38,9 @@ let TYPES = {
     BIMClientFactory: Symbol("BIMClientFactory"),
     BIMServerFactory: Symbol("BIMServerFactory"),
     BIMWebSocketFactory: Symbol("BIMWebSocketFactory"),
-    PluginManager: Symbol("PluginManager")
+    PluginManager: Symbol("PluginManager"),
+    TemplatePreprocessor: Symbol("TemplatePreprocessor"),
+    SearchHandlerFactory: Symbol("SearchHandlerFactory")
 }
 
 export default TYPES;

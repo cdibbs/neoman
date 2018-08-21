@@ -2,8 +2,7 @@ import { injectable, inject } from "inversify";
 
 import TYPES from '../../di/types';
 import { ITemplateInfo } from "./i/i-template-info";
-import { IUserMessager, ITemplateValidator } from "../../i";
-import { ITemplate } from '../../i/template';
+import { IUserMessager, ITemplateValidator, ITemplate } from "../../i";
 
 @injectable()
 export class TemplateInfo implements ITemplateInfo {

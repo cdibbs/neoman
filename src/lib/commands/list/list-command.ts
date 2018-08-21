@@ -1,17 +1,15 @@
-import { injectable, inject } from 'inversify';
-
-import { COMMANDS, Commands } from '../commands';
-import { BaseCommand } from '../base-command';
-import TYPES from '../../di/types';
-import { IFileSystem, IGlob, IPath, IUserMessager } from '../../i';
 import Command from 'commandpost/lib/command';
-import { CommandValidationResult, CommandResult } from '../../models';
-import { curry } from '../../util/curry';
-import { IGlobFactory } from '../../util/i-glob-factory';
-import { ICommandValidator } from '../i';
+import { inject, injectable } from 'inversify';
+import TYPES from '../../di/types';
+import { IFileSystem, IPath, ITemplate, IUserMessager } from '../../i';
+import { CommandValidationResult } from '../../models';
 import { ITemplateManager } from '../../template-management';
-import { ITemplate } from '../../i/template';
 import { TemplateManagerError } from '../../template-management/template-manager-error';
+import { curry } from '../../util/curry';
+import { BaseCommand } from '../base-command';
+import { COMMANDS, Commands } from '../commands';
+import { ICommandValidator } from '../i';
+
 
 @injectable()
 export class ListCommand extends BaseCommand<any, any> {

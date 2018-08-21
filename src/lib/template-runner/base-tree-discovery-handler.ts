@@ -1,17 +1,15 @@
-import { injectable, inject } from 'inversify';
 import * as fse from 'fs-extra';
-
+import { inject, injectable } from 'inversify';
 import TYPES from '../di/types';
-import { VERBOSITY, Verbosity } from '../types/verbosity';
-import { IEventEmitter } from "../emitters/i";
 import { TemplateFilesEmitterType } from "../emitters";
-import { ITreeDiscoveryEventHandler } from "./i";
-import { PathTransforms, Transforms, ITemplate } from "../i/template";
-import { ITemplateFile, IUserMessager, IPath, IFileSystem } from "../i";
+import { IEventEmitter } from "../emitters/i";
+import { IFileSystem, IPath, ITemplateFile, IUserMessager, ITemplate } from "../i";
 import { RunOptions } from "../models";
-import { curry } from '../util/curry';
 import { IPathTransformManager, ITransformManager } from "../transformers/i";
-
+import { VERBOSITY, Verbosity } from '../types/verbosity';
+import { curry } from '../util/curry';
+import { ITreeDiscoveryEventHandler } from "./i";
+import { PathTransforms, Transforms } from '../user-extensibility/template';
 
 @injectable()
 export abstract class BaseTreeDiscoveryHandler implements ITreeDiscoveryEventHandler {

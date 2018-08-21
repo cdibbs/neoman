@@ -1,7 +1,7 @@
 import { IEventEmitter } from '../emitters/i';
 import { TemplateSearchEmitterType } from '../emitters';
-import { ITemplate } from '../i/template';
 import { TemplateManagerError } from './template-manager-error';
+import { ITemplate } from '../i';
 
 export interface ITemplateManager {
     list(

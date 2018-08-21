@@ -1,5 +1,5 @@
-import { IConfiguration } from '../../i/template';
 import { ITransformPlugin } from '../../user-extensibility/i-transform-plugin';
+import { IConfiguration } from '../../user-extensibility/template';
 
 export class TemplateConfiguration implements IConfiguration {
     key: string;

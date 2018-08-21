@@ -1,16 +1,14 @@
-import { injectable, inject } from 'inversify';
 import { Command } from 'commandpost';
-
-import { Commands, COMMANDS } from '../commands';
-import { BaseCommand } from '../base-command';
-import { IPath, IUserMessager, ITemplateValidator, IErrorReporter } from '../../i';
-import { ITemplate } from '../../i/template';
-import { ITemplateInfo } from './i/i-template-info';
-import { IInfoCmdArgs, IInfoCmdOpts, ICommandValidator } from '../i';
+import { inject, injectable } from 'inversify';
 import TYPES from '../../di/types';
-import { CommandValidationResult, CommandErrorType, CommandResult } from '../../models';
-import { curry } from '../../util/curry';
+import { IErrorReporter, IPath, IUserMessager } from '../../i';
+import { CommandValidationResult } from '../../models';
 import { ITemplateManager } from '../../template-management';
+import { BaseCommand } from '../base-command';
+import { Commands, COMMANDS } from '../commands';
+import { ICommandValidator, IInfoCmdArgs, IInfoCmdOpts } from '../i';
+import { ITemplateInfo } from './i/i-template-info';
+
 
 @injectable()
 export class InfoCommand extends BaseCommand<IInfoCmdOpts, IInfoCmdArgs> {

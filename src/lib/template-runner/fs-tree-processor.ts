@@ -3,10 +3,9 @@ let NestedError = require('nested-error-stacks');
 import * as fse from 'fs-extra';
 
 import TYPES from '../di/types';
-import { IUserMessager, IPath, IFileSystem, ITemplateFile, IFilePatterns } from '../i';
+import { IUserMessager, IPath, IFileSystem, ITemplateFile, IFilePatterns, ITemplate } from '../i';
 import { IFSTreeProcessor, ITreeDiscoveryEventHandler } from "./i";
 import { IEventEmitter } from "../emitters/i";
-import { ITemplate } from "../i/template";
 import { EventEmitter, TemplateFilesEmitterType } from '../emitters';
 import { curry } from '../util/curry';
 import { RunOptions, RunnerResult, CommandErrorType } from "../models";

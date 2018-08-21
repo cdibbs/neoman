@@ -1,19 +1,15 @@
 // 3rd party imports installed via npm install
-import { Test, TestFixture, AsyncTest, TestCase, AsyncSetup, AsyncTeardown, Teardown, Setup } from 'alsatian';
+import { AsyncSetup, AsyncTest, Teardown, Test, TestCase, TestFixture } from 'alsatian';
+import { Assert } from 'alsatian-fluent-assertions';
 import { Command } from "commandpost";
 import * as TypeMoq from "typemoq";
 import { It, Times } from 'typemoq';
-
-// internal imports (always a relative path beginning with a ./ or ../)
-import { IUserMessager, IErrorReporter, IPath, ITemplateRunner } from '../../i';
-import { INewCmdOpts, INewCmdArgs, ICommandValidator } from '../i';
-import { ITemplate } from '../../i/template';
-import { mockMessagerFactory } from '../../../spec-lib'
-import { NewCommand } from './new-command';
-import { CommandResult, CommandValidationResult, RunnerResult, CommandErrorType } from '../../models';
-import { Assert } from 'alsatian-fluent-assertions';
+import { mockMessagerFactory } from '../../../spec-lib';
+import { IErrorReporter, IPath, ITemplateRunner, IUserMessager } from '../../i';
+import { CommandErrorType, CommandResult, CommandValidationResult, RunnerResult } from '../../models';
 import { ITemplateManager } from '../../template-management';
-
+import { ICommandValidator, INewCmdArgs, INewCmdOpts } from '../i';
+import { NewCommand } from './new-command';
 
 @TestFixture("New command tests")
 export class NewCommandTests {

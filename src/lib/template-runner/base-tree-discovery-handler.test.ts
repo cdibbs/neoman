@@ -1,10 +1,7 @@
-import { Test, TestFixture, AsyncTest, TestCase, TestCases, AsyncSetup, AsyncTeardown, Teardown, Setup } from 'alsatian';
-import { Mock, IMock, It, Times } from 'typemoq';
-
-import { BaseTreeDiscoveryHandler } from './base-tree-discovery-handler';
-import { Verbosity } from '../types/verbosity';
-import { IPathTransform, ITransform } from "../i/template/";
 import { ITemplateFile } from "../i";
+import { Verbosity } from '../types/verbosity';
+import { BaseTreeDiscoveryHandler } from './base-tree-discovery-handler';
+import { IPathTransform, ITransform } from "../user-extensibility/template";
 
 export class BaseTreeDiscoveryHandlerTest {
 
