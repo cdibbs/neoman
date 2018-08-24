@@ -8,6 +8,7 @@ import { ISearchHandler } from "./i-search-handler";
 
 @injectable()
 export class SearchHandlerFactory implements ISearchHandlerFactory {
+    protected hndClass = SearchHandler;
     constructor(
         @inject(TYPES.UserMessager) protected msg: IUserMessager,
         @inject(TYPES.FS) private fs: IFileSystem,
@@ -18,6 +19,6 @@ export class SearchHandlerFactory implements ISearchHandlerFactory {
     }
 
     build(locations: { [key: string]: string }): ISearchHandler {
-        return new SearchHandler(this.msg, this.path, this.fs, this.tmplPrep, locations);
+        return new this.hndClass(this.msg, this.path, this.fs, this.tmplPrep, locations);
     }
 }

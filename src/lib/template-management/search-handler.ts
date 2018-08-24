@@ -45,11 +45,11 @@ export class SearchHandler implements ISearchHandler {
         if (typeof tmpl.root === "string") {
             root = this.path.join(absRoot, tmpl.root);
         } else if (typeof tmpl.root !== "undefined") {
-            throw new Error(this.msg.i18n().mf("Element 'root' (JsonPath: $.root) within template.json must be a string."));
+            throw new Error(this.msg.mf("Element 'root' (JsonPath: $.root) within template.json must be a string."));
         }
 
         if (! this.fs.statSync(root).isDirectory) {
-            throw new Error(this.msg.i18n({root}).mf("Template root is not a directory: {root}."));
+            throw new Error(this.msg.mf("Template root is not a directory: {root}.", {root}));
         }
 
         return root;        
