@@ -8,7 +8,6 @@ import { MockConstructor } from '../../spec-lib/mock-constructor';
 import { ITemplatePreprocessor } from './i-template-preprocessor';
 import { SearchHandlerFactory } from './search-handler-factory';
 
-@FocusTests
 @TestFixture("SearchHandlerFactory Tests")
 export class SearchHandlerFactoryTests {
     msgr: IUserMessager;

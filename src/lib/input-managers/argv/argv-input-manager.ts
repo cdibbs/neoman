@@ -9,7 +9,7 @@ var NestedError = require('nested-error-stacks');
 export class ArgvInputManager extends BaseInputManager {
 
     constructor(
-
+        
     ) {
         super();
     }

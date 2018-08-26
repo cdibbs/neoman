@@ -85,7 +85,9 @@ export class NewCommandTests {
             showExcluded: a => a.satisfies(e => e === true || e === false),
             defaults: a => a.satisfies(e => e === true || e === false),
             force: a => a.satisfies(e => e === true || e === false),
-            simulate: a => a.satisfies(e => e === true || e === false)
+            simulate: a => a.satisfies(e => e === true || e === false),
+            rawArgs: undefined,
+            extraArgs: undefined
         });
     }
 }

@@ -9,7 +9,6 @@ import { Command } from 'commandpost';
 
 
 @TestFixture("Kernel tests")
-@FocusTests
 export class KernelTests {
     procMock: IMock<NodeJS.Process>;
     spMock: IMock<ISettingsProvider>;

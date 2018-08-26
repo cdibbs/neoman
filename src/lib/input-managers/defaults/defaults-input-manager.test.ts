@@ -22,8 +22,8 @@ export class DefaultsInputManagerTests {
     @TestCase(null)
     @TestCase(undefined)
     @AsyncTest("ask() when no questions, returns empty dict.")
-    async ask_whenNoQuestions_ReturnsEmpty() {
-        var answers = await this.im.ask({}, <RunOptions>{});
+    async ask_whenNoQuestions_ReturnsEmpty(cfg: any) {
+        var answers = await this.im.ask(cfg, <RunOptions>{});
         Assert(answers)
             .isEmpty();
     }

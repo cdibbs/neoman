@@ -6,8 +6,8 @@ import { mockMessagerFactory } from '../../../src/spec-lib';
 import { ISearchHandlerFactory } from './i-search-handler-factory';
 import { TemplateManager } from './template-manager';
 
-@TestFixture("Test Fixture Name")
-export class ClassNameTests {
+@TestFixture("Template Manager Tests")
+export class TemplateManagerTests {
     msgr: IUserMessager;
     inst: TemplateManager;
     settingsMock: IMock<ISettingsProvider>;

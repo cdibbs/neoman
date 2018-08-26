@@ -18,7 +18,7 @@ export class DefaultsInputManager extends BaseInputManager {
 
     async ask(config: IInputConfig, options: RunOptions): Promise<{ [key: string]: any }> {
         let dict = {};
-        if (!config.define)
+        if (!config || !config.define)
         {
             return dict;
         }

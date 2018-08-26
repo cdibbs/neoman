@@ -19,14 +19,15 @@ export class CommandFactory implements ICommandFactory {
 
     build<TOpts, TArgs>(type: Commands, tempDir: string, cmd: Command<TOpts, TArgs>): ICommand<any, any> {
         if (this.cmdDict.hasOwnProperty(type)) {
-            let c = this.cmdDict[type];
+            const c = this.cmdDict[type];
             c.tempDir = tempDir;
 
             // bind action to command.run
-            cmd.action(curry.oneOf3(c.run, c, cmd));
+            const boundFn = curry.oneOf3(c.run, c, cmd);
+            cmd.action(boundFn);
             return c;
         }
 
-        throw new Error(this.msg.i18n({type}).mf('Command not implemented: {type}.'));
+        throw new Error(this.msg.mf('Command not implemented: {type}.', {type}));
     }
 }

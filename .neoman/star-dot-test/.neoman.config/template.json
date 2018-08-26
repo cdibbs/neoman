@@ -1,0 +1,31 @@
+{
+    "#": [
+        "Contains a basic, scaffolded test as used by the Neoman project, itself."
+    ],
+    "name": "*.test",
+    "identity": "test",
+    "scope": "io.neoman",
+    "root": "src",
+
+    "input": {
+        "use": "argv",
+        "define": {
+            "classname": {
+                "options": { "argType": "positional", "position": 0 },
+                "prompt": "What's the name of the class to test?",
+                "default": "MyClass",
+                "transform": [
+                    "/([a-z])([A-Z])/$1-$2/g",
+                    { "lib": "toLowerCase" }
+                ]
+            }
+        }
+    },
+
+    "transform": [
+        "/ClassName/{{classname}}/g"
+    ],
+    "pathTransform": [
+        "/name/{{classname}}/g"
+    ]
+}
