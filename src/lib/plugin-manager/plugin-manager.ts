@@ -2,9 +2,10 @@ import { inject, injectable } from "inversify";
 import TYPES from "../di/types";
 import { IPackage, IUserMessager } from "../i";
 import { TemplateConfiguration } from "../transformers/models/configuration";
-import { ICapabilities } from "../user-extensibility";
+import { ICapabilities, ICapabilitiesHelper } from "../user-extensibility";
 import { IPluginManager } from "./i-plugin-manager";
 import { IConfigurations } from "../user-extensibility/template";
+import { CapabilitiesHelper } from "../extensibility/capabilities-helper";
 let NestedError = require('nested-error-stacks');
 let requireg = require('requireg');
 
@@ -50,10 +51,7 @@ export class PluginManager implements IPluginManager {
             this.plugins[key] = config;
         }
 
-        const cap: ICapabilities = {
-            version: this.pckgJson.version,
-            plugins: Object.keys(this.plugins)
-        };
+        const cap = new CapabilitiesHelper(this.pckgJson.version, Object.keys(this.plugins));
         for (let key in this.plugins) {
             await this.configurePlugin(this.plugins[key], cap);
         }
@@ -86,7 +84,7 @@ export class PluginManager implements IPluginManager {
         }
     }
 
-    protected async configurePlugin(plugin: TemplateConfiguration, cap: ICapabilities): Promise<void> {
+    protected async configurePlugin(plugin: TemplateConfiguration, cap: ICapabilitiesHelper): Promise<void> {
         try {
             await plugin.pluginInstance.configure(cap, plugin.pluginOptions);
         } catch(ex) {
