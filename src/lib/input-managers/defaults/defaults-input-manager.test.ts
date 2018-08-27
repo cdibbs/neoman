@@ -2,7 +2,7 @@ import { AsyncTest, Setup, TestCase } from "alsatian";
 import { Assert } from "alsatian-fluent-assertions";
 import { IMock, Mock } from "typemoq";
 import { RunOptions } from "../../models";
-import { IInputConfig, ITemplateTypedInput } from "../../user-extensibility";
+import { IInputConfig, ITemplateComplexInput } from "../../user-extensibility";
 import { DefaultsInputManager } from "./defaults-input-manager";
 import { IDefaultsAnswerer } from "./i-defaults-answerer";
 var NestedError = require('nested-error-stacks');
@@ -34,7 +34,7 @@ export class DefaultsInputManagerTests {
             define: {
                 one: "something",
                 two: "another thing",
-                three: <ITemplateTypedInput>{ default: 123}
+                three: <ITemplateComplexInput>{ default: 123}
             }
         };
         const vals = Object.keys(inputConfig.define).map(k => inputConfig.define[k]);

@@ -1,16 +1,18 @@
-import { AsyncTest, Setup, TestCase } from "alsatian";
+import { AsyncTest, Setup, TestCase, FocusTests } from "alsatian";
 import { Assert } from "alsatian-fluent-assertions";
 import { IMock, Mock } from "typemoq";
 import { RunOptions } from "../../models";
-import { IInputConfig, ITemplateTypedInput } from "../../user-extensibility";
+import { IInputConfig, ITemplateComplexInput } from "../../user-extensibility";
 import { ArgvInputManager } from "./argv-input-manager";
 var NestedError = require('nested-error-stacks');
 
+@FocusTests
 export class ArgvInputManagerTests {
     im: ArgvInputManager;
 
     @Setup
     public beforeEach() {
+        this.im = new ArgvInputManager();
     }
 
     @TestCase({})

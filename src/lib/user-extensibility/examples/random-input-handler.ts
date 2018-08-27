@@ -1,8 +1,10 @@
 import { ICapabilities } from "../i-capabilities";
 import { IInputHandler } from "../i-input-handler";
 import { IInputConfig } from "../template/i-input-config";
+import { INeedy } from "../i-needy";
+import { ICapabilitiesHelper } from "../i-capabilities-helper";
 
-function RandomInputHandler(capabilities: ICapabilities, config?: IInputConfig): { [key: string]: any} {
+function RandomInputHandler(capabilities: ICapabilitiesHelper, config?: IInputConfig): { [key: string]: any} {
     const answers = {};
     if (! config) {
         return answers;
@@ -28,4 +30,4 @@ namespace RandomInputHandler {
     };
 }
 
-export = RandomInputHandler as IInputHandler /* type safety */;
+export = <INeedy> <typeof RandomInputHandler> <IInputHandler> RandomInputHandler /* type safety */;

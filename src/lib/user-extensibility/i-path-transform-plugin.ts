@@ -1,17 +1,18 @@
-import { ISubjectDefinition } from "./template/i-subject-definition";
 import { ICapabilities } from "./i-capabilities";
 import { INeedy } from "./i-needy";
+import { ISubjectDefinition } from "./template/i-subject-definition";
+import { ICapabilitiesHelper } from "./i-capabilities-helper";
 
 export interface IPathTransformPlugin extends INeedy {
     /**
      * Method called shortly after instantiation with user-provided, plugin-defined options.
      * Called before any calls to transform(...).
-     * @param {ICapabilities} capabilities An object describing tool version, all available
-     *              plugins, etc.
+     * @param {ICapabilitiesHelper} capabilities An object describing tool version, all available
+     *              plugins, etc. Contains helper methods for checking compatibility.
      * @param {any} pluginOptions plugin-defined options. Provided in template.json with the
      *              key path '$.configurations.{some-config}.pluginConfig'
      */
-    configure(capabilities: ICapabilities, pluginOptions?: any): Promise<void>;
+    configure(capabilities: ICapabilitiesHelper, pluginOptions?: any): Promise<void>;
 
     /**
      * Method to perform transform of original content/path. Returns whole content, not only

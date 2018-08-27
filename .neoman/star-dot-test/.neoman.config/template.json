@@ -10,22 +10,35 @@
     "input": {
         "use": "argv",
         "define": {
-            "classname": {
+            "className": {
                 "options": { "argType": "positional", "position": 0 },
                 "prompt": "What's the name of the class to test?",
                 "default": "MyClass",
-                "transform": [
-                    "/([a-z])([A-Z])/$1-$2/g",
-                    { "lib": "toLowerCase" }
+                "validate": [
+                    {
+                        "match": "/[A-Za-z_][A-Za-z_0-9]*/",
+                        "fail": "Must be formatted like a valid TypeScript class name."
+                    }
                 ]
+            },
+            "classFileName": {
+                "deriveFrom": "className",
+                "transform": { 
+                    "match": "/([a-z])([A-Z])/",
+                    "replace": "$1-$2",
+                    "modify": {
+                        "$1": "toUpperCase",
+                        "$2": "toLowerCase"
+                    }
+                }
             }
         }
     },
 
     "transform": [
-        "/ClassName/{{classname}}/g"
+        "/ClassName/{{className}}/g"
     ],
     "pathTransform": [
-        "/name/{{classname}}/g"
+        "/name/{{classFileName}}/g"
     ]
 }
