@@ -34,7 +34,7 @@
             }
         }
     },
-
+    "files": [ "name.test.ts" ],
     "transform": [
         "/ClassName/{{className}}/g"
     ],

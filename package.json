@@ -45,6 +45,7 @@
     "@types/tmp": "0.0.33",
     "@types/underscore": "^1.8.8",
     "@types/ws": "^3.2.1",
+    "@types/xregexp": "^3.0.29",
     "alsatian": "^2.2.1",
     "alsatian-fluent-assertions": "^1.0.0-beta.5",
     "body-parser": "^1.18.2",
@@ -84,7 +85,8 @@
     "typemoq": "^2.1.0",
     "typescript": "^3.0.1",
     "underscore": "^1.9.0",
-    "ws": "^5.1.1"
+    "ws": "^5.1.1",
+    "xregexp": "^4.2.0"
   },
   "nyc": {
     "include": [

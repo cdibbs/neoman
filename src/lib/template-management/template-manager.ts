@@ -48,6 +48,7 @@ export class TemplateManager implements ITemplateManager {
         // The user emitter serves to collate the different sources, and the proxy
         // methods also grant more desirable behavior (error handling, returning all
         // results at the end, etc).
+        console.log(this.process, typeof this.process.cwd);
         const locations = {
             "*/.neoman.config/template.json": this.tmplDir,
             ".neoman/**/.neoman.config/template.json": this.process.cwd()

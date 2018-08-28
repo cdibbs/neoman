@@ -1,5 +1,5 @@
-import { ITemplateComplexInput, ITemplateScriptedInput } from "../../user-extensibility";
+import { TemplateInput } from "../../user-extensibility";
 
 export interface IDefaultsAnswerer {
-    getDefault(def: string | ITemplateComplexInput | ITemplateScriptedInput): any;
+    getDefault(def: TemplateInput): any;
 }

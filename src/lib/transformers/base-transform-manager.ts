@@ -1,5 +1,6 @@
 import { inject, injectable } from 'inversify';
 import * as _ from 'underscore';
+import XRegExp = require('xregexp');
 import TYPES from '../di/types';
 import { IFilePatterns, IHandlerService, ITemplate, IUserMessager } from '../i';
 import { RuleMatchResult } from '../models';
@@ -45,7 +46,7 @@ export class BaseTransformManager {
 
     async applyReplaceRegex(original: string, tdef: ITransform | IPathTransform, path: string): Promise<string>
     {
-        const pattern = new RegExp(<string>tdef.subject, tdef.regexFlags || "");
+        const pattern = XRegExp(<string>tdef.subject, tdef.regexFlags || "");
         if (typeof tdef.with === "string") {
             return original.replace(pattern, this.preprocess(tdef.with));
         } else {

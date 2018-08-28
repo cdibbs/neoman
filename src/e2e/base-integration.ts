@@ -105,9 +105,11 @@ import { mockMessagerFactory } from '../spec-lib';
 
         // Prevent overwriting real user home preferences by setting it to a temp dir...
         if (! process.env.USERPROFILE) {
-            cont.rebind<NodeJS.Process>(TYPES.Process).toDynamicValue(() => <any>{ env: { HOME: "/tmp" }, exit: process.exit });
+            cont.rebind<NodeJS.Process>(TYPES.Process)
+                .toDynamicValue(() => <any>{ env: { HOME: "/tmp" }, exit: process.exit, cwd: () => "/tmp" });
         } else {
-            cont.rebind<NodeJS.Process>(TYPES.Process).toDynamicValue(() => <any>{ env: { USERPROFILE: "C:\\temp\\" }, exit: process.exit });
+            cont.rebind<NodeJS.Process>(TYPES.Process)
+                .toDynamicValue(() => <any>{ env: { USERPROFILE: "C:\\temp\\" }, exit: process.exit, cwd: () => "/tmp" });
         }
 
         this.msgr = mockMessagerFactory({ echo: true });
