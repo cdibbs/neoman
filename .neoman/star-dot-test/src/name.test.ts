@@ -3,6 +3,7 @@ import { FocusTests, Setup, Test, TestFixture } from 'alsatian';
 import { Assert } from 'alsatian-fluent-assertions';
 import { IFileSystem, IPath, IUserMessager } from "../../../src/lib/i";
 import { mockMessagerFactory } from '../../../src/spec-lib';
+import { ClassName } from './dummy-class';
 
 @TestFixture("Test Fixture Name")
 export class ClassNameTests {
