@@ -17,7 +17,7 @@
                 "validate": [
                     {
                         "match": "/[A-Za-z_][A-Za-z_0-9]*/",
-                        "fail": "Must be formatted like a valid TypeScript class name."
+                        "fail": "Class name must be formatted like a valid TypeScript class name."
                     }
                 ]
             },
