@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import TYPES from '../../di/types';
 import { IUserMessager } from '../../i';
 import { RunOptions } from '../../models';
-import { IInputConfig, ITemplateComplexInput, ITemplateInputs, IHandlerReference } from '../../user-extensibility';
+import { IInputConfig, IInputDefs, InputDef } from '../../user-extensibility';
 import { curry } from '../../util/curry';
 import { BaseInputManager } from '../base-input-manager';
 
@@ -32,7 +32,7 @@ export class PromptInputManager extends BaseInputManager {
 
     protected promptWithCallback(
         key: string,
-        question: string | ITemplateComplexInput | IHandlerReference,
+        question: InputDef,
         callback: (data: any) => void,
         errorCallback: (e: Error) => void): void
     {
@@ -48,7 +48,7 @@ export class PromptInputManager extends BaseInputManager {
         }
     }
 
-    protected countQuestions(inputs: ITemplateInputs): number {
+    protected countQuestions(inputs: IInputDefs): number {
         if (inputs === null || inputs === undefined) {
             return 0;
         } else if (typeof inputs === "object") {

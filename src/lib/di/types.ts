@@ -40,7 +40,10 @@ let TYPES = {
     BIMWebSocketFactory: Symbol("BIMWebSocketFactory"),
     PluginManager: Symbol("PluginManager"),
     TemplatePreprocessor: Symbol("TemplatePreprocessor"),
-    SearchHandlerFactory: Symbol("SearchHandlerFactory")
+    SearchHandlerFactory: Symbol("SearchHandlerFactory"),
+    Regexer: Symbol("Regexer"),
+    SimpleTransformer: Symbol("SimpleTransformer"),
+    BuiltinTransforms: Symbol("BuiltinTransforms")
 }
 
 export default TYPES;

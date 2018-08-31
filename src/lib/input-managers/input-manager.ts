@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import TYPES from '../di/types';
 import { RunOptions } from '../models';
-import { ICustomInputInterface, IInputConfig } from '../user-extensibility';
+import { IInputConfig, IComplexInputDef, InputConfigType, InputInterfaceConfig } from '../user-extensibility';
 import { BaseInputManager } from './base-input-manager';
 import { IInputManager, IUserMessager } from '../i';
 var NestedError = require('nested-error-stacks');
@@ -28,7 +28,7 @@ export class InputManager extends BaseInputManager {
             return await this.defaultsMgr.ask(config, options);
         }
 
-        let use: ICustomInputInterface | string = config.use;        
+        let use: InputConfigType = config.use;        
         try {
 
             if (typeof config.use === "undefined") {
@@ -54,8 +54,8 @@ export class InputManager extends BaseInputManager {
         throw new Error(`Unrecognized input section format: ${use}.`);
     }
 
-    protected generateDefaults(use: string): ICustomInputInterface {
-        return <ICustomInputInterface>{
+    protected generateDefaults(use: string): InputInterfaceConfig {
+        return <InputInterfaceConfig>{
             type: use,
             handler: null,
             handlerConfig: null

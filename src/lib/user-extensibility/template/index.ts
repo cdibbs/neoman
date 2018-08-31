@@ -1,6 +1,6 @@
 export * from './i-configuration';
 export * from './i-configurations';
-export * from './i-input-config';
+export * from './input';
 export * from './i-path-transform';
 export * from './i-raw-template';
 export * from './i-strict-raw-template';

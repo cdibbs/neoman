@@ -7,7 +7,7 @@ import { cmdErrors } from './cmd-errors';
 @TestFixture("CmdErrors Dictionary Tests")
 export class CmdErrorsTests {
 
-    @TestCases(cpErrorGen())
+    @TestCases(allLibraryErrorReasons())
     @Test("should not throw for any commandpost errors.")
     public noErrorsEver(err: c.ErrorReason) {
         Assert(cmdErrors).hasProperty(err);
@@ -19,8 +19,8 @@ export class CmdErrorsTests {
     }
 }
 
-function* cpErrorGen(): IterableIterator<[c.ErrorReason]> {
-    for (let e in c.ErrorReason) {
-        yield [<c.ErrorReason>c.ErrorReason[e]];
-    }
+function allLibraryErrorReasons(): c.ErrorReason[][] {
+    return Object
+        .keys(c.ErrorReason)
+        .map(er => [c.ErrorReason[er]]);
 }

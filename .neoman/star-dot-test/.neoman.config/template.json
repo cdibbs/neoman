@@ -17,14 +17,14 @@
                 "validate": [
                     {
                         "match": "/[A-Za-z_][A-Za-z_0-9]*/",
-                        "fail": "Class name must be formatted like a valid TypeScript class name."
+                        "message": "Class name must be formatted like a valid TypeScript class name."
                     }
                 ]
             },
             "classFileName": {
                 "deriveFrom": "className",
                 "transform": { 
-                    "match": "/([a-z])([A-Z])/",
+                    "match": "/([a-z])([A-Z])/g",
                     "replace": "$1-$2",
                     "modify": {
                         "$1": "toUpperCase",

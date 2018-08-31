@@ -83,7 +83,7 @@ export class InputManagerTests {
     
     @AsyncTest("ask() assume custom when unknown type")
     async ask_assumeCustomWhenTypeUnknown() {
-        const ic = <IInputConfig> { use: { type: "custom", handler: "weird", handlerConfig: "" } };
+        const ic = <IInputConfig> { use: { type: "handler", handler: "weird", params: "" } };
         const testData = { whoa: 123 };
         this.cimMock.setup(m => m.ask(It.isAny(), It.isAny())).returns(async () => testData);
         const result = await this.im.ask(ic, null);

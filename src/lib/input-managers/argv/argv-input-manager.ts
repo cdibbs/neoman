@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { RunOptions } from '../../models';
-import { IInputConfig, ITemplateComplexInput, TemplateInput, IHandlerReference } from '../../user-extensibility';
+import { IInputConfig, IComplexInputDef, InputDef, IArgvOptions } from '../../user-extensibility';
 import { BaseInputManager } from '../base-input-manager';
 var NestedError = require('nested-error-stacks');
 
@@ -27,7 +27,7 @@ export class ArgvInputManager extends BaseInputManager {
         return dict;
     }
 
-    findAnswer(options: RunOptions, def: TemplateInput): any {
+    findAnswer(options: RunOptions, def: InputDef): any {
         if (! options.extraArgs || options.extraArgs.length === 0) {
             return "";
         }
@@ -36,10 +36,8 @@ export class ArgvInputManager extends BaseInputManager {
             return this.findAnswerSimple(options, <any>def);
         } else if (typeof def === "string") {
             return this.findAnswerSimple(options, def);
-        } else if (def && def["handler"]) {
-            return this.findAnswerHandler(options, <IHandlerReference> def);
         } else if (def && def["prompt"]) {
-            return this.findAnswerComplex(options, <ITemplateComplexInput> def);
+            return this.findAnswerComplex(options, <IComplexInputDef<IArgvOptions>> def);
         }
     }
 
@@ -47,11 +45,7 @@ export class ArgvInputManager extends BaseInputManager {
         
     }
 
-    protected findAnswerHandler(options: RunOptions, def: IHandlerReference) {
-
-    }
-
-    protected findAnswerComplex(options: RunOptions, def: ITemplateComplexInput) {
+    protected findAnswerComplex(options: RunOptions, def: IComplexInputDef<IArgvOptions>) {
 
     }
 }

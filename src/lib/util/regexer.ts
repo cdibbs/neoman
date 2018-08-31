@@ -1,10 +1,11 @@
 import XRegExp = require("xregexp");
 import { curry } from "./curry";
+import { IRegexer } from "./i-regexer";
 
 export type ReplacerModCallbackFn
     = (pi: string, match: string, pn: string[], offset: number, whole: string) => string;
 
-export class Regexer {
+export class Regexer implements IRegexer {
     constructor() {
 
     }

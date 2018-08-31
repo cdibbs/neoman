@@ -37,6 +37,11 @@ import { PluginManager } from '../plugin-manager/plugin-manager';
 import { TemplatePreprocessor } from '../template-management/template-preprocessor';
 import { ISearchHandlerFactory } from '../template-management/i-search-handler-factory';
 import { SearchHandlerFactory } from '../template-management/search-handler-factory';
+import { ISimpleTransformer, ToLocaleLowerCaseTransform, ToLocaleUpperCaseTransform, ToUpperCaseTransform, ToLowerCaseTransform } from '../input-managers/transforms/lib';
+import { IBuiltinTransforms } from '../input-managers/transforms/i-builtin-transforms';
+import { BuiltinTransforms } from '../input-managers/transforms/buildin-transforms';
+import { IRegexer } from '../util/i-regexer';
+import { Regexer } from '../util/regexer';
 
 
 export const containerBuilder = (packageJson: any = null, localesPath?: string): Container => {
@@ -75,6 +80,15 @@ export const containerBuilder = (packageJson: any = null, localesPath?: string):
     container.bind<IPluginManager>(TYPES.PluginManager).to(PluginManager);
     container.bind<ITemplatePreprocessor>(TYPES.TemplatePreprocessor).to(TemplatePreprocessor);
     container.bind<ISearchHandlerFactory>(TYPES.SearchHandlerFactory).to(SearchHandlerFactory);
+
+    container.bind<ISimpleTransformer>(TYPES.SimpleTransformer).to(ToLocaleLowerCaseTransform);
+    container.bind<ISimpleTransformer>(TYPES.SimpleTransformer).to(ToLocaleUpperCaseTransform);
+    container.bind<ISimpleTransformer>(TYPES.SimpleTransformer).to(ToUpperCaseTransform);
+    container.bind<ISimpleTransformer>(TYPES.SimpleTransformer).to(ToLowerCaseTransform);
+
+    container.bind<IBuiltinTransforms>(TYPES.BuiltinTransforms).to(BuiltinTransforms);
+    container.bind<IRegexer>(TYPES.Regexer).to(Regexer);
+
 
     let lobj = <typeof i18n>{};
     i18n.configure({

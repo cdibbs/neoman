@@ -2,7 +2,7 @@ import { AsyncTest, Setup, TestCase, FocusTests } from "alsatian";
 import { Assert } from "alsatian-fluent-assertions";
 import { IMock, Mock } from "typemoq";
 import { RunOptions } from "../../models";
-import { IInputConfig, ITemplateComplexInput } from "../../user-extensibility";
+import { IInputConfig } from "../../user-extensibility";
 import { ArgvInputManager } from "./argv-input-manager";
 var NestedError = require('nested-error-stacks');
 
