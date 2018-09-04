@@ -112,7 +112,6 @@ export const containerBuilder = (packageJson: any = null, localesPath?: string):
 
     container.bind<i.IPath>(TYPES.Path).toConstantValue(path);
     container.bind<i.IFileSystem>(TYPES.FS).toConstantValue(fs);
-    container.bind<i.IGlob>(TYPES.Glob).toConstantValue(glob);
     container.bind<IGlobFactory>(TYPES.GlobFactory).to(GlobFactory);
     return container;
 };

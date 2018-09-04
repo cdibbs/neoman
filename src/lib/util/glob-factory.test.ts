@@ -1,10 +1,15 @@
 import { GlobFactory } from "./glob-factory";
 import { Mock } from "typemoq";
-import { IOptions } from "glob";
+import { IOptions, Glob } from "glob";
 import { Assert } from "alsatian-fluent-assertions";
 import { Test } from "alsatian";
 
 export class GlobFactoryTests {
+    @Test()
+    build_usesGlob() {
+        const gf = new GlobFactory();
+        Assert(gf["globClass"]).deeplyEquals(Glob);
+    }
     
     @Test()
     build_returnsGlobInstance() {

@@ -1,21 +1,13 @@
-import { injectable, inject } from 'inversify';
-import * as fse from 'fs-extra';
-import * as minimatch from 'minimatch';
-
-import { Commands, COMMANDS } from '../commands';
-import { Verbosity, VERBOSITY } from '../../types/verbosity';
-import { RunOptions } from '../../models';
-import { BaseCommand } from '../base-command';
-import { IPath, IUserMessager, IGlob, IFileSystem, ITemplateFile, ITemplateRunner, IErrorReporter } from '../../i';
-import { IEventEmitter } from '../../emitters/i';
-import { TemplateFilesEmitterType, EventEmitter } from '../../emitters';
-import { INewCmdArgs, INewCmdOpts, ICommandValidator } from '../i';
-import TYPES from '../../di/types';
 import Command from 'commandpost/lib/command';
-import { curry } from '../../util/curry';
-import { CommandResult, CommandErrorType } from '../../models';
-import { ErrorReporter } from '../../error-reporter';
+import { inject, injectable } from 'inversify';
+import TYPES from '../../di/types';
+import { IErrorReporter, IPath, ITemplateRunner, IUserMessager } from '../../i';
+import { CommandResult, RunOptions } from '../../models';
 import { ITemplateManager } from '../../template-management';
+import { BaseCommand } from '../base-command';
+import { COMMANDS, Commands } from '../commands';
+import { ICommandValidator, INewCmdArgs, INewCmdOpts } from '../i';
+
 
 @injectable()
 export class NewCommand extends BaseCommand<INewCmdOpts, INewCmdArgs> {

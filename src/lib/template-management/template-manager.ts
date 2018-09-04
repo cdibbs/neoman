@@ -1,30 +1,37 @@
 import { inject, injectable } from 'inversify';
 import TYPES from '../di/types';
 import { EventEmitter, TemplateSearchEmitterType } from '../emitters';
-import { IFileSystem, IGlob, IPath, ISettingsProvider, IUserMessager, ITemplate } from '../i';
+import { IReadOnlyEventEmitter } from '../emitters/i';
+import { ISettingsProvider, ITemplate, IUserMessager } from '../i';
 import KEYS from '../settings-keys';
 import { curry } from '../util/curry';
-import { ITemplateManager } from './i-template-manager';
-import { ITemplatePreprocessor } from './i-template-preprocessor';
-import { TemplateManagerError } from './template-manager-error';
+import { IGlobFactory } from '../util/i-glob-factory';
 import { ISearchHandlerFactory } from './i-search-handler-factory';
+import { ITemplateManager } from './i-template-manager';
+import { TemplateManagerError } from './template-manager-error';
+import { ISearchHandler } from './i-search-handler';
 
 @injectable()
 export class TemplateManager implements ITemplateManager {
-    private tmplDir: string;
+    protected searchLocations: { [key: string]: string};
+    protected tmplDir: string;
 
     constructor(
         @inject(TYPES.SettingsProvider) protected settings: ISettingsProvider,
         @inject(TYPES.UserMessager) protected msg: IUserMessager,
         @inject(TYPES.Process) private process: NodeJS.Process,
-        @inject(TYPES.Glob) private glob: IGlob,
+        @inject(TYPES.GlobFactory) private globFactory: IGlobFactory,
         @inject(TYPES.SearchHandlerFactory) private searchHandlerFactory: ISearchHandlerFactory
     ) {
         this.tmplDir = this.settings.get(KEYS.tempDirKey);
+        this.searchLocations = {
+            "*/.neoman.config/template.json": this.tmplDir, // global
+            ".neoman/**/.neoman.config/template.json": this.process.cwd() // project/local
+        };
     }
 
 
-    // Essentially, this maps a glob-match emitter to an ITemplate emitter
+    // Maps a glob-match emitter to an ITemplate emitter.
     /**
      * Builds an emitter to list templates in the template directory.
      * @param end A function accepting an ITemplate[] array to pre-bind to the returned emitter's "end" event.
@@ -35,32 +42,54 @@ export class TemplateManager implements ITemplateManager {
         end?: (templates: ITemplate[]) => void,
         error?: (terror: TemplateManagerError) => void,
         match?: (tmpl: ITemplate) => void
-    ): EventEmitter<TemplateSearchEmitterType> {
+    ): IReadOnlyEventEmitter<TemplateSearchEmitterType> {
         const templates: ITemplate[] = [];
-        const userEmitter = new EventEmitter<TemplateSearchEmitterType>();
-        // on glob match, the following adds an ITemplate to templates for later return at "end" event:
-        userEmitter.on("match", curry.oneOf2(this.listMatch, this, templates));
-        userEmitter.on("match", match);
-        userEmitter.on("end", end);
-        userEmitter.on("error", error);
+        const defaultEmitter = new EventEmitter<TemplateSearchEmitterType>();
+        defaultEmitter.on("match", curry.oneOf2(this.addToTemplateCollection, this, templates));
+        this.setupUserInitialEmitters(defaultEmitter, end, error, match);
 
-        // Setup proxy emitters between the template repo globs and the userEmitter.
-        // The user emitter serves to collate the different sources, and the proxy
-        // methods also grant more desirable behavior (error handling, returning all
-        // results at the end, etc).
-        console.log(this.process, typeof this.process.cwd);
-        const locations = {
-            "*/.neoman.config/template.json": this.tmplDir,
-            ".neoman/**/.neoman.config/template.json": this.process.cwd()
-        };
-        const searchHandler = this.searchHandlerFactory.build(locations);
-        for (const path in locations) {
-            const search = new this.glob.Glob(path, { cwd: locations[path] });
-            search.on("match", curry.twoOf3(searchHandler.templateMatch, searchHandler, userEmitter, locations[path]));
-            search.on("end", curry.threeOf4(searchHandler.endList, searchHandler, templates, userEmitter, path));
+        // FS Glob callbacks translate to ITemplate emitters. The flow looks like:
+        //   fs glob emitters -> glob callbacks (below) -> ITemplate emitters (above) -> user land callbacks.
+        // The ITemplate emitters serve to collate the results from different ITemplate
+        // locations. They also extend the available emitters to facilitate error handling,
+        // and fetching all results at the end.
+        const searchHandler = this.searchHandlerFactory.build(this.searchLocations);
+        for (const path in this.searchLocations) {
+            this.setupSearchGlob(path, this.searchLocations, searchHandler, defaultEmitter, templates);
         }
 
-        return userEmitter;
+        return defaultEmitter;
+    }
+
+    protected setupSearchGlob(
+            path: string,
+            locations: { [key: string]: string },
+            searchHandler: ISearchHandler,
+            defaultEmitter: EventEmitter<TemplateSearchEmitterType>,
+            templates: ITemplate[]
+    ): void {
+        const search = this.globFactory.build(path, { cwd: locations[path] });
+        search.on("match", curry.twoOf3(searchHandler.templateMatch, searchHandler, defaultEmitter, locations[path]));
+        search.on("end", curry.threeOf4(searchHandler.endList, searchHandler, templates, defaultEmitter, path));
+    }
+
+    protected setupUserInitialEmitters(
+        defaultEmitter: EventEmitter<TemplateSearchEmitterType>,
+        end?: (templates: ITemplate[]) => void,
+        error?: (terror: TemplateManagerError) => void,
+        match?: (tmpl: ITemplate) => void
+    ): void {
+        if (match && match instanceof Function) {
+            defaultEmitter.on("match", match);
+        }
+        
+        if (end && end instanceof Function) {
+            defaultEmitter.on("end", end);
+        }
+
+        if (error && error instanceof Function) {
+            defaultEmitter.on("error", error);
+        }
     }
 
     /**
@@ -93,9 +122,8 @@ export class TemplateManager implements ITemplateManager {
         }
     }
 
-    private listMatch(templatesRef: ITemplate[], tmpl: ITemplate): void {
+    /** Add to internal collection in order to return all results, at the end */
+    private addToTemplateCollection(templatesRef: ITemplate[], tmpl: ITemplate): void {
         templatesRef.push(tmpl);
     }
-
-
 }
