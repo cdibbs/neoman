@@ -79,15 +79,15 @@ export class TemplateManager implements ITemplateManager {
         error?: (terror: TemplateManagerError) => void,
         match?: (tmpl: ITemplate) => void
     ): void {
-        if (match && match instanceof Function) {
+        if (match instanceof Function) {
             defaultEmitter.on("match", match);
         }
         
-        if (end && end instanceof Function) {
+        if (end instanceof Function) {
             defaultEmitter.on("end", end);
         }
 
-        if (error && error instanceof Function) {
+        if (error instanceof Function) {
             defaultEmitter.on("error", error);
         }
     }

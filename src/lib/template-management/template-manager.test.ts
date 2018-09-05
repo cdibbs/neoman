@@ -84,12 +84,29 @@ export class TemplateManagerTests {
 
     @Test()
     _setupSearchGlob_correctlyBindsParams() {
-        
+        const path = "/tmp/mypath";
+        const ps = {};
+        ps[path] = "something";
+        const gm = Mock.ofType<IGlob>();
+        this.globFactoryMock
+            .setup(m => m.build(It.isAnyString(), It.isAny()))
+            .returns(_ => gm.object);
+        const shm = Mock.ofType<ISearchHandler>();
+        const dem = new EventEmitter<TemplateSearchEmitterType>();
+        const tmpl = <any>["mytemplates"];
+        this.inst["setupSearchGlob"](path, ps, shm.object, dem, tmpl);
+
+        this.globFactoryMock
+            .verify(m => m.build(path, { cwd: ps[path] }), Times.once());
+        gm.verify(m => m.on("match", It.is(sh => { sh("bogus"); return true; })), Times.once());
+        gm.verify(m => m.on("end", It.is(sh => { sh(); return true; })), Times.once());
+        shm.verify(m => m.templateMatch(dem, ps[path], "bogus"), Times.once());
+        shm.verify(m => m.endList(tmpl, dem, path), Times.once());
     }
 
     @AsyncTest()
     async list_collatesSources_sendsToMatch() {
-
+        
     }
 
     @AsyncTest()
