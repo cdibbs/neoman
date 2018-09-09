@@ -71,5 +71,6 @@
 	"Force things you maybe shouldn't force.": "Force things you maybe shouldn't force.",
 	"Unrecognized input section format.": "Unrecognized input section format.",
 	"Question definition for key '{key}' erroneous or not supported, yet.": "Question definition for key '{key}' erroneous or not supported, yet.",
-	"Error calling .configure(capabilities, pluginOptions) on '{pluginName}' instance.": "Error calling .configure(capabilities, pluginOptions) on '{pluginName}' instance."
+	"Error calling .configure(capabilities, pluginOptions) on '{pluginName}' instance.": "Error calling .configure(capabilities, pluginOptions) on '{pluginName}' instance.",
+	"Element 'root' (JsonPath: $.root) within template.json must be a string.": "Element 'root' (JsonPath: $.root) within template.json must be a string."
 }

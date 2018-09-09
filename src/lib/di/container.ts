@@ -42,6 +42,8 @@ import { IBuiltinTransforms } from '../input-managers/transforms/i-builtin-trans
 import { BuiltinTransforms } from '../input-managers/transforms/buildin-transforms';
 import { IRegexer } from '../util/i-regexer';
 import { Regexer } from '../util/regexer';
+import { ITemplatePathUtil } from '../template-management/i-template-path-util';
+import { TemplatePathUtil } from '../template-management/template-path-util';
 
 
 export const containerBuilder = (packageJson: any = null, localesPath?: string): Container => {
@@ -80,6 +82,7 @@ export const containerBuilder = (packageJson: any = null, localesPath?: string):
     container.bind<IPluginManager>(TYPES.PluginManager).to(PluginManager);
     container.bind<ITemplatePreprocessor>(TYPES.TemplatePreprocessor).to(TemplatePreprocessor);
     container.bind<ISearchHandlerFactory>(TYPES.SearchHandlerFactory).to(SearchHandlerFactory);
+    container.bind<ITemplatePathUtil>(TYPES.TemplatePathUtil).to(TemplatePathUtil);
 
     container.bind<ISimpleTransformer>(TYPES.SimpleTransformer).to(ToLocaleLowerCaseTransform);
     container.bind<ISimpleTransformer>(TYPES.SimpleTransformer).to(ToLocaleUpperCaseTransform);

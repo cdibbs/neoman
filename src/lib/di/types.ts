@@ -43,7 +43,8 @@ let TYPES = {
     SearchHandlerFactory: Symbol("SearchHandlerFactory"),
     Regexer: Symbol("Regexer"),
     SimpleTransformer: Symbol("SimpleTransformer"),
-    BuiltinTransforms: Symbol("BuiltinTransforms")
+    BuiltinTransforms: Symbol("BuiltinTransforms"),
+    TemplatePathUtil: Symbol("TemplatePathUtil")
 }
 
 export default TYPES;

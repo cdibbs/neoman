@@ -11,6 +11,7 @@ import { CommandErrorType, CommandValidationResult } from "../../models";
 import { ITemplateManager } from '../../template-management';
 import { ICommandValidator } from '../i';
 import { ListCommand } from './list-command';
+import { TemplateManagerError } from '../../template-management/template-manager-error';
 
 
 @TestFixture("List command tests")
@@ -80,7 +81,7 @@ export class ListCommandTests {
     @Test()
     public error_OutputsAndRejects(): void {
         const rejectMock = TypeMoq.Mock.ofInstance((e: any) => {});
-        const terr = { file: "something.json", error: new Error("hmm") };
+        const terr = new TemplateManagerError(new Error("hmm"), "something.json");
         this.c.error(rejectMock.object, terr);
         this.consoleMock.verify(
             x => x.error(It.is(s => /Error reading template definition file: something\.json/.test(s))),

@@ -29,6 +29,13 @@ export interface IStrictRawTemplate extends ITemplateComments {
      */
     scope?: string;
 
+    /**
+     * The path of the template's source content relative to the template root
+     * (which is the parent directory of .neoman.config/). If omitted, defaults
+     * to the template root, itself.
+     */
+    root?: string;
+
     description?: string;
     author?: string;
     classifications?: string[];

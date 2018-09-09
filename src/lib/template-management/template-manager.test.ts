@@ -14,6 +14,7 @@ import { SearchHandler } from './search-handler';
 import { SearchHandlerFactory } from './search-handler-factory';
 import { ITemplatePreprocessor } from './i-template-preprocessor';
 import { IGlob } from 'glob';
+import { ITemplatePathUtil } from './i-template-path-util';
 
 @TestFixture("Template Manager Tests")
 @FocusTests
@@ -22,7 +23,7 @@ export class TemplateManagerTests {
     inst: TemplateManager;
     settingsMock: IMock<ISettingsProvider>;
     fsMock: IMock<IFileSystem>;
-    pathMock: IMock<IPath>;
+    pathUtilMock: IMock<ITemplatePathUtil>;
     procMock: IMock<NodeJS.Process>;
     globFactoryMock: IMock<IGlobFactory>;
     tmplPrepMock: IMock<ITemplatePreprocessor>;
@@ -34,12 +35,12 @@ export class TemplateManagerTests {
         this.msgr = mockMessagerFactory({out: out});
         this.settingsMock = Mock.ofType<ISettingsProvider>();
         this.fsMock = Mock.ofType<IFileSystem>();
-        this.pathMock = Mock.ofType<IPath>();
+        this.pathUtilMock = Mock.ofType<ITemplatePathUtil>();
         this.procMock = Mock.ofType<NodeJS.Process>();
         this.globFactoryMock = Mock.ofType<IGlobFactory>();
         this.tmplPrepMock = Mock.ofType<ITemplatePreprocessor>();
         this.searchHandlerFactory = new SearchHandlerFactory(this.msgr,
-            this.fsMock.object, this.pathMock.object, this.tmplPrepMock.object);
+            this.fsMock.object, this.pathUtilMock.object, this.tmplPrepMock.object);
         this.inst = new TemplateManager(this.settingsMock.object, this.msgr,
             this.procMock.object,
             this.globFactoryMock.object, this.searchHandlerFactory);

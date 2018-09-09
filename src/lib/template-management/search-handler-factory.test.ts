@@ -7,12 +7,13 @@ import { mockMessagerFactory } from '../../../src/spec-lib';
 import { MockConstructor } from '../../spec-lib/mock-constructor';
 import { ITemplatePreprocessor } from './i-template-preprocessor';
 import { SearchHandlerFactory } from './search-handler-factory';
+import { ITemplatePathUtil } from './i-template-path-util';
 
 @TestFixture("SearchHandlerFactory Tests")
 export class SearchHandlerFactoryTests {
     msgr: IUserMessager;
     fsMock: IMock<IFileSystem>;
-    pathMock: IMock<IPath>;
+    pathUtilMock: IMock<ITemplatePathUtil>;
     tmplPrepMock: IMock<ITemplatePreprocessor>;
     inst: SearchHandlerFactory;
 
@@ -21,9 +22,9 @@ export class SearchHandlerFactoryTests {
         const out = { mockConsole: <any>null };
         this.msgr = mockMessagerFactory({out: out});
         this.fsMock = Mock.ofType<IFileSystem>();
-        this.pathMock = Mock.ofType<IPath>();
+        this.pathUtilMock = Mock.ofType<ITemplatePathUtil>();
         this.tmplPrepMock = Mock.ofType<ITemplatePreprocessor>();
-        this.inst = new SearchHandlerFactory(this.msgr, this.fsMock.object, this.pathMock.object, this.tmplPrepMock.object);
+        this.inst = new SearchHandlerFactory(this.msgr, this.fsMock.object, this.pathUtilMock.object, this.tmplPrepMock.object);
         this.inst["hndClass"] = <any>MockConstructor;
     }
 
@@ -37,7 +38,7 @@ export class SearchHandlerFactoryTests {
             .has({
                 cargs: [
                     this.msgr,
-                    this.pathMock.object,
+                    this.pathUtilMock.object,
                     this.fsMock.object,
                     this.tmplPrepMock.object,
                     testLocs

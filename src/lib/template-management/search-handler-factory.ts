@@ -5,6 +5,7 @@ import { ITemplatePreprocessor } from ".";
 import { SearchHandler } from "./search-handler";
 import { ISearchHandlerFactory } from "./i-search-handler-factory";
 import { ISearchHandler } from "./i-search-handler";
+import { ITemplatePathUtil } from "./i-template-path-util";
 
 @injectable()
 export class SearchHandlerFactory implements ISearchHandlerFactory {
@@ -12,13 +13,13 @@ export class SearchHandlerFactory implements ISearchHandlerFactory {
     constructor(
         @inject(TYPES.UserMessager) protected msg: IUserMessager,
         @inject(TYPES.FS) private fs: IFileSystem,
-        @inject(TYPES.Path) private path: IPath,
+        @inject(TYPES.TemplatePathUtil) private pathUtil: ITemplatePathUtil,
         @inject(TYPES.TemplatePreprocessor) private tmplPrep: ITemplatePreprocessor
     ) {
 
     }
 
     build(locations: { [key: string]: string }): ISearchHandler {
-        return new this.hndClass(this.msg, this.path, this.fs, this.tmplPrep, locations);
+        return new this.hndClass(this.msg, this.pathUtil, this.fs, this.tmplPrep, locations);
     }
 }
