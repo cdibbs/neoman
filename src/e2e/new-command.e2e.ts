@@ -1,6 +1,6 @@
 import path = require('path');
 import fs = require('fs');
-import { AsyncTest, TestCase, TestFixture } from 'alsatian';
+import { AsyncTest, TestCase, TestFixture, TestCases, Expect } from 'alsatian';
 import { Assert } from 'alsatian-fluent-assertions';
 import 'reflect-metadata';
 import { BaseIntegrationTest } from './base-integration';
@@ -40,6 +40,7 @@ import { BaseIntegrationTest } from './base-integration';
         var tmpDir = await this.makeTmpDir();
         await this.run(["node", "neoman", "new", "rootdemo", "--path", tmpDir, "--defaults"]);
 
+        await new Promise((res, rej) => setTimeout(res, 25));
         Assert(fs.existsSync(path.join(tmpDir, "index20170709.html"))).equals(true);
         Assert(fs.existsSync(path.join(tmpDir, "package.json"))).equals(true);
     }

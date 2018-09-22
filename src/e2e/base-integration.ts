@@ -62,7 +62,7 @@ import { mockMessagerFactory } from '../spec-lib';
                 .then(() => {
                     // rebuild after settings in place.
                     cont = this.buildIntegTestContainer();
-                    this.app = cont.get<IKernel>(TYPES.Kernel)
+                    this.app = cont.get<IKernel>(TYPES.Kernel);
                 })
                 .catch(this.assertNoErrors.bind(this));
     }
