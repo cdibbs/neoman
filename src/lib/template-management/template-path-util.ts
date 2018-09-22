@@ -1,11 +1,14 @@
 import { IPath, IFileSystem, IUserMessager } from "../i";
 import { ITemplatePathUtil } from "./i-template-path-util";
+import { injectable, inject } from "inversify";
+import TYPES from "../di/types";
 
+@injectable()
 export class TemplatePathUtil implements ITemplatePathUtil {
     constructor(
-        protected msg: IUserMessager,
-        protected path: IPath,
-        protected fs: IFileSystem,
+        @inject(TYPES.UserMessager) protected msg: IUserMessager,
+        @inject(TYPES.Path) protected path: IPath,
+        @inject(TYPES.FS) protected fs: IFileSystem,
     ) {
 
     }
