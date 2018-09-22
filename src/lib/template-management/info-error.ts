@@ -1,5 +1,7 @@
 export class InfoError {
-    err: Error;
-    type: "404" | "500"; // :-)
-    message: string;
+    constructor(
+        public type: 404 | 500, // :-)
+        public message: string,
+        public err?: Error
+        ){}
 }

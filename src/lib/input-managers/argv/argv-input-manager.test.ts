@@ -6,7 +6,6 @@ import { IInputConfig } from "../../user-extensibility";
 import { ArgvInputManager } from "./argv-input-manager";
 var NestedError = require('nested-error-stacks');
 
-@FocusTests
 export class ArgvInputManagerTests {
     im: ArgvInputManager;
 

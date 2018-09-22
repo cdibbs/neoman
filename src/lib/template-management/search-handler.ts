@@ -13,15 +13,16 @@ export class SearchHandler implements ISearchHandler {
         protected pathUtil: ITemplatePathUtil,
         protected fs: IFileSystem,
         protected tmplPrep: ITemplatePreprocessor,
+        protected templatesRef: ITemplate[],
         protected locations: { [key: string]: string }
     ) {
         this.completedSearches = {};
     }
 
-    public endList(templatesRef: ITemplate[], emitter: EventEmitter<TemplateSearchEmitterType>, path: string): void {        
+    public endList(emitter: EventEmitter<TemplateSearchEmitterType>, path: string): void {        
         this.completedSearches[path] = true;
         if (Object.keys(this.locations).every(k => this.completedSearches[k])) {
-            emitter.emit('end', templatesRef);
+            emitter.emit('end', this.templatesRef);
         }
     }
 
@@ -35,6 +36,7 @@ export class SearchHandler implements ISearchHandler {
             tmpl.__tmplPath = this.pathUtil.determineConfiguredRoot(tmplAbsRoot, tmpl.root);
             tmpl.__tmplConfigPath = tmplAbsRoot;
             tmpl.__tmplRepo = tmplDir;
+            this.templatesRef.push(tmpl);
             emitter.emit("match", tmpl);
         } catch (ex) {
             emitter.emit("error", new TemplateManagerError(ex, fullPath));

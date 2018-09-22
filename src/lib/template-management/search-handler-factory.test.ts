@@ -31,7 +31,8 @@ export class SearchHandlerFactoryTests {
     @Test()
     build_returnsInstanceWithCorrectParams() {
         const testLocs = { "one": "one", "two": "two" }
-        const result: MockConstructor = <any>this.inst.build(testLocs);
+        const tmpl: ITemplate[] = <any>["something"];
+        const result: MockConstructor = <any>this.inst.build(testLocs, tmpl);
         Assert(result)
             .isDefined()
             .not.isNull()
@@ -41,6 +42,7 @@ export class SearchHandlerFactoryTests {
                     this.pathUtilMock.object,
                     this.fsMock.object,
                     this.tmplPrepMock.object,
+                    tmpl,
                     testLocs
                 ]
             });            

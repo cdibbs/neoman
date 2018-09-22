@@ -1,5 +1,5 @@
-import { TemplateInput } from "../../user-extensibility";
+import { InputDef } from "../../user-extensibility/";
 
 export interface IDefaultsAnswerer {
-    getDefault(def: TemplateInput): any;
+    getDefault(def: InputDef): any;
 }

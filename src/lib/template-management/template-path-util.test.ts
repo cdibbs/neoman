@@ -5,7 +5,6 @@ import { mockMessagerFactory } from '../../../src/spec-lib';
 import { IFileSystem, IPath, IUserMessager } from "../i";
 import { TemplatePathUtil } from "./template-path-util";
 
-@FocusTests
 @TestFixture("Template Path Utility Tests")
 export class TemplatePathUtilTests {
     inst: TemplatePathUtil;

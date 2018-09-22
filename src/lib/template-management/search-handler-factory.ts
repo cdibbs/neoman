@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import TYPES from "../di/types";
-import { IUserMessager, IFileSystem, IPath } from "../i";
+import { IUserMessager, IFileSystem, IPath, ITemplate } from "../i";
 import { ITemplatePreprocessor } from ".";
 import { SearchHandler } from "./search-handler";
 import { ISearchHandlerFactory } from "./i-search-handler-factory";
@@ -19,7 +19,7 @@ export class SearchHandlerFactory implements ISearchHandlerFactory {
 
     }
 
-    build(locations: { [key: string]: string }): ISearchHandler {
-        return new this.hndClass(this.msg, this.pathUtil, this.fs, this.tmplPrep, locations);
+    build(locations: { [key: string]: string }, templatesRef: ITemplate[]): ISearchHandler {
+        return new this.hndClass(this.msg, this.pathUtil, this.fs, this.tmplPrep, templatesRef, locations);
     }
 }

@@ -1,6 +1,5 @@
 import { ICapabilitiesHelper } from "./i-capabilities-helper";
-import { INeedy } from "./i-needy";
-import { IInputConfig } from "./template/i-input-config";
+import { IInputConfig } from "./template";
 
 export interface IInputHandler {
     /**

@@ -2,7 +2,7 @@ import { Transforms } from "./transforms";
 import { PathTransforms } from "./path-transforms";
 import { IConfigurations } from "./i-configurations";
 import { ITemplateComments } from "./i-template-comments";
-import { IInputConfig } from "./i-input-config";
+import { IInputConfig } from "./input";
 
 /**
  * The strict template.json format which excludes the possibility

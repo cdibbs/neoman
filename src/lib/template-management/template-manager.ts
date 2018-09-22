@@ -10,6 +10,7 @@ import { ISearchHandlerFactory } from './i-search-handler-factory';
 import { ITemplateManager } from './i-template-manager';
 import { TemplateManagerError } from './template-manager-error';
 import { ISearchHandler } from './i-search-handler';
+import { InfoError } from './info-error';
 
 @injectable()
 export class TemplateManager implements ITemplateManager {
@@ -45,7 +46,7 @@ export class TemplateManager implements ITemplateManager {
     ): IReadOnlyEventEmitter<TemplateSearchEmitterType> {
         const templates: ITemplate[] = [];
         const defaultEmitter = new EventEmitter<TemplateSearchEmitterType>();
-        defaultEmitter.on("match", curry.oneOf2(this.addToTemplateCollection, this, templates));
+        //defaultEmitter.on("match", curry.oneOf2(this.addToTemplateCollection, this, templates));
         this.setupUserInitialEmitters(defaultEmitter, end, error, match);
 
         // FS Glob callbacks translate to ITemplate emitters. The flow looks like:
@@ -53,7 +54,7 @@ export class TemplateManager implements ITemplateManager {
         // The ITemplate emitters serve to collate the results from different ITemplate
         // locations. They also extend the available emitters to facilitate error handling,
         // and fetching all results at the end.
-        const searchHandler = this.searchHandlerFactory.build(this.searchLocations);
+        const searchHandler = this.searchHandlerFactory.build(this.searchLocations, templates);
         for (const path in this.searchLocations) {
             this.setupSearchGlob(path, this.searchLocations, searchHandler, defaultEmitter, templates);
         }
@@ -70,7 +71,7 @@ export class TemplateManager implements ITemplateManager {
     ): void {
         const search = this.globFactory.build(path, { cwd: locations[path] });
         search.on("match", curry.twoOf3(searchHandler.templateMatch, searchHandler, defaultEmitter, locations[path]));
-        search.on("end", curry.threeOf4(searchHandler.endList, searchHandler, templates, defaultEmitter, path));
+        search.on("end", curry.twoOf3(searchHandler.endList, searchHandler, defaultEmitter, path));
     }
 
     protected setupUserInitialEmitters(
@@ -98,14 +99,26 @@ export class TemplateManager implements ITemplateManager {
      */
     async info(tmplId: string): Promise<ITemplate> {
         return new Promise<ITemplate>((resolve, reject) => {
-            let emitter = this.list();
-            emitter.on('end', curry.threeOf4(this.infoFound, this, resolve, reject, tmplId));
-            emitter.on('error', curry.oneOf2(this.infoError, this, reject));
+            try {
+                let emitter = this.list();
+                emitter.on('end', curry.threeOf4(this.infoFound, this, resolve, reject, tmplId));
+                emitter.on('error', curry.twoOf3(this.infoError, this, reject, tmplId));
+            } catch (err) {
+                const infoError = new InfoError(
+                    500,
+                    this.msg.mf('Unknown error searching for templateId "{tmplId}".', {tmplId}),
+                    err);
+                reject(infoError);
+            }
         });
     }
 
-    private infoError(reject: (reason?: any) => void, error: any): void {
-        reject(error);
+    private infoError(reject: (reason?: any) => void, tmplId: string, error: any): void {
+        const infoError = new InfoError(
+            500,
+            this.msg.mf('Error searching for templateId "{tmplId}".', {tmplId}),
+            error);
+        reject(infoError);
     }
 
     private infoFound(
@@ -116,14 +129,10 @@ export class TemplateManager implements ITemplateManager {
     {
         let result: ITemplate = list.find(tmpl => tmpl.identity === tmplId);
         if (typeof result === "undefined") {
-            reject(this.msg.mf('Template with templateId "{tmplId}" was not found.', {tmplId}));
+            const infoError = new InfoError(404, this.msg.mf('Template with templateId "{tmplId}" was not found.', {tmplId}));
+            reject(infoError);
         } else {
             resolve(result);
         }
-    }
-
-    /** Add to internal collection in order to return all results, at the end */
-    private addToTemplateCollection(templatesRef: ITemplate[], tmpl: ITemplate): void {
-        templatesRef.push(tmpl);
     }
 }

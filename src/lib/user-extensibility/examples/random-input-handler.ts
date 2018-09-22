@@ -1,8 +1,8 @@
 import { ICapabilities } from "../i-capabilities";
-import { IInputHandler } from "../i-input-handler";
-import { IInputConfig } from "../template/i-input-config";
-import { INeedy } from "../i-needy";
 import { ICapabilitiesHelper } from "../i-capabilities-helper";
+import { IInputHandler } from "../i-input-handler";
+import { INeedy } from "../i-needy";
+import { IInputConfig } from "../template/input/i-input-config";
 
 function RandomInputHandler(capabilities: ICapabilitiesHelper, config?: IInputConfig): { [key: string]: any} {
     const answers = {};

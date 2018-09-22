@@ -72,5 +72,8 @@
 	"Unrecognized input section format.": "Unrecognized input section format.",
 	"Question definition for key '{key}' erroneous or not supported, yet.": "Question definition for key '{key}' erroneous or not supported, yet.",
 	"Error calling .configure(capabilities, pluginOptions) on '{pluginName}' instance.": "Error calling .configure(capabilities, pluginOptions) on '{pluginName}' instance.",
-	"Element 'root' (JsonPath: $.root) within template.json must be a string.": "Element 'root' (JsonPath: $.root) within template.json must be a string."
+	"Element 'root' (JsonPath: $.root) within template.json must be a string.": "Element 'root' (JsonPath: $.root) within template.json must be a string.",
+	"Template with templateId \"{tmplId}\" was not found.": "Template with templateId \"{tmplId}\" was not found.",
+	"Unknown error searching for templateId \"{tmplId}\".": "Unknown error searching for templateId \"{tmplId}\".",
+	"Error searching for templateId \"{tmplId}\".": "Error searching for templateId \"{tmplId}\"."
 }
